@@ -1,0 +1,53 @@
+<view class="medicine-ai-page">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="retryLoad"
+  />
+
+  <view wx:else class="content">
+    <view class="panel">
+      <view class="panel-title">药品信息</view>
+      <view class="row"><text class="label">名称：</text><text class="value">{{medicineInfo.name || '-'}}</text></view>
+      <view class="row"><text class="label">规格：</text><text class="value">{{medicineInfo.specification || '-'}}</text></view>
+      <view class="row"><text class="label">剂型：</text><text class="value">{{medicineInfo.dosageForm || '-'}}</text></view>
+      <view class="row"><text class="label">模型：</text><text class="value">{{aiResult.model || '-'}}</text></view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-title">{{texts.similarTitle}}</view>
+      <view class="tag-list">
+        <view class="tag-item" wx:for="{{aiResult.similarMedicines}}" wx:key="index">{{item}}</view>
+        <view wx:if="{{!aiResult.similarMedicines.length}}" class="empty">暂无建议</view>
+      </view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-title">{{texts.precautionsTitle}}</view>
+      <view class="list-item" wx:for="{{aiResult.precautions}}" wx:key="index">{{index + 1}}. {{item}}</view>
+      <view wx:if="{{!aiResult.precautions.length}}" class="empty">暂无建议</view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-title">{{texts.riskTitle}}</view>
+      <view class="list-item" wx:for="{{aiResult.riskTips}}" wx:key="index">{{index + 1}}. {{item}}</view>
+      <view wx:if="{{!aiResult.riskTips.length}}" class="empty">暂无建议</view>
+    </view>
+
+    <view class="actions">
+      <t-button theme="primary" loading="{{generating}}" bindtap="generateSuggestion">{{texts.generate}}</t-button>
+      <t-button theme="default" variant="outline" bindtap="copyAllSuggestion">{{texts.copyAll}}</t-button>
+      <t-button theme="default" bindtap="continueInChat">{{texts.useInChat}}</t-button>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

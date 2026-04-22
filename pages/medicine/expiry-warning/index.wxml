@@ -1,0 +1,81 @@
+<view class="expiry-warning-container">
+  <view class="header-card">
+    <view class="header-title">有效期预警</view>
+    <view class="header-subtitle">按剩余天数升序展示临期药品批次</view>
+  </view>
+
+  <view class="search-section">
+    <t-search
+      placeholder="搜索药品名称"
+      value="{{searchKeyword}}"
+      bind:change="onSearchChange"
+      bind:submit="onSearch"
+    />
+  </view>
+
+  <view class="filter-section">
+    <view class="filter-btn {{days === 30 ? 'active' : ''}}" data-days="30" bindtap="onDaysChange">30天内</view>
+  </view>
+
+  <view class="action-section">
+    <t-button
+      theme="danger"
+      size="large"
+      block
+      loading="{{offShelfLoading}}"
+      disabled="{{offShelfLoading}}"
+      bindtap="handleOneClickOffShelf"
+    >
+      一键下架30天内临期批次
+    </t-button>
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'empty'}}"
+    mode="empty"
+    title="{{texts.empty}}"
+  />
+
+  <view wx:else class="warning-list">
+    <view
+      class="warning-card"
+      wx:for="{{warningList}}"
+      wx:key="batchId"
+      bindtap="goToMedicineDetail"
+      data-medicine-id="{{item.medicineId}}"
+    >
+      <view class="card-top">
+        <view class="medicine-name">{{item.medicineName}}</view>
+        <t-tag size="small" theme="{{item.daysTagTheme || 'warning'}}" variant="light">{{item.daysTagText || (item.daysToExpiry + '天')}}</t-tag>
+      </view>
+      <view class="card-row">
+        <text class="label">批次号</text>
+        <text class="value">{{item.batchNumber || '-'}}</text>
+      </view>
+      <view class="card-row">
+        <text class="label">有效期</text>
+        <text class="value">{{item.expiryDate || '-'}}</text>
+      </view>
+      <view class="card-row">
+        <text class="label">剩余库存</text>
+        <text class="value strong">{{item.remainingQuantity}}</text>
+      </view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

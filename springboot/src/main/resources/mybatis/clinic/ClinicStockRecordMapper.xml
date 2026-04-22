@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.clinic.medicine.mapper.ClinicStockRecordMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.project.clinic.medicine.domain.ClinicStockRecord">
+        <id property="recordId" column="record_id"/>
+        <result property="medicineId" column="medicine_id"/>
+        <result property="medicineName" column="medicine_name"/>
+        <result property="operationType" column="operation_type"/>
+        <result property="quantity" column="quantity"/>
+        <result property="beforeStock" column="before_stock"/>
+        <result property="afterStock" column="after_stock"/>
+        <result property="supplier" column="supplier"/>
+        <result property="purchasePrice" column="purchase_price"/>
+        <result property="batchNumber" column="batch_number"/>
+        <result property="expiryDate" column="expiry_date"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="operatorName" column="operator_name"/>
+        <result property="patientId" column="patient_id"/>
+        <result property="patientName" column="patient_name"/>
+        <result property="doctorId" column="doctor_id"/>
+        <result property="doctorName" column="doctor_name"/>
+        <result property="relatedRecordId" column="related_record_id"/>
+        <result property="relatedRecordType" column="related_record_type"/>
+        <result property="isPackMedicine" column="is_pack_medicine"/>
+        <result property="packItems" column="pack_items"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        record_id,
+        medicine_id,
+        medicine_name,
+        operation_type,
+        quantity,
+        before_stock,
+        after_stock,
+        supplier,
+        purchase_price,
+        batch_number,
+        expiry_date,
+        operator_id,
+        operator_name,
+        patient_id,
+        patient_name,
+        doctor_id,
+        doctor_name,
+        related_record_id,
+        related_record_type,
+        is_pack_medicine,
+        pack_items,
+        remark,
+        create_time
+    </sql>
+
+    <select id="selectClinicStockRecordById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_stock_record
+        WHERE record_id = #{recordId}
+    </select>
+
+    <select id="selectClinicStockRecordList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_stock_record
+        WHERE 1=1
+        <if test="medicineId != null">
+            AND medicine_id = #{medicineId}
+        </if>
+        <if test="operationType != null and operationType != ''">
+            AND operation_type = #{operationType}
+        </if>
+        <if test="operatorId != null">
+            AND operator_id = #{operatorId}
+        </if>
+        <if test="patientId != null">
+            AND patient_id = #{patientId}
+        </if>
+        <if test="doctorId != null">
+            AND doctor_id = #{doctorId}
+        </if>
+        <if test="patientName != null and patientName != ''">
+            AND patient_name = #{patientName}
+        </if>
+        <if test="doctorName != null and doctorName != ''">
+            AND doctor_name = #{doctorName}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (medicine_name LIKE CONCAT('%', #{keyword}, '%') OR batch_number LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insertClinicStockRecord" useGeneratedKeys="true" keyProperty="recordId">
+        INSERT INTO clinic_stock_record(
+        medicine_id,
+        medicine_name,
+        operation_type,
+        quantity,
+        before_stock,
+        after_stock,
+        supplier,
+        purchase_price,
+        batch_number,
+        expiry_date,
+        operator_id,
+        operator_name,
+        patient_id,
+        patient_name,
+        doctor_id,
+        doctor_name,
+        related_record_id,
+        related_record_type,
+        is_pack_medicine,
+        pack_items,
+        remark,
+        create_time
+        ) VALUES (
+        #{medicineId},
+        #{medicineName},
+        #{operationType},
+        #{quantity},
+        #{beforeStock},
+        #{afterStock},
+        #{supplier},
+        #{purchasePrice},
+        #{batchNumber},
+        #{expiryDate},
+        #{operatorId},
+        #{operatorName},
+        #{patientId},
+        #{patientName},
+        #{doctorId},
+        #{doctorName},
+        #{relatedRecordId},
+        #{relatedRecordType},
+        #{isPackMedicine},
+        #{packItems},
+        #{remark},
+        #{createTime}
+        )
+    </insert>
+
+    <update id="updateClinicStockRecord">
+        UPDATE clinic_stock_record
+        <set>
+        <if test="medicineId != null">medicine_id = #{medicineId},</if>
+        <if test="medicineName != null and medicineName != ''">medicine_name = #{medicineName},</if>
+        <if test="operationType != null and operationType != ''">operation_type = #{operationType},</if>
+        <if test="quantity != null">quantity = #{quantity},</if>
+        <if test="beforeStock != null">before_stock = #{beforeStock},</if>
+        <if test="afterStock != null">after_stock = #{afterStock},</if>
+        <if test="supplier != null">supplier = #{supplier},</if>
+        <if test="purchasePrice != null">purchase_price = #{purchasePrice},</if>
+        <if test="batchNumber != null">batch_number = #{batchNumber},</if>
+        <if test="expiryDate != null">expiry_date = #{expiryDate},</if>
+        <if test="operatorId != null">operator_id = #{operatorId},</if>
+        <if test="operatorName != null and operatorName != ''">operator_name = #{operatorName},</if>
+        <if test="patientId != null">patient_id = #{patientId},</if>
+        <if test="patientName != null and patientName != ''">patient_name = #{patientName},</if>
+        <if test="doctorId != null">doctor_id = #{doctorId},</if>
+        <if test="doctorName != null and doctorName != ''">doctor_name = #{doctorName},</if>
+        <if test="relatedRecordId != null and relatedRecordId != ''">related_record_id = #{relatedRecordId},</if>
+        <if test="relatedRecordType != null and relatedRecordType != ''">related_record_type = #{relatedRecordType},</if>
+        <if test="isPackMedicine != null">is_pack_medicine = #{isPackMedicine},</if>
+        <if test="packItems != null and packItems != ''">pack_items = #{packItems},</if>
+        <if test="remark != null">remark = #{remark},</if>
+        </set>
+        WHERE record_id = #{recordId}
+    </update>
+
+    <delete id="deleteClinicStockRecordById">
+        DELETE FROM clinic_stock_record
+        WHERE record_id = #{recordId}
+    </delete>
+
+    <delete id="deleteClinicStockRecordByIds">
+        DELETE FROM clinic_stock_record
+        WHERE record_id IN
+        <foreach collection="recordIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <update id="updateOperatorNameByOperatorId">
+        UPDATE clinic_stock_record
+        SET operator_name = #{operatorName}
+        WHERE operator_id = #{operatorId}
+    </update>
+
+    <update id="updatePatientNameByPatientId">
+        UPDATE clinic_stock_record
+        SET patient_name = #{patientName}
+        WHERE patient_id = #{patientId}
+    </update>
+
+    <update id="updateDoctorNameByDoctorId">
+        UPDATE clinic_stock_record
+        SET doctor_name = #{doctorName}
+        WHERE doctor_id = #{doctorId}
+    </update>
+</mapper>

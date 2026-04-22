@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "AI 助手",
+  "usingComponents": {
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "async-state": "/components/async-state/index",
+    "t-toast": "tdesign-miniprogram/toast/toast"
+  }
+}

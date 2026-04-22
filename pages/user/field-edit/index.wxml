@@ -1,0 +1,47 @@
+<view class="field-edit-container">
+  <view class="header" wx:if="{{stateMode === 'success'}}">
+    <view class="back-btn" bindtap="goBack">
+      <t-icon name="chevron-left" size="40rpx" color="#333" />
+    </view>
+    <view class="header-title">{{title}}</view>
+    <view class="header-right"></view>
+  </view>
+
+  <view class="state-wrapper" wx:if="{{stateMode !== 'success'}}">
+    <async-state
+      mode="{{stateMode}}"
+      title="{{stateTitle}}"
+      description="{{stateDescription}}"
+      buttonText="{{stateButtonText}}"
+      bind:retry="onStateRetry"
+    />
+  </view>
+
+  <view class="content" wx:else>
+    <view class="form-section">
+      <view wx:if="{{isDatePicker}}" class="date-picker-section">
+        <picker mode="date" value="{{value}}" bindchange="onDateChange">
+          <view class="date-display">{{value || '请选择日期'}}</view>
+        </picker>
+      </view>
+      <view wx:else class="input-section">
+        <t-textarea
+          value="{{value}}"
+          bind:change="onInputChange"
+          placeholder="{{placeholder}}"
+          maxlength="500"
+          autosize
+          rows="{{isLongText ? 6 : 2}}"
+        />
+      </view>
+    </view>
+
+    <view class="btn-section">
+      <t-button theme="primary" size="large" block bind:tap="onSave" loading="{{loading}}" disabled="{{loading}}">
+        保存
+      </t-button>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

@@ -1,0 +1,23 @@
+<view class="page">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+  <view wx:else class="card">
+    <view class="title">提示词管理</view>
+    <view class="label">通用提示词</view>
+    <textarea class="textarea" value="{{form.aiPromptTemplateGeneral}}" data-key="aiPromptTemplateGeneral" bindinput="onInput" maxlength="-1"/>
+    <view class="label">业务提示词</view>
+    <textarea class="textarea" value="{{form.aiPromptTemplateBusiness}}" data-key="aiPromptTemplateBusiness" bindinput="onInput" maxlength="-1"/>
+    <t-button theme="primary" loading="{{saving}}" bindtap="onSave">保存</t-button>
+  </view>
+  <t-toast id="t-toast"/>
+</view>

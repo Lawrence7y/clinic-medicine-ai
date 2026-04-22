@@ -1,0 +1,14 @@
+<t-button
+  class="ui-btn ui-btn--{{theme}} ui-btn--{{variant}} ui-btn--{{size}} {{block ? 'ui-btn--block' : ''}}"
+  theme="{{theme}}"
+  variant="{{variant}}"
+  size="{{size}}"
+  block="{{block}}"
+  shape="{{shape}}"
+  formType="{{type === 'submit' || type === 'reset' ? type : ''}}"
+  disabled="{{disabled}}"
+  loading="{{loading}}"
+  bind:tap="handleTap"
+>
+  <slot />
+</t-button>

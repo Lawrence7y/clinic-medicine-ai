@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "基础报表",
+  "usingComponents": {
+    "t-button": "tdesign-miniprogram/button/button",
+    "async-state": "/components/async-state/index",
+    "t-toast": "tdesign-miniprogram/toast/toast"
+  }
+}

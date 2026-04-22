@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.clinic.ai.mapper.ClinicAiModelMapper">
+    <resultMap id="ClinicAiModelResult" type="com.ruoyi.project.clinic.ai.domain.ClinicAiModel">
+        <id property="modelId" column="model_id"/>
+        <result property="providerId" column="provider_id"/>
+        <result property="providerCode" column="provider_code"/>
+        <result property="providerName" column="provider_name"/>
+        <result property="modelCode" column="model_code"/>
+        <result property="modelName" column="model_name"/>
+        <result property="supportsVision" column="supports_vision"/>
+        <result property="supportsWebSearch" column="supports_web_search"/>
+        <result property="supportsJsonSchema" column="supports_json_schema"/>
+        <result property="enabled" column="enabled"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="ClinicAiModelColumns">
+        m.model_id, m.provider_id, p.provider_code, p.provider_name, m.model_code, m.model_name,
+        m.supports_vision, m.supports_web_search, m.supports_json_schema, m.enabled,
+        m.remark, m.create_by, m.create_time, m.update_by, m.update_time
+    </sql>
+
+    <select id="selectClinicAiModelById" resultMap="ClinicAiModelResult">
+        SELECT <include refid="ClinicAiModelColumns"/>
+        FROM clinic_ai_model m
+        LEFT JOIN clinic_ai_provider p ON p.provider_id = m.provider_id
+        WHERE m.model_id = #{modelId}
+    </select>
+
+    <select id="selectClinicAiModelList" resultMap="ClinicAiModelResult">
+        SELECT <include refid="ClinicAiModelColumns"/>
+        FROM clinic_ai_model m
+        LEFT JOIN clinic_ai_provider p ON p.provider_id = m.provider_id
+        WHERE 1 = 1
+        <if test="providerId != null">
+            AND m.provider_id = #{providerId}
+        </if>
+        <if test="modelCode != null and modelCode != ''">
+            AND m.model_code LIKE CONCAT('%', #{modelCode}, '%')
+        </if>
+        <if test="modelName != null and modelName != ''">
+            AND m.model_name LIKE CONCAT('%', #{modelName}, '%')
+        </if>
+        <if test="enabled != null">
+            AND m.enabled = #{enabled}
+        </if>
+        ORDER BY m.model_id DESC
+    </select>
+
+    <select id="selectEnabledModels" resultMap="ClinicAiModelResult">
+        SELECT <include refid="ClinicAiModelColumns"/>
+        FROM clinic_ai_model m
+        LEFT JOIN clinic_ai_provider p ON p.provider_id = m.provider_id
+        WHERE m.enabled = 1
+        ORDER BY p.provider_name ASC, m.model_name ASC, m.model_id ASC
+    </select>
+
+    <insert id="insertClinicAiModel" useGeneratedKeys="true" keyProperty="modelId">
+        INSERT INTO clinic_ai_model (
+            provider_id, model_code, model_name, supports_vision, supports_web_search,
+            supports_json_schema, enabled, remark, create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{providerId}, #{modelCode}, #{modelName}, #{supportsVision}, #{supportsWebSearch},
+            #{supportsJsonSchema}, #{enabled}, #{remark}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updateClinicAiModel">
+        UPDATE clinic_ai_model
+        <set>
+            <if test="providerId != null">provider_id = #{providerId},</if>
+            <if test="modelCode != null and modelCode != ''">model_code = #{modelCode},</if>
+            <if test="modelName != null and modelName != ''">model_name = #{modelName},</if>
+            <if test="supportsVision != null">supports_vision = #{supportsVision},</if>
+            <if test="supportsWebSearch != null">supports_web_search = #{supportsWebSearch},</if>
+            <if test="supportsJsonSchema != null">supports_json_schema = #{supportsJsonSchema},</if>
+            <if test="enabled != null">enabled = #{enabled},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        </set>
+        WHERE model_id = #{modelId}
+    </update>
+
+    <delete id="deleteClinicAiModelById">
+        DELETE FROM clinic_ai_model WHERE model_id = #{modelId}
+    </delete>
+
+    <delete id="deleteClinicAiModelByIds">
+        DELETE FROM clinic_ai_model
+        WHERE model_id IN
+        <foreach collection="modelIds" item="modelId" open="(" separator="," close=")">
+            #{modelId}
+        </foreach>
+    </delete>
+</mapper>

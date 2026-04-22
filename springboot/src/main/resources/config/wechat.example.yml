@@ -1,0 +1,22 @@
+# 微信小程序配置示例
+# 请复制此文件为 wechat.yml 并填入实际配置
+
+wechat:
+  miniprogram:
+    appid: YOUR_MINIPROGRAM_APPID
+    secret: YOUR_MINIPROGRAM_SECRET
+    token: YOUR_WECHAT_TOKEN
+
+# =========================================
+# 配置说明：
+# 
+# 1. appid 和 secret
+#    - 登录微信公众平台：https://mp.weixin.qq.com/
+#    - 进入"开发" -> "开发管理" -> "开发设置"
+#    - 获取 AppID 和 AppSecret
+#
+# 2. token（可选）
+#    - 用于微信服务器验证
+#    - 可以自定义设置
+#
+# =========================================

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('AI 模型列表')" />
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="alert alert-info" style="margin-bottom: 15px;">
+                模型启用规则：仅当“服务商启用 + 模型启用”时，场景绑定才会优先调度该模型。
+            </div>
+        </div>
+        <div class="col-sm-12 search-collapse">
+            <form id="model-form">
+                <div class="select-list">
+                    <ul>
+                        <li>模型编码：<input type="text" name="modelCode"/></li>
+                        <li>模型名称：<input type="text" name="modelName"/></li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="clinic:ai:model:add">
+                <i class="fa fa-plus"></i> 新增
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="clinic:ai:model:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="clinic:ai:model:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('clinic:ai:model:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('clinic:ai:model:remove')}]];
+    var prefix = ctx + "clinic/ai/model";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            modalName: "AI 模型",
+            columns: [{
+                checkbox: true
+            }, {
+                field: 'modelId',
+                title: 'ID'
+            }, {
+                field: 'providerName',
+                title: '服务商'
+            }, {
+                field: 'modelCode',
+                title: '模型编码'
+            }, {
+                field: 'modelName',
+                title: '模型名称'
+            }, {
+                field: 'supportsVision',
+                title: '支持视觉',
+                formatter: yesNoFormatter
+            }, {
+                field: 'supportsWebSearch',
+                title: '支持联网搜索',
+                formatter: yesNoFormatter
+            }, {
+                field: 'supportsJsonSchema',
+                title: '支持 JSON 输出',
+                formatter: yesNoFormatter
+            }, {
+                field: 'enabled',
+                title: '状态',
+                formatter: statusFormatter
+            }, {
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row) {
+                    var actions = [];
+                    actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.modelId + '\')"><i class="fa fa-edit"></i>修改</a> ');
+                    actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.modelId + '\')"><i class="fa fa-remove"></i>删除</a>');
+                    return actions.join('');
+                }
+            }]
+        };
+        $.table.init(options);
+    });
+
+    function yesNoFormatter(value) {
+        return Number(value) === 1
+            ? '<span class="label label-primary">是</span>'
+            : '<span class="label label-default">否</span>';
+    }
+
+    function statusFormatter(value) {
+        return Number(value) === 1
+            ? '<span class="label label-primary">启用</span>'
+            : '<span class="label label-default">停用</span>';
+    }
+</script>
+</body>
+</html>

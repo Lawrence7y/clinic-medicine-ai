@@ -1,0 +1,68 @@
+<view class="record-list-container">
+  <view class="search-section">
+    <t-search
+      placeholder="搜索患者姓名或诊断"
+      value="{{searchKeyword}}"
+      bind:change="onSearchChange"
+      bind:submit="onSearch"
+    />
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'empty'}}"
+    mode="empty"
+    title="{{texts.empty}}"
+  />
+
+  <block wx:else>
+    <view class="record-list">
+      <view class="record-card" wx:for="{{recordList}}" wx:key="id" bindtap="goToRecordDetail" data-id="{{item.id}}">
+        <view class="record-header">
+          <view class="patient-info">
+            <text class="patient-name">{{item.patientName}}</text>
+            <text class="patient-basic">{{getGenderText(item.patientGender)}} | {{item.patientAge}}岁</text>
+          </view>
+        </view>
+        <view class="record-body">
+          <view class="info-row">
+            <t-icon name="calendar" size="24rpx" color="#999" />
+            <text class="label">就诊时间：</text>
+            <text class="value">{{item.visitTime}}</text>
+          </view>
+          <view class="info-row">
+            <t-icon name="file" size="24rpx" color="#999" />
+            <text class="label">诊断：</text>
+            <text class="value diagnosis">{{item.diagnosis}}</text>
+          </view>
+          <view class="info-row">
+            <t-icon name="doctor" size="24rpx" color="#999" />
+            <text class="label">医生：</text>
+            <text class="value">{{item.doctorName}}</text>
+          </view>
+        </view>
+        <view class="record-footer">
+          <text class="record-time">记录时间：{{item.createdAt}}</text>
+          <t-icon name="chevron-right" size="32rpx" color="#999" />
+        </view>
+      </view>
+    </view>
+
+    <load-more wx:if="{{recordList.length > 0}}" status="{{loadMoreStatus}}" bind:retry="loadMore" />
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

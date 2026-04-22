@@ -1,0 +1,14 @@
+<view class="async-state async-state--{{mode}}">
+  <view wx:if="{{mode === 'loading'}}" class="async-state__icon">
+    <t-icon name="loading" size="72rpx" color="#0f766e" />
+  </view>
+  <view wx:elif="{{mode === 'empty'}}" class="async-state__icon">
+    <t-icon name="inbox" size="72rpx" color="#94a3b8" />
+  </view>
+  <view wx:else class="async-state__icon">
+    <t-icon name="error-circle" size="72rpx" color="#ef4444" />
+  </view>
+  <view class="async-state__title">{{title}}</view>
+  <view class="async-state__desc" wx:if="{{description}}">{{description}}</view>
+  <t-button wx:if="{{mode === 'error'}}" theme="primary" size="small" bindtap="handleRetry">{{buttonText}}</t-button>
+</view>

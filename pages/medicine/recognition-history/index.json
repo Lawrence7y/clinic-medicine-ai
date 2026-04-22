@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "识别历史",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "async-state": "/components/async-state/index",
+    "t-toast": "tdesign-miniprogram/toast/toast"
+  }
+}

@@ -1,0 +1,101 @@
+.expiry-warning-container {
+  min-height: 100vh;
+  background: #f7f8fa;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.header-card {
+  background: linear-gradient(135deg, #fff4e5 0%, #fff9f0 100%);
+  border-radius: 20rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+.header-subtitle {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.search-section,
+.filter-section,
+.action-section {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.filter-section {
+  display: flex;
+  gap: 16rpx;
+}
+
+.filter-btn {
+  flex: 1;
+  text-align: center;
+  font-size: 24rpx;
+  color: #666;
+  padding: 14rpx 0;
+  border-radius: 14rpx;
+  background: #f5f5f5;
+}
+
+.filter-btn.active {
+  color: #fff;
+  background: #fa8c16;
+}
+
+.warning-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.warning-card {
+  background: #fff;
+  border-radius: 18rpx;
+  padding: 24rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14rpx;
+}
+
+.medicine-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8rpx;
+}
+
+.label {
+  color: #666;
+  font-size: 24rpx;
+}
+
+.value {
+  color: #333;
+  font-size: 24rpx;
+}
+
+.value.strong {
+  color: #fa541c;
+  font-weight: 700;
+}

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.clinic.medical.mapper.ClinicMedicalRecordMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.project.clinic.medical.domain.ClinicMedicalRecord">
+        <id property="recordId" column="record_id"/>
+        <result property="patientId" column="patient_id"/>
+        <result property="patientName" column="patient_name"/>
+        <result property="patientGender" column="patient_gender"/>
+        <result property="patientAge" column="patient_age"/>
+        <result property="patientPhone" column="patient_phone"/>
+        <result property="patientBirthday" column="patient_birthday"/>
+        <result property="patientBloodType" column="patient_blood_type"/>
+        <result property="doctorId" column="doctor_id"/>
+        <result property="doctorName" column="doctor_name"/>
+        <result property="visitTime" column="visit_time"/>
+        <result property="chiefComplaint" column="chief_complaint"/>
+        <result property="presentIllness" column="present_illness"/>
+        <result property="pastHistory" column="past_history"/>
+        <result property="allergyHistory" column="allergy_history"/>
+        <result property="physicalExam" column="physical_exam"/>
+        <result property="diagnosis" column="diagnosis"/>
+        <result property="treatment" column="treatment"/>
+        <result property="prescription" column="prescription"/>
+        <result property="attachments" column="attachments"/>
+        <result property="followUp" column="follow_up"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        record_id,
+        patient_id,
+        patient_name,
+        patient_gender,
+        patient_age,
+        patient_phone,
+        patient_birthday,
+        patient_blood_type,
+        doctor_id,
+        doctor_name,
+        visit_time,
+        chief_complaint,
+        present_illness,
+        past_history,
+        allergy_history,
+        physical_exam,
+        diagnosis,
+        treatment,
+        prescription,
+        attachments,
+        follow_up,
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        remark
+    </sql>
+
+    <select id="selectClinicMedicalRecordById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_medical_record
+        WHERE record_id = #{recordId}
+    </select>
+
+    <select id="selectClinicMedicalRecordList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_medical_record
+        WHERE 1=1
+        <if test="patientName != null and patientName != ''">
+            AND (patient_name LIKE CONCAT('%', #{patientName}, '%') OR diagnosis LIKE CONCAT('%', #{patientName}, '%'))
+        </if>
+        <if test="diagnosis != null and diagnosis != ''">
+            AND diagnosis LIKE CONCAT('%', #{diagnosis}, '%')
+        </if>
+        <if test="patientPhone != null and patientPhone != ''">
+            AND patient_phone = #{patientPhone}
+        </if>
+        <if test="doctorName != null and doctorName != ''">
+            AND doctor_name LIKE CONCAT('%', #{doctorName}, '%')
+        </if>
+        <if test="patientId != null">
+            AND patient_id = #{patientId}
+        </if>
+        <if test="doctorId != null">
+            AND doctor_id = #{doctorId}
+        </if>
+        <if test="params.startDate != null and params.startDate != ''">
+            AND DATE(visit_time) &gt;= #{params.startDate}
+        </if>
+        <if test="params.endDate != null and params.endDate != ''">
+            AND DATE(visit_time) &lt;= #{params.endDate}
+        </if>
+    </select>
+
+    <insert id="insertClinicMedicalRecord" useGeneratedKeys="true" keyProperty="recordId">
+        INSERT INTO clinic_medical_record(
+        patient_id,
+        patient_name,
+        patient_gender,
+        patient_age,
+        patient_phone,
+        patient_birthday,
+        patient_blood_type,
+        doctor_id,
+        doctor_name,
+        visit_time,
+        chief_complaint,
+        present_illness,
+        past_history,
+        allergy_history,
+        physical_exam,
+        diagnosis,
+        treatment,
+        prescription,
+        attachments,
+        follow_up,
+        create_by,
+        create_time
+        ) VALUES (
+        #{patientId},
+        #{patientName},
+        #{patientGender},
+        #{patientAge},
+        #{patientPhone},
+        #{patientBirthday},
+        #{patientBloodType},
+        #{doctorId},
+        #{doctorName},
+        #{visitTime},
+        #{chiefComplaint},
+        #{presentIllness},
+        #{pastHistory},
+        #{allergyHistory},
+        #{physicalExam},
+        #{diagnosis},
+        #{treatment},
+        #{prescription},
+        #{attachments},
+        #{followUp},
+        #{createBy},
+        #{createTime}
+        )
+    </insert>
+
+    <update id="updateClinicMedicalRecord">
+        UPDATE clinic_medical_record
+        <set>
+        <if test="patientId != null">patient_id = #{patientId},</if>
+        <if test="patientName != null and patientName != ''">patient_name = #{patientName},</if>
+        <if test="patientGender != null and patientGender != ''">patient_gender = #{patientGender},</if>
+        <if test="patientAge != null">patient_age = #{patientAge},</if>
+        <if test="patientPhone != null and patientPhone != ''">patient_phone = #{patientPhone},</if>
+        <if test="patientBirthday != null">patient_birthday = #{patientBirthday},</if>
+        <if test="patientBloodType != null and patientBloodType != ''">patient_blood_type = #{patientBloodType},</if>
+        <if test="doctorId != null">doctor_id = #{doctorId},</if>
+        <if test="doctorName != null and doctorName != ''">doctor_name = #{doctorName},</if>
+        <if test="visitTime != null">visit_time = #{visitTime},</if>
+        <if test="chiefComplaint != null">chief_complaint = #{chiefComplaint},</if>
+        <if test="presentIllness != null">present_illness = #{presentIllness},</if>
+        <if test="pastHistory != null">past_history = #{pastHistory},</if>
+        <if test="allergyHistory != null">allergy_history = #{allergyHistory},</if>
+        <if test="physicalExam != null">physical_exam = #{physicalExam},</if>
+        <if test="diagnosis != null">diagnosis = #{diagnosis},</if>
+        <if test="treatment != null">treatment = #{treatment},</if>
+        <if test="prescription != null">prescription = #{prescription},</if>
+        <if test="attachments != null">attachments = #{attachments},</if>
+        <if test="followUp != null">follow_up = #{followUp},</if>
+        <if test="remark != null">remark = #{remark},</if>
+        update_by = #{updateBy},
+        update_time = #{updateTime}
+        </set>
+        WHERE record_id = #{recordId}
+    </update>
+
+    <delete id="deleteClinicMedicalRecordById">
+        DELETE FROM clinic_medical_record
+        WHERE record_id = #{recordId}
+    </delete>
+
+    <delete id="deleteClinicMedicalRecordByIds">
+        DELETE FROM clinic_medical_record
+        WHERE record_id IN
+        <foreach collection="recordIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="countMedicalRecord" resultType="int">
+        SELECT COUNT(*) FROM clinic_medical_record
+    </select>
+
+    <update id="updateDoctorNameByDoctorId">
+        UPDATE clinic_medical_record
+        SET doctor_name = #{doctorName}
+        WHERE doctor_id = #{doctorId}
+    </update>
+
+    <update id="updatePatientInfoByPatientId">
+        UPDATE clinic_medical_record
+        SET patient_name = #{patientName},
+            patient_phone = #{patientPhone}
+        WHERE
+        <choose>
+            <when test="patientPhone != null and patientPhone != ''">
+                (patient_id = #{patientId} OR patient_phone = #{patientPhone})
+            </when>
+            <otherwise>
+                patient_id = #{patientId}
+            </otherwise>
+        </choose>
+    </update>
+
+    <select id="countTodayRecords" resultType="int">
+        SELECT COUNT(*) FROM clinic_medical_record
+        WHERE DATE(visit_time) = #{date}
+        <if test="doctorId != null">
+            AND doctor_id = #{doctorId}
+        </if>
+    </select>
+</mapper>

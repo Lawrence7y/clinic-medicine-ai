@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "AI \u8c03\u7528\u65e5\u5fd7",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "t-button": "tdesign-miniprogram/button/button",
+    "async-state": "/components/async-state/index",
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "t-toast": "tdesign-miniprogram/toast/toast"
+  }
+}

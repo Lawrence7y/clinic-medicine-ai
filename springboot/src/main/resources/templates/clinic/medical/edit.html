@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+	<th:block th:include="include :: header('修改病历')" />
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form id="form-medical-edit" class="form-horizontal" th:object="${clinicMedicalRecord}">
+                            <input type="hidden" name="recordId" th:field="*{recordId}">
+                            <input type="hidden" name="patientId" id="patientId" th:field="*{patientId}">
+                            
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label is-required">患者搜索：</label>
+                                <div class="col-sm-8">
+                                    <input id="patientSearch" placeholder="输入患者姓名搜索" class="form-control" type="text" autocomplete="off">
+                                    <div id="patientDropdown" class="patient-dropdown" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">患者姓名：</label>
+                                <div class="col-sm-8">
+                                    <input name="patientName" id="patientName" placeholder="请输入患者姓名" class="form-control" type="text" readonly th:field="*{patientName}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">性别：</label>
+                                <div class="col-sm-8">
+                                    <input id="patientGender" class="form-control" type="text" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">年龄：</label>
+                                <div class="col-sm-8">
+                                    <input id="patientAge" class="form-control" type="text" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">电话：</label>
+                                <div class="col-sm-8">
+                                    <input id="patientPhone" class="form-control" type="text" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label is-required">医生姓名：</label>
+                                <div class="col-sm-8">
+                                    <select name="doctorName" id="doctorName" class="form-control m-b" required>
+                                        <option value="">请选择医生</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label is-required">就诊时间：</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group date">
+                                        <input name="visitTime" id="visitTime" placeholder="yyyy-MM-dd HH:mm:ss" class="form-control" type="text" required>
+                                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">主诉：</label>
+                                <div class="col-sm-8">
+                                    <textarea name="chiefComplaint" class="form-control" rows="3" th:field="*{chiefComplaint}"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">现病史：</label>
+                                <div class="col-sm-8">
+                                    <textarea name="presentIllness" class="form-control" rows="3" th:field="*{presentIllness}"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">体格检查：</label>
+                                <div class="col-sm-8">
+                                    <textarea name="physicalExam" class="form-control" rows="3" th:field="*{physicalExam}"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">诊断：</label>
+                                <div class="col-sm-8">
+                                    <textarea name="diagnosis" class="form-control" rows="3" th:field="*{diagnosis}"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">治疗方案：</label>
+                                <div class="col-sm-8">
+                                    <textarea name="treatment" class="form-control" rows="3" th:field="*{treatment}"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">随访：</label>
+                                <div class="col-sm-8">
+                                    <textarea name="followUp" class="form-control" rows="3" th:field="*{followUp}"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">处方药品：</label>
+                                <div class="col-sm-8">
+                                    <div id="prescriptionList"></div>
+                                    <button type="button" class="btn btn-sm btn-primary" onclick="addPrescriptionItem()">
+                                        <i class="fa fa-plus"></i> 添加药品
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#packMedicineModal" style="margin-left: 5px;">
+                                        <i class="fa fa-cube"></i> 包药
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-offset-3 col-sm-8">
+                                    <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 包药弹窗 -->
+    <div id="packMedicineModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" style="width: 700px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">包药（多种片剂组合）</h4>
+                </div>
+                <div class="modal-body">
+                    <p style="color:#666;margin-bottom:15px;">包药是将多种片剂药品按指定数量组合成一个包装，例如：1片阿莫西林 + 2片布洛芬</p>
+
+                    <!-- 药品搜索和添加 -->
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">添加药品：</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input id="packMedicineSearch" class="form-control" type="text" placeholder="输入药品名称搜索" autocomplete="off">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" onclick="searchAndAddPackMedicine()">搜索添加</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 搜索结果下拉 -->
+                    <div id="packSearchResults" style="max-height:150px;overflow-y:auto;border:1px solid #e5e6e7;border-radius:4px;margin-bottom:15px;display:none;">
+                    </div>
+
+                    <!-- 已选择的药品列表 -->
+                    <div id="packMedicineList" style="margin-bottom:15px;">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width:40%;">药品名称</th>
+                                    <th style="width:20%;">数量（片）</th>
+                                    <th style="width:20%;">批次</th>
+                                    <th style="width:20%;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="packMedicineTableBody">
+                                <tr id="packEmptyRow"><td colspan="4" style="text-align:center;color:#999;">尚未添加任何药品</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 包药说明 -->
+                    <div id="packSummary" style="background:#fff8e1;padding:10px;border-radius:4px;margin-bottom:15px;display:none;">
+                        <strong>包药内容：</strong>
+                        <span id="packSummaryText"></span>
+                    </div>
+
+                    <!-- 用法 -->
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">用法：</label>
+                        <div class="col-sm-10">
+                            <input id="packUsage" class="form-control" type="text" placeholder="如：每日3次，每次1包">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmPackMedicine()">确认添加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "clinic/medical";
+        var currentRecord = [[${clinicMedicalRecord}]];
+        var prescriptionIndex = 0;
+        var medicineCache = [];
+        var selectedPackMedicine = null;
+        var selectedPackBatch = null;
+        var batchCache = [];
+        var packMedicineItems = []; // 包药中的药品列表 [{medicineId, name, quantity, batchId, batchNumber, specification}]
+
+        $(document).ready(function() {
+            loadDoctorList(currentRecord.doctorName);
+            initPatientData();
+            loadMedicineCache();
+            initPrescriptionData();
+
+            // 初始化就诊时间选择器
+            initVisitTimePicker();
+
+            // 监听包药弹窗显示事件，确保药品列表已加载
+            $('#packMedicineModal').on('shown.bs.modal', function () {
+                packMedicineItems = [];
+                batchCache = [];
+                $("#packMedicineSearch").val('');
+                $("#packUsage").val('');
+                $("#packSearchResults").hide().empty();
+                $("#packMedicineTableBody").empty().append('<tr id="packEmptyRow"><td colspan="4" style="text-align:center;color:#999;">尚未添加任何药品</td></tr>');
+                $("#packSummary").hide();
+                $("#packSummaryText").text('');
+                if (medicineCache.length === 0) {
+                    loadMedicineCache();
+                }
+
+                // 绑定搜索按钮点击事件
+                $("#packMedicineSearch").off("input").on("input", function() {
+                    var keyword = $(this).val().trim();
+                    if (keyword.length >= 1) {
+                        searchPackMedicines(keyword);
+                    } else {
+                        $("#packSearchResults").hide().empty();
+                    }
+                });
+
+                $("#packMedicineSearch").off("keypress").on("keypress", function(e) {
+                    if (e.which === 13) {
+                        var keyword = $(this).val().trim();
+                        if (keyword.length >= 1) {
+                            searchPackMedicines(keyword);
+                        }
+                        return false;
+                    }
+                });
+            });
+        });
+
+        function initVisitTimePicker() {
+            var $visitTimeInput = $('#visitTime');
+            if ($visitTimeInput.length === 0) return;
+
+            // 初始化 datetimepicker
+            $visitTimeInput.datetimepicker({
+                format: 'yyyy-mm-dd hh:ii:ss',
+                autoclose: true,
+                todayBtn: true,
+                todayHighlight: true,
+                keyboardNavigation: true,
+                language: 'zh-CN',
+                minuteStep: 1,
+                showSecond: true
+            });
+
+            // 如果有初始值，设置到输入框
+            if (currentRecord && currentRecord.visitTime) {
+                $visitTimeInput.val(currentRecord.visitTime);
+            }
+        }
+
+        function populatePackMedicineSelect() {
+            $("#packMedicineSelect").empty();
+            $("#packMedicineSelect").append('<option value="">请选择片剂药品</option>');
+
+            var tabletMedicines = medicineCache.filter(function(item) {
+                var dosageForm = (item.dosageForm || '').toLowerCase();
+                return dosageForm.includes('片') || dosageForm.includes('tablet');
+            });
+
+            tabletMedicines.forEach(function(medicine) {
+                $("#packMedicineSelect").append('<option value="' + medicine.medicineId + '" data-name="' + medicine.name + '" data-spec="' + (medicine.specification || '') + '">' + medicine.name + ' - ' + (medicine.specification || '') + '</option>');
+            });
+        }
+
+        function loadDoctorList(currentDoctorName) {
+            $.ajax({
+                url: ctx + "api/clinic/user/doctors",
+                type: "get",
+                async: false,
+                success: function(response) {
+                    if (response.code == 0 && response.data) {
+                        var select = $('#doctorName');
+                        select.empty();
+                        select.append('<option value="">请选择医生</option>');
+                        response.data.forEach(function(doctor) {
+                            var selected = doctor.userName === currentDoctorName ? 'selected' : '';
+                            select.append('<option value="' + doctor.userName + '" ' + selected + '>' + doctor.userName + '</option>');
+                        });
+                    }
+                }
+            });
+        }
+
+        function initPatientData() {
+            if (currentRecord) {
+                $("#patientGender").val(currentRecord.patientGender || '');
+                $("#patientAge").val(currentRecord.patientAge || '');
+                $("#patientPhone").val(currentRecord.patientPhone || '');
+            }
+
+            var patientId = currentRecord.patientId;
+            if (patientId) {
+                loadPatientById(patientId);
+            }
+        }
+
+        function loadPatientById(patientId) {
+            $.ajax({
+                url: ctx + "api/clinic/patient/getInfo",
+                type: "get",
+                data: { patientId: patientId },
+                success: function(response) {
+                    if (response.code == 0 && response.data) {
+                        fillPatientInfo(response.data);
+                    }
+                }
+            });
+        }
+
+        $("#patientSearch").on("input", function() {
+            var keyword = $(this).val().trim();
+            if (keyword.length >= 1) {
+                searchPatients(keyword);
+            } else {
+                $("#patientDropdown").hide();
+            }
+        });
+
+        function searchPatients(keyword) {
+            $.ajax({
+                url: ctx + "clinic/patient/list",
+                type: "get",
+                data: { patientName: keyword, pageNum: 1, pageSize: 10 },
+                success: function(response) {
+                    if (response.code == 0 && response.rows) {
+                        var dropdown = $("#patientDropdown");
+                        dropdown.empty();
+                        if (response.rows.length > 0) {
+                            response.rows.forEach(function(patient) {
+                                var item = $("<div class='patient-item'>" + patient.patientName + " - " + (patient.phone || '') + "</div>");
+                                item.on("click", function() {
+                                    selectPatient(patient);
+                                });
+                                dropdown.append(item);
+                            });
+                            dropdown.show();
+                        } else {
+                            dropdown.hide();
+                        }
+                    }
+                }
+            });
+        }
+
+        function selectPatient(patient) {
+            $("#patientId").val(patient.patientId);
+            $("#patientSearch").val(patient.patientName);
+            $("#patientDropdown").hide();
+            fillPatientInfo(patient);
+        }
+
+        function fillPatientInfo(patient) {
+            $("#patientName").val(patient.patientName);
+            $("#patientGender").val(patient.gender || '');
+            $("#patientAge").val(patient.age || '');
+            $("#patientPhone").val(patient.phone || '');
+        }
+
+        // 处方相关
+        function loadMedicineCache() {
+            $.ajax({
+                url: ctx + "clinic/medicine/list",
+                type: "post",
+                data: {pageNum: 1, pageSize: 1000},
+                success: function(result) {
+                    if (result.rows) {
+                        medicineCache = result.rows;
+                    }
+                }
+            });
+        }
+
+        function initPrescriptionData() {
+            var prescription = currentRecord.prescription;
+            if (prescription) {
+                try {
+                    if (typeof prescription === 'string') {
+                        prescription = JSON.parse(prescription);
+                    }
+                    if (Array.isArray(prescription)) {
+                        prescription.forEach(function(item) {
+                            addPrescriptionItem(item);
+                        });
+                    }
+                } catch (e) {
+                    console.log("处方数据解析失败", e);
+                }
+            }
+        }
+
+        function addPrescriptionItem(item) {
+            prescriptionIndex++;
+            var selected = '';
+            var spec = item && item.specification ? item.specification : '';
+            var dosage = item && item.dosage ? item.dosage : '';
+            var frequency = item && item.frequency ? item.frequency : '';
+            var days = item && item.days ? item.days : '';
+            var name = item && item.name ? item.name : '';
+            var isPackMedicine = item && item.isPackMedicine ? '1' : '0';
+
+            var html = '<div class="prescription-item" id="prescription-' + prescriptionIndex + '" style="border: 1px solid #e5e6e7; padding: 10px; margin-bottom: 10px; border-radius: 4px;" data-pack="' + isPackMedicine + '">' +
+                '<input type="hidden" class="prescription-is-pack" value="' + isPackMedicine + '">' +
+                '<div class="form-group" style="margin-bottom: 10px;">' +
+                    '<label class="col-sm-2 control-label" style="padding-top: 7px;">药品：</label>' +
+                    '<div class="col-sm-6">' +
+                        '<select class="form-control medicine-select" onchange="updateMedicineInfo(' + prescriptionIndex + ', this.value)">' +
+                            '<option value="">请选择药品</option>';
+            medicineCache.forEach(function(medicine) {
+                var medSelected = medicine.name === name ? 'selected' : '';
+                html += '<option value="' + medicine.medicineId + '" ' + medSelected + ' data-spec="' + (medicine.specification || '') + '" data-price="' + (medicine.price || 0) + '">' + medicine.name + '</option>';
+            });
+            html += '</select>' +
+                    '</div>' +
+                    '<div class="col-sm-2">' +
+                        '<button type="button" class="btn btn-sm btn-danger" onclick="removePrescriptionItem(' + prescriptionIndex + ')">' +
+                            '<i class="fa fa-trash"></i> 删除' +
+                        '</button>' +
+                    '</div>' +
+                    (isPackMedicine === '1' ? '<div class="col-sm-2"><span class="label label-warning" style="line-height: 30px; margin-left: 10px;">包药</span></div>' : '') +
+                '</div>' +
+                '<div class="form-group" style="margin-bottom: 10px;">' +
+                    '<label class="col-sm-2 control-label" style="padding-top: 7px;">规格：</label>' +
+                    '<div class="col-sm-3">' +
+                        '<input type="text" class="form-control prescription-spec" id="prescription-' + prescriptionIndex + '-spec" value="' + spec + '" readonly>' +
+                    '</div>' +
+                    '<label class="col-sm-2 control-label" style="padding-top: 7px;">剂量：</label>' +
+                    '<div class="col-sm-3">' +
+                        '<input type="text" class="form-control prescription-dosage" id="prescription-' + prescriptionIndex + '-dosage" value="' + dosage + '" placeholder="如：每次1片">' +
+                    '</div>' +
+                '</div>' +
+                '<div class="form-group" style="margin-bottom: 0;">' +
+                    '<label class="col-sm-2 control-label" style="padding-top: 7px;">用法：</label>' +
+                    '<div class="col-sm-3">' +
+                        '<input type="text" class="form-control prescription-frequency" id="prescription-' + prescriptionIndex + '-frequency" value="' + frequency + '" placeholder="如：每日3次">' +
+                    '</div>' +
+                    '<label class="col-sm-2 control-label" style="padding-top: 7px;">天数：</label>' +
+                    '<div class="col-sm-3">' +
+                        '<input type="number" class="form-control prescription-days" id="prescription-' + prescriptionIndex + '-days" value="' + days + '" placeholder="天数">' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+            $("#prescriptionList").append(html);
+        }
+
+        function updateMedicineInfo(index, medicineId) {
+            var medicine = medicineCache.find(function(m) { return m.medicineId == medicineId; });
+            if (medicine) {
+                $('#prescription-' + index + '-spec').val(medicine.specification || '');
+            }
+        }
+
+        function removePrescriptionItem(index) {
+            $('#prescription-' + index).remove();
+        }
+
+        // 包药相关 - 搜索并添加药品到包药列表
+        function searchPackMedicines(keyword) {
+            var needle = keyword.toLowerCase();
+            var tabletMedicines = medicineCache.filter(function(item) {
+                var dosageForm = (item.dosageForm || '').toLowerCase();
+                return (dosageForm.includes('片') || dosageForm.includes('tablet'))
+                    && (item.name.toLowerCase().includes(needle) || (item.code || '').toLowerCase().includes(needle));
+            });
+
+            var resultsDiv = $("#packSearchResults");
+            resultsDiv.empty();
+
+            if (tabletMedicines.length > 0) {
+                tabletMedicines.forEach(function(medicine) {
+                    var itemDiv = $('<div class="pack-search-item" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #eee;" data-id="' + medicine.medicineId + '">' +
+                        '<div style="font-weight:bold;">' + medicine.name + '</div>' +
+                        '<div style="color:#666;font-size:12px;">规格:' + (medicine.specification || '-') + ' | 库存:' + (medicine.stock || 0) + '</div>' +
+                        '</div>');
+                    itemDiv.on("click", function() {
+                        showBatchSelectForPack(medicine);
+                    });
+                    resultsDiv.append(itemDiv);
+                });
+                resultsDiv.show();
+            } else {
+                resultsDiv.append('<div style="padding:10px;color:#999;text-align:center;">未找到匹配的片剂药品</div>');
+                resultsDiv.show();
+            }
+        }
+
+        // 按钮点击搜索并添加
+        function searchAndAddPackMedicine() {
+            var keyword = $("#packMedicineSearch").val().trim();
+            if (keyword.length >= 1) {
+                searchPackMedicines(keyword);
+            }
+        }
+
+        // 显示批次选择弹窗（嵌入）
+        var tempPackMedicine = null;
+        var tempPackQuantity = 0;
+
+        function showBatchSelectForPack(medicine) {
+            tempPackMedicine = medicine;
+            var resultsDiv = $("#packSearchResults");
+            resultsDiv.after('<div id="packBatchOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1999;display:flex;align-items:center;justify-content:center;"><div style="background:white;padding:20px;border-radius:4px;width:400px;max-height:400px;overflow-y:auto;"><h4 style="margin-top:0;">选择批次 - ' + medicine.name + '</h4><div id="packBatchList"></div><div style="margin-top:15px;"><label>数量（片）：</label><input id="packTempQuantity" type="number" class="form-control" placeholder="输入数量" value="1" min="1"></div><div style="margin-top:15px;text-align:right;"><button type="button" class="btn btn-default" onclick="closePackBatchOverlay()">取消</button>&nbsp;<button type="button" class="btn btn-primary" onclick="confirmPackBatchSelection()">确认</button></div></div></div>');
+
+            // 加载批次
+            $.ajax({
+                url: ctx + 'api/clinic/stock/batchList',
+                type: 'get',
+                data: { medicineId: medicine.medicineId },
+                success: function(res) {
+                    var batchList = $("#packBatchList");
+                    batchList.empty();
+                    if (res.code === 0 && res.data && res.data.length > 0) {
+                        res.data.forEach(function(batch) {
+                            batchList.append('<div class="pack-batch-item" style="padding:8px;border:1px solid #ddd;margin-bottom:8px;cursor:pointer;border-radius:4px;" data-batchid="' + batch.batchId + '" data-batchnumber="' + (batch.batchNumber || '') + '" onclick="selectPackBatchItem(this)">' +
+                                '<div style="font-weight:bold;">' + (batch.batchNumber || '默认批次') + '</div>' +
+                                '<div style="color:#666;font-size:12px;">剩余:' + (batch.remainingQuantity || 0) + '片 | 有效期:' + (batch.expiryDate || '长期') + '</div>' +
+                                '</div>');
+                        });
+                    } else {
+                        batchList.append('<div style="color:#999;text-align:center;padding:20px;">暂无批次信息，仍可添加</div>');
+                    }
+                    // 默认选中第一个
+                    var firstBatch = batchList.find(".pack-batch-item:first");
+                    if (firstBatch.length > 0) {
+                        selectPackBatchItem(firstBatch);
+                    }
+                }
+            });
+        }
+
+        var selectedBatchItem = null;
+        function selectPackBatchItem(el) {
+            $(".pack-batch-item").css("border-color", "#ddd").css("background", "white");
+            $(el).css("border-color", "#1ab394").css("background", "#f3fff9");
+            selectedBatchItem = el;
+        }
+
+        function closePackBatchOverlay() {
+            $("#packBatchOverlay").remove();
+            tempPackMedicine = null;
+        }
+
+        function confirmPackBatchSelection() {
+            var quantity = parseInt($("#packTempQuantity").val()) || 1;
+            if (quantity <= 0) quantity = 1;
+
+            var batchId = '';
+            var batchNumber = '';
+            if (selectedBatchItem) {
+                batchId = $(selectedBatchItem).data("batchid");
+                batchNumber = $(selectedBatchItem).data("batchnumber") || '';
+            }
+
+            // 检查是否已添加过该药品
+            var existing = packMedicineItems.find(function(item) { return item.medicineId == tempPackMedicine.medicineId; });
+            if (existing) {
+                existing.quantity += quantity;
+                if (batchId && !existing.batchId) {
+                    existing.batchId = batchId;
+                    existing.batchNumber = batchNumber;
+                }
+            } else {
+                packMedicineItems.push({
+                    medicineId: tempPackMedicine.medicineId,
+                    name: tempPackMedicine.name,
+                    specification: tempPackMedicine.specification || '',
+                    quantity: quantity,
+                    batchId: batchId,
+                    batchNumber: batchNumber
+                });
+            }
+
+            closePackBatchOverlay();
+            $("#packMedicineSearch").val('');
+            $("#packSearchResults").hide().empty();
+            renderPackMedicineList();
+        }
+
+        function renderPackMedicineList() {
+            var tbody = $("#packMedicineTableBody");
+            tbody.empty();
+
+            if (packMedicineItems.length === 0) {
+                tbody.append('<tr id="packEmptyRow"><td colspan="4" style="text-align:center;color:#999;">尚未添加任何药品</td></tr>');
+                $("#packSummary").hide();
+                return;
+            }
+
+            packMedicineItems.forEach(function(item, idx) {
+                var batchDisplay = item.batchNumber || '默认批次';
+                tbody.append('<tr>' +
+                    '<td>' + item.name + '<br><small style="color:#666;">' + item.specification + '</small></td>' +
+                    '<td><input type="number" class="form-control" style="width:80px;display:inline;" value="' + item.quantity + '" min="1" onchange="updatePackItemQuantity(' + idx + ', this.value)"> 片</td>' +
+                    '<td>' + batchDisplay + '</td>' +
+                    '<td><button type="button" class="btn btn-xs btn-danger" onclick="removePackItem(' + idx + ')"><i class="fa fa-trash"></i> 移除</button></td>' +
+                    '</tr>');
+            });
+
+            // 更新摘要
+            var summaryParts = [];
+            packMedicineItems.forEach(function(item) {
+                summaryParts.push(item.name + ' x ' + item.quantity + '片');
+            });
+            $("#packSummaryText").text(summaryParts.join(' + '));
+            $("#packSummary").show();
+        }
+
+        function updatePackItemQuantity(index, value) {
+            var qty = parseInt(value) || 1;
+            if (qty <= 0) qty = 1;
+            packMedicineItems[index].quantity = qty;
+            renderPackMedicineList();
+        }
+
+        function removePackItem(index) {
+            packMedicineItems.splice(index, 1);
+            renderPackMedicineList();
+        }
+
+        function confirmPackMedicine() {
+            if (packMedicineItems.length === 0) {
+                alert("请先添加药品到包药列表");
+                return;
+            }
+
+            var usage = $("#packUsage").val() || "每日3次";
+
+            // 计算总片数
+            var totalQuantity = 0;
+            packMedicineItems.forEach(function(item) {
+                totalQuantity += item.quantity;
+            });
+
+            // 创建包药处方项 - 将多个药品信息存储为JSON字符串
+            prescriptionIndex++;
+            var packData = JSON.stringify(packMedicineItems);
+            var batchInfo = packMedicineItems.length > 0 && packMedicineItems[0].batchNumber ? packMedicineItems[0].batchNumber : '';
+            var displayName = '包药(' + packMedicineItems[0].name + (packMedicineItems.length > 1 ? '等' : '') + ')';
+
+            var html = '<div class="prescription-item" id="prescription-' + prescriptionIndex + '" style="border: 1px solid #e5e6e7; padding: 10px; margin-bottom: 10px; border-radius: 4px; background-color: #fff8e1;" data-pack="1">' +
+                '<input type="hidden" class="prescription-is-pack" value="1">' +
+                '<input type="hidden" class="prescription-pack-data" value=\'' + packData + '\'>' +
+                '<div class="form-group" style="margin-bottom: 10px;">' +
+                    '<label class="col-sm-2 control-label" style="padding-top: 7px;">药品：</label>' +
+                    '<div class="col-sm-6" style="padding-top: 7px;">' +
+                        '<span style="color:#ff9800;font-weight:bold;">' + displayName + '</span>' +
+                    '</div>' +
+                    '<div class="col-sm-2">' +
+                        '<button type="button" class="btn btn-sm btn-danger" onclick="removePrescriptionItem(' + prescriptionIndex + ')">' +
+                            '<i class="fa fa-trash"></i> 删除' +
+                        '</button>' +
+                    '</div>' +
+                    '<div class="col-sm-2"><span class="label label-warning" style="line-height: 30px; margin-left: 10px;">包药' + (batchInfo ? '(' + batchInfo + ')' : '') + '</span></div>' +
+                '</div>' +
+                '<div class="form-group" style="margin-bottom: 10px;">' +
+                    '<label class="col-sm-2 control-label" style="padding-top: 7px;">包药内容：</label>' +
+                    '<div class="col-sm-8" style="padding-top: 7px;color:#666;">';
+            var parts = [];
+            packMedicineItems.forEach(function(item) {
+                parts.push(item.name + ' x ' + item.quantity + '片');
+            });
+            html += parts.join(' + ');
+            html += '</div></div>' +
+                '<div class="form-group" style="margin-bottom: 10px;">' +
+                    '<label class="col-sm-2 control-label" style="padding-top: 7px;">总剂量：</label>' +
+                    '<div class="col-sm-3">' +
+                        '<input type="text" class="form-control prescription-dosage" id="prescription-' + prescriptionIndex + '-dosage" value="' + totalQuantity + '片" placeholder="如：每次1包">' +
+                    '</div>' +
+                '</div>' +
+                '<div class="form-group" style="margin-bottom: 0;">' +
+                    '<label class="col-sm-2 control-label" style="padding-top: 7px;">用法：</label>' +
+                    '<div class="col-sm-3">' +
+                        '<input type="text" class="form-control prescription-frequency" id="prescription-' + prescriptionIndex + '-frequency" value="' + usage + '" placeholder="如：每日3次">' +
+                    '</div>' +
+                    '<label class="col-sm-2 control-label" style="padding-top: 7px;">天数：</label>' +
+                    '<div class="col-sm-3">' +
+                        '<input type="number" class="form-control prescription-days" placeholder="天数">' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+            $("#prescriptionList").append(html);
+
+            $("#packMedicineModal").modal('hide');
+        }
+
+        $("#form-medical-edit").validate({
+            onkeyup: false,
+            rules: {},
+            messages: {}
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                var prescription = [];
+                $('.prescription-item').each(function() {
+                    var index = $(this).attr('id').replace('prescription-', '');
+                    var isPack = $(this).find('.prescription-is-pack').val();
+                    var packDataEl = $(this).find('.prescription-pack-data');
+
+                    if (isPack === '1' && packDataEl.length > 0) {
+                        // 包药：多个药品
+                        var packData = packDataEl.val();
+                        try {
+                            var medicines = JSON.parse(packData);
+                            var dosage = $('#prescription-' + index + '-dosage').val();
+                            var frequency = $('#prescription-' + index + '-frequency').val();
+                            var days = $(this).find('.prescription-days').val();
+                            prescription.push({
+                                name: '包药',
+                                dosage: dosage,
+                                frequency: frequency,
+                                days: days,
+                                isPackMedicine: 1,
+                                packItems: medicines
+                            });
+                        } catch (e) {
+                            console.log("包药数据解析失败", e);
+                        }
+                    } else {
+                        // 普通药品
+                        var medicineId = $(this).find('.medicine-select').val();
+                        var medicine = medicineCache.find(function(m) { return m.medicineId == medicineId; });
+                        if (medicineId && medicine) {
+                            prescription.push({
+                                medicineId: medicineId,
+                                name: medicine.name,
+                                specification: medicine.specification,
+                                dosage: $('#prescription-' + index + '-dosage').val(),
+                                frequency: $('#prescription-' + index + '-frequency').val(),
+                                days: $('#prescription-' + index + '-days').val(),
+                                isPackMedicine: 0
+                            });
+                        }
+                    }
+                });
+
+                var formData = $('#form-medical-edit').serializeArray();
+                var data = {};
+                formData.forEach(function(item) {
+                    data[item.name] = item.value;
+                });
+                data.prescription = JSON.stringify(prescription);
+
+                $.operate.save(prefix + "/edit", data);
+            }
+        }
+    </script>
+    <style>
+        .patient-dropdown {
+            position: absolute;
+            z-index: 1000;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #e5e6e7;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        .patient-item {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .patient-item:hover {
+            background: #f3f3f4;
+        }
+        .input-group {
+            position: relative;
+        }
+    </style>
+</body>
+</html>

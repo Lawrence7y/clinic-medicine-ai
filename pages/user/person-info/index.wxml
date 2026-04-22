@@ -1,0 +1,238 @@
+<view class="person-info-container">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="正在加载个人信息..."
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || '加载个人信息失败'}}"
+    buttonText="重试"
+    bind:retry="retryLoad"
+  />
+
+  <block wx:else>
+    <view class="header">
+      <view class="header-content">
+        <view class="avatar-wrapper">
+          <view class="avatar-container">
+            <view class="default-avatar">
+              <text class="default-avatar-text">{{userInfo.name ? userInfo.name[0] : '用'}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="user-info">
+          <view class="user-name">{{userInfo.name || '用户'}}</view>
+          <view class="user-role">{{roleText}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="info-sections">
+      <view class="section-card">
+        <view class="section-header">
+          <t-icon name="user" size="32rpx" color="#222222" />
+          <text class="section-title">基础信息</text>
+        </view>
+
+        <view class="info-item">
+          <view class="item-left">
+            <t-icon name="user-circle" size="36rpx" color="#222222" />
+            <text class="label">姓名</text>
+          </view>
+        </view>
+        <view class="edit-section">
+          <t-input
+            value="{{editName}}"
+            bind:change="onNameChange"
+            placeholder="请输入姓名"
+            clearable
+            class="name-input"
+          />
+          <t-button
+            wx:if="{{editName !== originalName}}"
+            size="small"
+            theme="primary"
+            bind:tap="saveName"
+            class="save-btn"
+          >
+            保存姓名
+          </t-button>
+        </view>
+
+        <view class="info-item" bindtap="onClickCell" data-type="phone">
+          <view class="item-left">
+            <t-icon name="mobile" size="36rpx" color="#222222" />
+            <text class="label">手机号</text>
+          </view>
+          <view class="value-wrapper">
+            <text class="value">{{userInfo.phone || '-'}}</text>
+            <t-icon name="chevron-right" size="28rpx" color="#999" />
+          </view>
+        </view>
+
+        <view class="info-item" bindtap="onClickCell" data-type="gender">
+          <view class="item-left">
+            <t-icon name="user-o" size="36rpx" color="#222222" />
+            <text class="label">性别</text>
+          </view>
+          <view class="value-wrapper">
+            <text class="value">{{genderText}}</text>
+            <t-icon name="chevron-right" size="28rpx" color="#999" />
+          </view>
+        </view>
+
+        <view class="info-item">
+          <view class="item-left">
+            <t-icon name="calendar" size="36rpx" color="#222222" />
+            <text class="label">生日</text>
+          </view>
+          <picker mode="date" value="{{userInfo.birthday}}" bindchange="onBirthdayChange">
+            <view class="value-wrapper">
+              <text class="value">{{userInfo.birthday || '请选择日期'}}</text>
+              <t-icon name="chevron-right" size="28rpx" color="#999" />
+            </view>
+          </picker>
+        </view>
+
+        <view wx:if="{{userInfo.role === 'patient' || userInfo.role === 'doctor'}}" class="info-item">
+          <view class="item-left">
+            <t-icon name="time" size="36rpx" color="#222222" />
+            <text class="label">年龄</text>
+          </view>
+          <text class="value">{{age !== '' ? age : '-'}}</text>
+        </view>
+      </view>
+
+      <view class="section-card" wx:if="{{userInfo.role === 'doctor' || userInfo.role === 'patient'}}">
+        <view class="section-header">
+          <t-icon name="chat" size="32rpx" color="#07c160" />
+          <text class="section-title">联系方式</text>
+        </view>
+        <view class="info-item">
+          <view class="item-left">
+            <t-icon name="chat" size="36rpx" color="#07c160" />
+            <text class="label">微信号</text>
+          </view>
+        </view>
+        <view class="edit-section">
+          <t-input
+            value="{{editWechat}}"
+            bind:change="onWechatChange"
+            placeholder="请输入微信号"
+            clearable
+            class="wechat-input"
+          />
+          <view class="wechat-tip">
+            <text class="tip-text">请手动输入微信号，暂不支持自动读取。</text>
+          </view>
+          <t-button
+            wx:if="{{editWechat !== originalWechat}}"
+            size="small"
+            theme="primary"
+            bind:tap="saveWechat"
+            class="save-btn"
+          >
+            保存微信号
+          </t-button>
+        </view>
+      </view>
+
+      <view class="section-card" wx:if="{{userInfo.role === 'patient'}}">
+        <view class="section-header">
+          <t-icon name="heart" size="32rpx" color="#ff6b6b" />
+          <text class="section-title">健康信息</text>
+        </view>
+
+        <view class="info-item" bindtap="onClickCell" data-type="bloodType">
+          <view class="item-left">
+            <t-icon name="health" size="36rpx" color="#ff6b6b" />
+            <text class="label">血型</text>
+          </view>
+          <view class="value-wrapper">
+            <text class="value">{{userInfo.bloodType || '-'}}</text>
+            <t-icon name="chevron-right" size="28rpx" color="#999" />
+          </view>
+        </view>
+
+        <view class="info-item">
+          <view class="item-left">
+            <t-icon name="warning-circle" size="36rpx" color="#ff6b6b" />
+            <text class="label">过敏史</text>
+          </view>
+        </view>
+        <view class="info-item">
+          <text class="value">{{userInfo.allergyHistory || '无'}}</text>
+        </view>
+        <view class="edit-section">
+          <t-textarea
+            value="{{editAllergyHistory}}"
+            bind:change="onAllergyHistoryChange"
+            placeholder="请输入过敏史"
+            maxlength="500"
+            autosize
+            rows="3"
+            class="edit-textarea"
+          />
+          <t-button
+            wx:if="{{editAllergyHistory !== originalAllergyHistory}}"
+            size="small"
+            theme="primary"
+            bind:tap="saveAllergyHistory"
+            class="save-btn"
+          >
+            保存过敏史
+          </t-button>
+        </view>
+
+        <view class="info-item">
+          <view class="item-left">
+            <t-icon name="folder" size="36rpx" color="#ff6b6b" />
+            <text class="label">既往史</text>
+          </view>
+        </view>
+        <view class="info-item">
+          <text class="value">{{userInfo.pastHistory || '无'}}</text>
+        </view>
+        <view class="edit-section">
+          <t-textarea
+            value="{{editPastHistory}}"
+            bind:change="onPastHistoryChange"
+            placeholder="请输入既往史"
+            maxlength="500"
+            autosize
+            rows="3"
+            class="edit-textarea"
+          />
+          <t-button
+            wx:if="{{editPastHistory !== originalPastHistory}}"
+            size="small"
+            theme="primary"
+            bind:tap="savePastHistory"
+            class="save-btn"
+          >
+            保存既往史
+          </t-button>
+        </view>
+      </view>
+
+      <view class="section-card">
+        <view class="section-header">
+          <t-icon name="info-circle" size="32rpx" color="#999" />
+          <text class="section-title">其他信息</text>
+        </view>
+        <view class="info-item">
+          <view class="item-left">
+            <t-icon name="time" size="36rpx" color="#999" />
+            <text class="label">创建时间</text>
+          </view>
+          <text class="value">{{userInfo.createdAt || '-'}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

@@ -1,0 +1,155 @@
+<view class="appointment-page">
+  <view class="hero-card">
+    <view class="hero-badge">{{isAdmin ? texts.badgeAdmin : isDoctor ? texts.badgeDoctor : texts.badgePatient}}</view>
+    <text class="hero-title">{{roleTitle || texts.centerTitle}}</text>
+    <text class="hero-desc">{{roleDescription}}</text>
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="retryLoad"
+  />
+
+  <block wx:else>
+    <view class="section-card">
+      <view class="section-header">
+        <view>
+          <text class="section-title">{{scheduleSectionTitle}}</text>
+          <text class="section-desc">{{scheduleSectionDesc}}</text>
+        </view>
+        <t-button wx:if="{{canManageSchedule}}" theme="primary" size="small" bind:tap="openCreateScheduleModal">
+          {{texts.createSchedule}}
+        </t-button>
+      </view>
+
+      <scroll-view scroll-x class="date-scroll">
+        <view class="date-list">
+          <view
+            wx:for="{{dateList}}"
+            wx:key="date"
+            class="date-chip {{currentDateIndex === index ? 'active' : ''}}"
+            bindtap="onDateSelect"
+            data-index="{{index}}"
+          >
+            <text class="date-week">{{item.weekDay}}</text>
+            <text class="date-value">{{item.displayDate}}</text>
+          </view>
+        </view>
+      </scroll-view>
+
+      <async-state
+        wx:if="{{scheduleLoading}}"
+        mode="loading"
+        title="{{texts.loadingSchedule}}"
+      />
+      <async-state
+        wx:elif="{{scheduleList.length === 0}}"
+        mode="empty"
+        title="{{scheduleEmptyText || texts.scheduleEmptyCommon}}"
+      />
+      <view wx:else class="card-list">
+        <view wx:for="{{scheduleList}}" wx:key="id" class="info-card">
+          <view class="card-top">
+            <view>
+              <text class="card-title">{{item.doctorName || '-'}}</text>
+              <text class="card-subtitle">{{item.date}} {{item.timeRange}}</text>
+            </view>
+            <t-tag theme="{{item.remainingSlots > 0 ? 'success' : 'danger'}}" variant="light" size="small">
+              {{texts.remainPrefix}}{{item.remainingSlots}}
+            </t-tag>
+          </view>
+          <view class="meta-row">
+            <text class="meta-label">{{texts.slotLabel}}</text>
+            <text class="meta-value">{{item.bookedSlots}} / {{item.totalSlots}}</text>
+          </view>
+          <view class="card-actions">
+            <t-button
+              wx:if="{{isPatient}}"
+              theme="primary"
+              size="small"
+              disabled="{{item.remainingSlots <= 0}}"
+              bind:tap="openBookingModal"
+              data-schedule="{{item}}"
+            >
+              {{texts.book}}
+            </t-button>
+            <block wx:if="{{canManageSchedule}}">
+              <t-button theme="default" variant="outline" size="small" bind:tap="openEditScheduleModal" data-schedule="{{item}}">
+                {{texts.edit}}
+              </t-button>
+              <t-button theme="danger" variant="outline" size="small" bind:tap="deleteScheduleItem" data-schedule="{{item}}">
+                {{texts.remove}}
+              </t-button>
+            </block>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card">
+      <view class="section-header">
+        <view>
+          <text class="section-title">{{appointmentSectionTitle}}</text>
+          <text class="section-desc">{{appointmentSectionDesc}}</text>
+        </view>
+        <t-button theme="default" variant="outline" size="small" bindtap="goToReminderCenter">
+          {{texts.reminderCenter}}
+        </t-button>
+      </view>
+
+      <scroll-view scroll-x class="status-scroll">
+        <view class="status-list">
+          <view
+            wx:for="{{appointmentStatusOptions}}"
+            wx:key="value"
+            class="status-chip {{selectedStatus === item.value ? 'active' : ''}}"
+            bindtap="selectStatus"
+            data-status="{{item.value}}"
+          >
+            {{item.label}}
+          </view>
+        </view>
+      </scroll-view>
+
+      <async-state
+        wx:if="{{appointmentLoading}}"
+        mode="loading"
+        title="{{texts.loadingAppointment}}"
+      />
+      <async-state
+        wx:elif="{{appointmentList.length === 0}}"
+        mode="empty"
+        title="{{appointmentEmptyText || texts.appointmentEmptyManage}}"
+      />
+      <view wx:else class="card-list">
+        <view wx:for="{{appointmentList}}" wx:key="id" class="info-card" bindtap="goToAppointmentDetail" data-id="{{item.id}}">
+          <view class="card-top">
+            <view>
+              <text class="card-title">{{item.displayName}}</text>
+              <text wx:if="{{item.subTitle}}" class="card-subtitle">{{item.subTitle}}</text>
+            </view>
+            <t-tag theme="{{item.statusTheme}}" variant="light" size="small">{{item.statusText}}</t-tag>
+          </view>
+          <view class="meta-row"><text class="meta-label">{{texts.dateLabel}}</text><text class="meta-value">{{item.appointmentDate || '-'}}</text></view>
+          <view class="meta-row"><text class="meta-label">{{texts.timeLabel}}</text><text class="meta-value">{{item.appointmentTime || '-'}}</text></view>
+          <view class="card-actions" catchtap="noop">
+            <t-button wx:if="{{item.canConfirm}}" theme="primary" size="small" bind:tap="handleAppointmentAction" data-action="confirm" data-id="{{item.id}}">{{texts.confirm}}</t-button>
+            <t-button wx:if="{{item.canComplete}}" theme="success" size="small" bind:tap="handleAppointmentAction" data-action="complete" data-id="{{item.id}}">{{texts.finish}}</t-button>
+            <t-button wx:if="{{item.canCancel}}" theme="danger" variant="outline" size="small" bind:tap="handleAppointmentAction" data-action="cancel" data-id="{{item.id}}">{{texts.cancel}}</t-button>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

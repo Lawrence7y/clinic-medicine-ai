@@ -1,0 +1,35 @@
+<view class="page">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+  <view wx:else class="card">
+    <view class="title">场景测试</view>
+    <view class="label">场景</view>
+    <picker mode="selector" range="{{scenes}}" range-key="sceneName" value="{{sceneIndex}}" bindchange="onSceneChange">
+      <view class="picker">{{scenes[sceneIndex].sceneName || '请选择场景'}}</view>
+    </picker>
+
+    <view class="label">提示词</view>
+    <textarea class="textarea" value="{{form.prompt}}" bindinput="onPromptInput" maxlength="-1"/>
+
+    <view class="label">问题</view>
+    <textarea class="textarea" value="{{form.question}}" bindinput="onQuestionInput" maxlength="-1"/>
+    <t-button theme="primary" loading="{{testing}}" bindtap="onTest">开始测试</t-button>
+  </view>
+
+  <view class="card" wx:if="{{uiState === 'ready' && result.reply}}">
+    <view class="label">模型：{{result.model || '-'}}</view>
+    <view class="result">{{result.reply}}</view>
+  </view>
+
+  <t-toast id="t-toast"/>
+</view>

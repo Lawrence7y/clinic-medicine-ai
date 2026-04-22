@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.clinic.medicine.mapper.ClinicPackLossRecordMapper">
+    <resultMap id="PackLossResultMap" type="com.ruoyi.project.clinic.medicine.domain.ClinicPackLossRecord">
+        <id property="id" column="id"/>
+        <result property="medicineId" column="medicine_id"/>
+        <result property="medicineName" column="medicine_name"/>
+        <result property="lossQuantity" column="loss_quantity"/>
+        <result property="relatedRecordId" column="related_record_id"/>
+        <result property="batchNumber" column="batch_number"/>
+        <result property="isProcessed" column="is_processed"/>
+        <result property="createTime" column="create_time"/>
+        <result property="operatorName" column="operator_name"/>
+    </resultMap>
+
+    <insert id="insertPackLossRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO clinic_pack_loss_record(
+            medicine_id, medicine_name, loss_quantity, related_record_id, batch_number, is_processed, create_time, operator_name
+        ) VALUES (
+            #{medicineId}, #{medicineName}, #{lossQuantity}, #{relatedRecordId}, #{batchNumber}, 0, #{createTime}, #{operatorName}
+        )
+    </insert>
+
+    <select id="selectPackLossSummary" resultType="java.util.HashMap">
+        SELECT
+            medicine_id AS medicineId,
+            medicine_name AS medicineName,
+            batch_number AS batchNumber,
+            SUM(loss_quantity) AS totalLossQuantity,
+            MAX(create_time) AS latestTime
+        FROM clinic_pack_loss_record
+        WHERE is_processed = 0
+        GROUP BY medicine_id, medicine_name, batch_number
+        ORDER BY latestTime DESC
+    </select>
+
+    <select id="selectUnprocessedByMedicineId" resultMap="PackLossResultMap">
+        SELECT id, medicine_id, medicine_name, loss_quantity, related_record_id, batch_number, is_processed, create_time, operator_name
+        FROM clinic_pack_loss_record
+        WHERE medicine_id = #{medicineId}
+          AND is_processed = 0
+        ORDER BY create_time ASC
+    </select>
+
+    <update id="markAsProcessed">
+        UPDATE clinic_pack_loss_record
+        SET is_processed = 1
+        WHERE medicine_id = #{medicineId}
+          AND is_processed = 0
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM clinic_pack_loss_record
+        WHERE id = #{id}
+    </delete>
+</mapper>

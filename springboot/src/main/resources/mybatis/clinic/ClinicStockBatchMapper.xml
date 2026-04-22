@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.clinic.medicine.mapper.ClinicStockBatchMapper">
+    <resultMap id="BatchResultMap" type="com.ruoyi.project.clinic.medicine.domain.ClinicStockBatch">
+        <id property="batchId" column="batch_id"/>
+        <result property="medicineId" column="medicine_id"/>
+        <result property="batchNumber" column="batch_number"/>
+        <result property="expiryDate" column="expiry_date"/>
+        <result property="remainingQuantity" column="remaining_quantity"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectBatchById" resultMap="BatchResultMap">
+        SELECT batch_id, medicine_id, batch_number, expiry_date, remaining_quantity, create_time, update_time
+        FROM clinic_stock_batch
+        WHERE batch_id = #{batchId}
+    </select>
+
+    <select id="selectBatchByUniqueForUpdate" resultMap="BatchResultMap">
+        SELECT batch_id, medicine_id, batch_number, expiry_date, remaining_quantity, create_time, update_time
+        FROM clinic_stock_batch
+        WHERE medicine_id = #{medicineId}
+          AND batch_number = #{batchNumber}
+          AND expiry_date = #{expiryDate}
+        FOR UPDATE
+    </select>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="batchId">
+        INSERT INTO clinic_stock_batch(
+            medicine_id, batch_number, expiry_date, remaining_quantity, create_time, update_time
+        ) VALUES (
+            #{medicineId}, #{batchNumber}, #{expiryDate}, #{remainingQuantity}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updateBatchRemainingQuantity">
+        UPDATE clinic_stock_batch
+        SET remaining_quantity = #{remainingQuantity},
+            update_time = #{updateTime}
+        WHERE batch_id = #{batchId}
+    </update>
+
+    <select id="selectUsableBatchesForUpdate" resultMap="BatchResultMap">
+        SELECT batch_id, medicine_id, batch_number, expiry_date, remaining_quantity, create_time, update_time
+        FROM clinic_stock_batch
+        WHERE medicine_id = #{medicineId}
+          AND remaining_quantity > 0
+          AND expiry_date >= #{today}
+        ORDER BY expiry_date ASC, batch_id ASC
+        FOR UPDATE
+    </select>
+
+    <select id="selectAllBatchesByMedicineForUpdate" resultMap="BatchResultMap">
+        SELECT batch_id, medicine_id, batch_number, expiry_date, remaining_quantity, create_time, update_time
+        FROM clinic_stock_batch
+        WHERE medicine_id = #{medicineId}
+        ORDER BY expiry_date ASC, batch_id ASC
+        FOR UPDATE
+    </select>
+
+    <select id="selectNearestExpiryDateByMedicineId" resultType="java.util.Date">
+        SELECT expiry_date
+        FROM clinic_stock_batch
+        WHERE medicine_id = #{medicineId}
+          AND remaining_quantity > 0
+        ORDER BY expiry_date ASC, batch_id ASC
+        LIMIT 1
+    </select>
+
+    <select id="selectBatchListByMedicineId" resultMap="BatchResultMap">
+        SELECT batch_id, medicine_id, batch_number, expiry_date, remaining_quantity, create_time, update_time
+        FROM clinic_stock_batch
+        WHERE medicine_id = #{medicineId}
+        ORDER BY expiry_date ASC, batch_id ASC
+    </select>
+
+    <select id="selectBatchPageList" resultType="java.util.HashMap">
+        SELECT
+            b.batch_id AS batchId,
+            b.medicine_id AS medicineId,
+            m.name AS medicineName,
+            b.batch_number AS batchNumber,
+            b.create_time AS stockInDate,
+            b.expiry_date AS expiryDate,
+            b.remaining_quantity AS remainingQuantity,
+            b.create_time AS createTime,
+            b.update_time AS updateTime
+        FROM clinic_stock_batch b
+        LEFT JOIN clinic_medicine m ON m.medicine_id = b.medicine_id
+        <where>
+            <if test="medicineName != null and medicineName != ''">
+                AND m.name LIKE CONCAT('%', #{medicineName}, '%')
+            </if>
+            <if test="medicineId != null">
+                AND b.medicine_id = #{medicineId}
+            </if>
+        </where>
+        ORDER BY b.expiry_date ASC, b.batch_id ASC
+    </select>
+</mapper>

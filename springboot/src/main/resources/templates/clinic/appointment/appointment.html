@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<th:block th:include="include :: header('预约列表')" />
+</head>
+<body class="gray-bg">
+	<div class="container-div">
+		<div class="row">
+			<div class="col-sm-12 search-collapse">
+				<form id="appointment-form">
+					<div class="select-list">
+						<ul>
+							<li>
+								患者姓名：<input type="text" name="patientName"/>
+							</li>
+							<li>
+								预约状态：<select name="status">
+									<option value="">全部</option>
+									<option value="pending">待确认</option>
+									<option value="confirmed">已确认</option>
+									<option value="completed">已完成</option>
+									<option value="cancelled">已取消</option>
+								</select>
+							</li>
+							<li>
+								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+							    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>
+
+	        <div class="btn-group-sm" id="toolbar" role="group">
+	        	<a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="clinic:appointment:add">
+	                <i class="fa fa-plus"></i> 新增
+	            </a>
+	            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="clinic:appointment:remove">
+	                <i class="fa fa-remove"></i> 删除
+	            </a>
+	        </div>
+
+	        <div class="col-sm-12 select-table table-striped">
+			    <table id="bootstrap-table"></table>
+			</div>
+		</div>
+	</div>
+
+	<th:block th:include="include :: footer" />
+	<script th:inline="javascript">
+		var editFlag = [[${@permission.hasPermi('clinic:appointment:edit')}]];
+		var removeFlag = [[${@permission.hasPermi('clinic:appointment:remove')}]];
+		var prefix = ctx + "clinic/appointment";
+
+		$(function() {
+		    queryAppointmentList();
+		});
+
+		function queryAppointmentList() {
+		    var options = {
+		        url: prefix + "/list",
+		        createUrl: prefix + "/add",
+		        updateUrl: prefix + "/edit/{id}",
+		        removeUrl: prefix + "/remove",
+		        sortName: "createTime",
+		        sortOrder: "desc",
+		        modalName: "预约",
+		        columns: [{
+		            checkbox: true
+		        },
+		        {
+		            field: 'appointmentId',
+		            title: '预约ID'
+		        },
+		        {
+		            field: 'patientName',
+		            title: '患者姓名'
+		        },
+		        {
+		            field: 'doctorName',
+		            title: '医生姓名'
+		        },
+		        {
+		            field: 'appointmentDate',
+		            title: '预约日期',
+		            sortable: true
+		        },
+		        {
+		            field: 'appointmentTime',
+		            title: '预约时间'
+		        },
+		        {
+		            field: 'sequenceNumber',
+		            title: '序号'
+		        },
+		        {
+		            field: 'status',
+		            title: '状态',
+		            formatter: function(value, row, index) {
+		                if (value == 'pending') return '<span class="label label-warning">待确认</span>';
+		                else if (value == 'confirmed') return '<span class="label label-info">已确认</span>';
+		                else if (value == 'completed') return '<span class="label label-success">已完成</span>';
+		                else if (value == 'cancelled') return '<span class="label label-default">已取消</span>';
+		                return value;
+		            }
+		        },
+		        {
+		            field: 'called',
+		            title: '叫号状态',
+		            formatter: function(value, row, index) {
+		                if (value == 1) return '<span class="label label-danger">已叫号</span>';
+		                return '<span class="label label-default">未叫号</span>';
+		            }
+		        },
+		        {
+		            title: '操作',
+		            align: 'center',
+		            formatter: function(value, row, index) {
+		                var actions = [];
+		                // 待确认可以确认
+		                if (row.status == 'pending') {
+		                    actions.push('<a class="btn btn-info btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="confirmAppointment(\'' + row.appointmentId + '\')"><i class="fa fa-check"></i>确认</a> ');
+		                }
+		                // 已确认可以叫号或完成
+		                if (row.status == 'confirmed') {
+		                    if (row.called != 1) {
+		                        actions.push('<a class="btn btn-warning btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="callAppointment(\'' + row.appointmentId + '\')"><i class="fa fa-bullhorn"></i>叫号</a> ');
+		                    }
+		                    actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="completeAppointment(\'' + row.appointmentId + '\')"><i class="fa fa-check-circle"></i>完成</a> ');
+		                }
+		                actions.push('<a class="btn btn-primary btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.appointmentId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+		                actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.appointmentId + '\')"><i class="fa fa-remove"></i>删除</a>');
+		                return actions.join('');
+		            }
+		        }]
+		    };
+		    $.table.init(options);
+		}
+
+		// 确认预约
+		function confirmAppointment(id) {
+		    $.ajax({
+		        url: prefix + "/edit",
+		        type: "post",
+		        data: { appointmentId: id, status: "confirmed" },
+		        success: function(result) {
+		            if (result.code == web_status.SUCCESS) {
+		                $.table.refresh();
+		                $.modal.msgSuccess("预约已确认");
+		            } else {
+		                $.modal.msgError(result.msg);
+		            }
+		        }
+		    });
+		}
+
+		// 叫号
+		function callAppointment(id) {
+		    $.ajax({
+		        url: prefix + "/call/" + id,
+		        type: "post",
+		        success: function(result) {
+		            if (result.code == web_status.SUCCESS) {
+		                $.table.refresh();
+		                $.modal.msgSuccess("叫号成功");
+		            } else {
+		                $.modal.msgError(result.msg);
+		            }
+		        }
+		    });
+		}
+
+		// 完成就诊
+		function completeAppointment(id) {
+		    $.ajax({
+		        url: prefix + "/complete/" + id,
+		        type: "post",
+		        success: function(result) {
+		            if (result.code == web_status.SUCCESS) {
+		                $.table.refresh();
+		                $.modal.msgSuccess("完成就诊");
+		            } else {
+		                $.modal.msgError(result.msg);
+		            }
+		        }
+		    });
+		}
+	</script>
+</body>
+</html>

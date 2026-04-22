@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "使用记录",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-search": "tdesign-miniprogram/search/search",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "t-button": "tdesign-miniprogram/button/button",
+    "async-state": "/components/async-state/index",
+    "load-more": "../../../components/load-more/index"
+  }
+}

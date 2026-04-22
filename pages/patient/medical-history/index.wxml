@@ -1,0 +1,54 @@
+<view class="medical-history-container">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+
+  <block wx:else>
+  <view class="patient-info-section">
+    <view class="patient-header">
+      <t-icon name="user" size="48rpx" color="#222222" />
+      <view class="patient-info">
+        <text class="patient-name">{{patientInfo.name || '-'}}</text>
+        <text class="patient-basic">{{getGenderText(patientInfo.gender)}} | {{patientInfo.age || '-'}} | {{patientInfo.phone || '-'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="record-list">
+    <view class="record-card" wx:for="{{recordList}}" wx:key="id" bindtap="goToRecordDetail" data-id="{{item.id}}">
+      <view class="record-header">
+        <text class="record-date">{{item.visitTime || '-'}}</text>
+      </view>
+      <view class="record-body">
+        <text class="record-diagnosis">{{item.diagnosis || '-'}}</text>
+        <text class="record-doctor">医生：{{item.doctorName || '-'}}</text>
+      </view>
+      <view class="record-footer">
+        <text class="record-chief-complaint">{{item.chiefComplaint || '-'}}</text>
+        <t-icon name="chevron-right" size="32rpx" color="#999" />
+      </view>
+    </view>
+  </view>
+
+  <async-state wx:if="{{uiState === 'empty'}}" mode="empty" title="{{texts.empty}}" />
+
+  <load-more
+    wx:if="{{recordList.length > 0}}"
+    status="{{loadMoreStatus}}"
+    bind:loadmore="loadMore"
+    bind:retry="loadMore"
+  />
+
+  <t-toast id="t-toast" />
+  </block>
+</view>

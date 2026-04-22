@@ -1,0 +1,117 @@
+<view class="user-list-container">
+  <view class="search-bar">
+    <t-search value="{{searchKeyword}}" placeholder="请输入姓名或手机号搜索" bind:change="onSearchChange" bind:search="onSearch" />
+  </view>
+
+  <view class="filter-bar">
+    <view class="status-buttons">
+      <ui-button size="small" theme="{{selectedRole === '' ? 'primary' : 'default'}}" variant="{{selectedRole === '' ? 'base' : 'outline'}}" bind:tap="selectRole" data-role="">全部</ui-button>
+      <ui-button size="small" theme="{{selectedRole === 'super_admin' ? 'primary' : 'default'}}" variant="{{selectedRole === 'super_admin' ? 'base' : 'outline'}}" bind:tap="selectRole" data-role="super_admin">超管</ui-button>
+      <ui-button size="small" theme="{{selectedRole === 'clinic_admin' ? 'primary' : 'default'}}" variant="{{selectedRole === 'clinic_admin' ? 'base' : 'outline'}}" bind:tap="selectRole" data-role="clinic_admin">诊所管理员</ui-button>
+      <ui-button size="small" theme="{{selectedRole === 'doctor' ? 'primary' : 'default'}}" variant="{{selectedRole === 'doctor' ? 'base' : 'outline'}}" bind:tap="selectRole" data-role="doctor">医生</ui-button>
+      <ui-button size="small" theme="{{selectedRole === 'patient' ? 'primary' : 'default'}}" variant="{{selectedRole === 'patient' ? 'base' : 'outline'}}" bind:tap="selectRole" data-role="patient">患者</ui-button>
+    </view>
+  </view>
+
+  <view class="user-list">
+    <async-state
+      wx:if="{{uiState === 'loading'}}"
+      mode="loading"
+      title="{{texts.loading}}"
+    />
+
+    <async-state
+      wx:elif="{{uiState === 'error'}}"
+      mode="error"
+      title="{{errorText || texts.loadFailed}}"
+      buttonText="{{texts.retry}}"
+      bind:retry="onRetry"
+    />
+
+    <block wx:else>
+    <view class="user-item" wx:for="{{userList}}" wx:key="id">
+      <view class="user-info">
+        <t-avatar size="large" text="{{item.name ? item.name[0] : '用'}}" />
+        <view class="user-detail">
+          <view class="user-name">{{item.name}}</view>
+          <view class="user-phone">{{item.phone}}</view>
+          <view class="user-role">{{getRoleName(item.role)}}</view>
+        </view>
+      </view>
+      <view class="user-actions">
+        <ui-button size="small" variant="outline" bindtap="openEditModal" data-user="{{item}}" wx:if="{{canEditUser(item)}}">编辑</ui-button>
+        <ui-button size="small" theme="danger" variant="outline" bindtap="handleDeleteUser" data-user="{{item}}" wx:if="{{canEditUser(item)}}">删除</ui-button>
+        <ui-button size="small" theme="primary" variant="base" bindtap="goToUserDetail" data-user="{{item}}" wx:if="{{canManageUser(item)}}">管理</ui-button>
+      </view>
+    </view>
+
+    <async-state wx:if="{{uiState === 'empty'}}" mode="empty" title="{{texts.empty}}" />
+    </block>
+  </view>
+
+  <view class="add-button">
+    <ui-button theme="primary" block bindtap="openAddModal">新增用户</ui-button>
+  </view>
+
+  <t-popup visible="{{showAddModal}}" position="center" bind:close="closeAddModal">
+    <view class="modal-content">
+      <view class="modal-title">新增用户</view>
+      <view class="form-container">
+        <view class="form-item">
+          <view class="form-label">姓名</view>
+          <t-input value="{{formData.name}}" bind:change="onFormFieldChange" data-field="name" placeholder="请输入姓名" />
+        </view>
+        <view class="form-item">
+          <view class="form-label">手机号</view>
+          <t-input value="{{formData.phone}}" bind:change="onFormFieldChange" data-field="phone" placeholder="请输入手机号" type="number" />
+        </view>
+        <view class="form-item">
+          <view class="form-label">密码</view>
+          <t-input value="{{formData.password}}" bind:change="onFormFieldChange" data-field="password" placeholder="请输入至少 6 位密码" type="password" />
+        </view>
+        <view class="form-item">
+          <view class="form-label">角色</view>
+          <picker mode="selector" range="{{pickerRoleOptions}}" value="{{pickerSelectedIndex}}" bindchange="onRoleSelectChange">
+            <view class="picker">{{getRoleName(formData.role)}}</view>
+          </picker>
+        </view>
+      </view>
+      <view class="modal-actions">
+        <ui-button variant="outline" bindtap="closeAddModal">取消</ui-button>
+        <ui-button theme="primary" bindtap="handleAddUser" loading="{{loading}}">保存</ui-button>
+      </view>
+    </view>
+  </t-popup>
+
+  <t-popup visible="{{showEditModal}}" position="center" bind:close="closeEditModal">
+    <view class="modal-content">
+      <view class="modal-title">编辑用户</view>
+      <view class="form-container">
+        <view class="form-item">
+          <view class="form-label">姓名</view>
+          <t-input value="{{formData.name}}" bind:change="onFormFieldChange" data-field="name" placeholder="请输入姓名" />
+        </view>
+        <view class="form-item">
+          <view class="form-label">手机号</view>
+          <t-input value="{{formData.phone}}" readonly placeholder="手机号不可修改" />
+        </view>
+        <view class="form-item">
+          <view class="form-label">新密码</view>
+          <t-input value="{{formData.password}}" bind:change="onFormFieldChange" data-field="password" placeholder="留空则保持原密码" type="password" />
+        </view>
+        <view class="form-item">
+          <view class="form-label">角色</view>
+          <picker mode="selector" range="{{pickerRoleOptions}}" value="{{pickerSelectedIndex}}" bindchange="onRoleSelectChange">
+            <view class="picker">{{getRoleName(formData.role)}}</view>
+          </picker>
+        </view>
+      </view>
+      <view class="modal-actions">
+        <ui-button variant="outline" bindtap="closeEditModal">取消</ui-button>
+        <ui-button theme="primary" bindtap="handleEditUser" loading="{{loading}}">保存</ui-button>
+      </view>
+    </view>
+  </t-popup>
+
+  <t-toast id="t-toast" />
+</view>

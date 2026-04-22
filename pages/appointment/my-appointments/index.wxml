@@ -1,0 +1,99 @@
+<view class="my-appointments-container">
+  <view class="search-section">
+    <t-search
+      placeholder="{{texts.searchPlaceholder}}"
+      value="{{searchKeyword}}"
+      bind:change="onSearchChange"
+      bind:submit="onSearch"
+      bind:search="onSearch"
+    />
+  </view>
+
+  <view class="called-alert" wx:if="{{isPatientView && calledAlert}}">
+    <view class="called-alert-content">
+      <view class="called-alert-icon">!</view>
+      <view class="called-alert-text">
+        <view class="called-alert-title">{{texts.calledTitle}}</view>
+        <view class="called-alert-desc">{{calledAlert.doctorName}} {{texts.calledDescSuffix}}{{texts.calledSeqPrefix}}{{calledAlert.sequenceNumber}}{{texts.calledSeqSuffix}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="filter-section">
+    <scroll-view scroll-x class="filter-scroll">
+      <view class="filter-list">
+        <view class="filter-item {{selectedStatus === '' ? 'active' : ''}}" bindtap="selectStatus" data-status="">{{texts.all}}</view>
+        <view class="filter-item {{selectedStatus === 'pending' ? 'active' : ''}}" bindtap="selectStatus" data-status="pending">{{texts.pending}}</view>
+        <view class="filter-item {{selectedStatus === 'confirmed' ? 'active' : ''}}" bindtap="selectStatus" data-status="confirmed">{{texts.confirmed}}</view>
+        <view class="filter-item {{selectedStatus === 'completed' ? 'active' : ''}}" bindtap="selectStatus" data-status="completed">{{texts.completed}}</view>
+        <view class="filter-item {{selectedStatus === 'cancelled' ? 'active' : ''}}" bindtap="selectStatus" data-status="cancelled">{{texts.cancelled}}</view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="appointment-list">
+    <async-state
+      wx:if="{{uiState === 'loading'}}"
+      mode="loading"
+      title="{{texts.loading}}"
+    />
+
+    <async-state
+      wx:elif="{{uiState === 'error'}}"
+      mode="error"
+      title="{{errorMessage || texts.loadFailed}}"
+      buttonText="{{texts.retry}}"
+      bind:retry="onRetry"
+    />
+
+    <block wx:elif="{{appointmentList.length > 0}}">
+      <view
+        class="appointment-card {{item.isCalledHighlighted ? 'called-card' : ''}}"
+        wx:for="{{appointmentList}}"
+        wx:key="id"
+        bindtap="goToAppointmentDetail"
+        data-id="{{item.id}}"
+      >
+        <view class="appointment-header">
+          <view class="doctor-info">
+            <text class="doctor-name">{{item.cardTitle}}</text>
+            <text class="card-subtitle" wx:if="{{item.cardSubtitle}}">{{item.cardSubtitle}}</text>
+            <t-tag size="small" theme="{{item.statusTheme || 'default'}}" variant="light">{{item.statusText || item.status}}</t-tag>
+            <t-tag size="small" class="called-tag" wx:if="{{item.isCalledHighlighted}}" theme="danger" variant="solid">{{texts.calledTag}}</t-tag>
+          </view>
+        </view>
+        <view class="appointment-body">
+          <view class="info-row"><text class="label">{{texts.dateLabel}}</text><text class="value">{{item.appointmentDate || '-'}}</text></view>
+          <view class="info-row"><text class="label">{{texts.timeLabel}}</text><text class="value">{{item.appointmentTime || '-'}}</text></view>
+          <view class="info-row"><text class="label">{{texts.seqLabel}}</text><text class="value">{{item.sequenceNumber || '-'}}</text></view>
+          <view class="queue-info-row called-hint" wx:if="{{item.showCalledHint}}">
+            <text class="called-hint-text">{{texts.calledHint}}</text>
+          </view>
+        </view>
+        <view class="appointment-footer">
+          <view class="actions">
+            <t-button size="small" theme="default" variant="outline" catchtap="goToAppointmentDetail" data-id="{{item.id}}">{{texts.detail}}</t-button>
+            <t-button
+              size="small"
+              theme="danger"
+              variant="outline"
+              wx:if="{{item.status === 'pending' || item.status === 'confirmed'}}"
+              catchtap="cancelAppointment"
+              data-id="{{item.id}}"
+            >
+              {{texts.cancel}}
+            </t-button>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <async-state
+      wx:else
+      mode="empty"
+      title="{{texts.empty}}"
+    />
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

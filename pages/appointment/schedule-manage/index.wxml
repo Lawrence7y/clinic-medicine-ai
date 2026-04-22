@@ -1,0 +1,184 @@
+<view class="schedule-manage-container">
+  <view class="date-selector">
+    <scroll-view scroll-x class="date-scroll">
+      <view class="date-list">
+        <view
+          wx:for="{{dateList}}"
+          wx:key="date"
+          class="date-item {{currentDateIndex === index ? 'active' : ''}}"
+          bindtap="onDateSelect"
+          data-index="{{index}}"
+        >
+          <text class="week-day">{{item.weekDay}}</text>
+          <text class="date">{{item.displayDate}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="action-bar">
+    <view class="action-bar-left">
+      <picker mode="selector" range="{{doctorList}}" range-key="name" bindchange="onFilterDoctorChange">
+        <view class="filter-picker">
+          <t-icon name="user" size="28rpx" />
+          <text>{{filterDoctorId ? doctorList[filterDoctorIndex].name : '全部医生'}}</text>
+        </view>
+      </picker>
+    </view>
+    <view class="action-bar-right">
+      <t-button theme="primary" size="small" bindtap="openAddModal">
+        新建排班
+      </t-button>
+    </view>
+  </view>
+
+  <view class="schedule-list">
+    <async-state
+      wx:if="{{uiState === 'loading'}}"
+      mode="loading"
+      title="加载中..."
+    />
+
+    <async-state
+      wx:elif="{{uiState === 'error'}}"
+      mode="error"
+      title="{{errorMessage || '加载排班失败'}}"
+      buttonText="重试"
+      bind:retry="onRetry"
+    />
+
+    <view wx:elif="{{scheduleList.length === 0}}" class="empty-state">
+      <t-icon name="calendar" size="80rpx" color="#ccc" />
+      <text>当前日期暂无排班</text>
+    </view>
+
+    <view wx:else class="schedule-cards">
+      <view
+        wx:for="{{scheduleList}}"
+        wx:key="id"
+        class="schedule-card"
+        bindtap="openEditModal"
+        data-schedule="{{item}}"
+      >
+        <view class="card-header">
+          <view class="doctor-info">
+            <text class="doctor-name">{{item.doctorName}}</text>
+          </view>
+        </view>
+
+        <view class="card-body">
+          <view class="info-row">
+            <t-icon name="time" size="28rpx" color="#222222" />
+            <text>{{item.startTime}} - {{item.endTime}}</text>
+          </view>
+          <view class="info-row">
+            <t-icon name="user" size="28rpx" color="#4caf50" />
+            <text>已约 {{item.bookedSlots}} / {{item.totalSlots}}</text>
+          </view>
+        </view>
+
+        <view class="card-actions">
+          <t-button theme="danger" size="small" catchtap="handleDeleteSchedule" data-schedule="{{item}}">
+            删除
+          </t-button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <t-popup visible="{{showAddModal}}" bind:visible-change="closeAddModal">
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">新建排班</text>
+        <t-icon name="close" size="40rpx" bindtap="closeAddModal" />
+      </view>
+      <view class="modal-body">
+        <view class="form-item">
+          <text class="label">医生</text>
+          <picker mode="selector" range="{{doctorList}}" range-key="name" bindchange="onDoctorSelect">
+            <view class="picker-value">
+              {{formData.doctorName || '请选择医生'}}
+            </view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="label">开始时间</text>
+          <picker mode="time" value="{{formData.startTime}}" start="06:00" end="22:00" bindchange="onStartTimeChange">
+            <view class="time-picker-value">
+              {{formData.startTime || '请选择时间'}}
+            </view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="label">结束时间</text>
+          <picker mode="time" value="{{formData.endTime}}" start="06:00" end="22:00" bindchange="onEndTimeChange">
+            <view class="time-picker-value">
+              {{formData.endTime || '请选择时间'}}
+            </view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="label">总号源</text>
+          <t-input
+            type="number"
+            value="{{formData.totalSlots}}"
+            bindchange="onFormFieldChange"
+            data-field="totalSlots"
+            placeholder="请输入总号源"
+          />
+        </view>
+      </view>
+      <view class="modal-footer">
+        <t-button theme="light" bindtap="closeAddModal">取消</t-button>
+        <t-button theme="primary" bindtap="handleAddSchedule">确认</t-button>
+      </view>
+    </view>
+  </t-popup>
+
+  <t-popup visible="{{showEditModal}}" bind:visible-change="closeEditModal">
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">编辑排班</text>
+        <t-icon name="close" size="40rpx" bindtap="closeEditModal" />
+      </view>
+      <view class="modal-body">
+        <view class="form-item">
+          <text class="label">医生</text>
+          <text class="value">{{formData.doctorName}}</text>
+        </view>
+        <view class="form-item">
+          <text class="label">开始时间</text>
+          <picker mode="time" value="{{formData.startTime}}" start="06:00" end="22:00" bindchange="onStartTimeChange">
+            <view class="time-picker-value">
+              {{formData.startTime || '请选择时间'}}
+            </view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="label">结束时间</text>
+          <picker mode="time" value="{{formData.endTime}}" start="06:00" end="22:00" bindchange="onEndTimeChange">
+            <view class="time-picker-value">
+              {{formData.endTime || '请选择时间'}}
+            </view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="label">总号源</text>
+          <t-input
+            type="number"
+            value="{{formData.totalSlots}}"
+            bindchange="onFormFieldChange"
+            data-field="totalSlots"
+            placeholder="请输入总号源"
+          />
+        </view>
+      </view>
+      <view class="modal-footer">
+        <t-button theme="light" bindtap="closeEditModal">取消</t-button>
+        <t-button theme="primary" bindtap="handleEditSchedule">确认</t-button>
+      </view>
+    </view>
+  </t-popup>
+
+  <t-toast id="t-toast" />
+</view>

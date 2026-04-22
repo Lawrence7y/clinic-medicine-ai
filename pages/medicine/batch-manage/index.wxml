@@ -1,0 +1,72 @@
+<view class="batch-manage-container">
+  <view class="header-card">
+    <view class="title-row">
+      <text class="title">批次管理</text>
+      <text class="count">共 {{batchList.length}} 个批次</text>
+    </view>
+    <text class="medicine-name">{{medicineName || '当前药品'}}</text>
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'empty'}}"
+    mode="empty"
+    title="{{texts.empty}}"
+  />
+
+  <view wx:else class="batch-list">
+    <view class="batch-card" wx:for="{{batchList}}" wx:key="batchId">
+      <view class="card-top">
+        <view class="batch-number-wrap">
+          <text class="batch-number-label">批次号</text>
+          <text class="batch-number">{{item.batchNumber || item.stockInDate || '-'}}</text>
+        </view>
+        <t-tag size="small" theme="{{getBatchTheme(item)}}" variant="light">{{getBatchStatus(item)}}</t-tag>
+      </view>
+
+      <view class="card-row">
+        <text class="label">入库日期</text>
+        <text class="value">{{item.stockInDate || '-'}}</text>
+      </view>
+      <view class="card-row">
+        <text class="label">有效期</text>
+        <text class="value">{{item.expiryDate || '-'}}</text>
+      </view>
+      <view class="card-row">
+        <text class="label">剩余库存</text>
+        <text class="value strong">{{item.remainingQuantity}}</text>
+      </view>
+      <view class="card-row">
+        <text class="label">天数提醒</text>
+        <text class="value">{{item.daysToExpiry !== null ? item.daysToExpiry + ' 天' : '-'}}</text>
+      </view>
+      <view class="card-actions" wx:if="{{canOffShelf && item.remainingQuantity > 0}}">
+        <t-button
+          size="small"
+          theme="danger"
+          variant="outline"
+          loading="{{submittingBatchId === item.batchId}}"
+          bindtap="handleOffShelfBatch"
+          data-batch="{{item}}"
+        >
+          单独出库
+        </t-button>
+      </view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

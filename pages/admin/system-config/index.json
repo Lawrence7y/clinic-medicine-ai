@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "系统配置",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-input": "tdesign-miniprogram/input/input",
+    "t-switch": "tdesign-miniprogram/switch/switch",
+    "t-button": "tdesign-miniprogram/button/button",
+    "async-state": "/components/async-state/index"
+  }
+}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('AI 场景绑定列表')" />
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="alert alert-info" style="margin-bottom: 15px;">
+                场景绑定共用全局模型配置。调整主模型或兜底模型后，相关识别流程会立即生效。
+            </div>
+        </div>
+        <div class="col-sm-12 search-collapse">
+            <form id="scene-form">
+                <div class="select-list">
+                    <ul>
+                        <li>场景编码：<input type="text" name="sceneCode"/></li>
+                        <li>场景名称：<input type="text" name="sceneName"/></li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="clinic:ai:scene:add">
+                <i class="fa fa-plus"></i> 新增
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="clinic:ai:scene:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="clinic:ai:scene:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('clinic:ai:scene:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('clinic:ai:scene:remove')}]];
+    var prefix = ctx + "clinic/ai/scene";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            modalName: "AI 场景绑定",
+            columns: [{
+                checkbox: true
+            }, {
+                field: 'sceneId',
+                title: 'ID'
+            }, {
+                field: 'sceneCode',
+                title: '场景编码'
+            }, {
+                field: 'sceneName',
+                title: '场景名称'
+            }, {
+                field: 'executionMode',
+                title: '执行模式',
+                formatter: executionModeFormatter
+            }, {
+                field: 'primaryModelName',
+                title: '主模型'
+            }, {
+                field: 'fallbackModelName',
+                title: '兜底模型'
+            }, {
+                field: 'candidateLimit',
+                title: '候选上限'
+            }, {
+                field: 'timeoutMs',
+                title: '超时（毫秒）'
+            }, {
+                field: 'enabled',
+                title: '状态',
+                formatter: function (value) {
+                    return Number(value) === 1
+                        ? '<span class="label label-primary">启用</span>'
+                        : '<span class="label label-default">停用</span>';
+                }
+            }, {
+                title: '操作',
+                align: 'center',
+                formatter: function (value, row) {
+                    var actions = [];
+                    actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.sceneId + '\')"><i class="fa fa-edit"></i>修改</a> ');
+                    actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.sceneId + '\')"><i class="fa fa-remove"></i>删除</a>');
+                    return actions.join('');
+                }
+            }]
+        };
+        $.table.init(options);
+    });
+
+    function executionModeFormatter(value) {
+        if (value === "model_only") {
+            return "仅模型";
+        }
+        if (value === "local_only") {
+            return "仅本地";
+        }
+        if (value === "local_then_model") {
+            return "本地优先，模型兜底";
+        }
+        return value || "-";
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+	<th:block th:include="include :: header('修改药品')" />
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form id="form-medicine-edit" class="form-horizontal" th:object="${clinicMedicine}">
+                            <input type="hidden" name="medicineId" th:field="*{medicineId}">
+                            <input type="hidden" name="stock" th:field="*{stock}">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label is-required">药品名称：</label>
+                                <div class="col-sm-8">
+                                    <input name="name" placeholder="请输入药品名称" class="form-control" type="text" th:field="*{name}" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">规格：</label>
+                                <div class="col-sm-8">
+                                    <input name="specification" placeholder="请输入规格" class="form-control" type="text" th:field="*{specification}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">生产厂家：</label>
+                                <div class="col-sm-8">
+                                    <input name="manufacturer" placeholder="请输入生产厂家" class="form-control" type="text" th:field="*{manufacturer}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">条码：</label>
+                                <div class="col-sm-8">
+                                    <input name="barcode" placeholder="请输入药品条码" class="form-control" type="text" th:field="*{barcode}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">剂型：</label>
+                                <div class="col-sm-8">
+                                    <select name="form" class="form-control m-b" th:field="*{form}">
+                                        <option value="">请选择剂型</option>
+                                        <option value="颗粒剂">颗粒剂</option>
+                                        <option value="胶囊剂">胶囊剂</option>
+                                        <option value="片剂">片剂</option>
+                                        <option value="注射剂">注射剂</option>
+                                        <option value="喷雾剂">喷雾剂</option>
+                                        <option value="口服液">口服液</option>
+                                        <option value="外用剂">外用剂</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                    <input name="dosageForm" type="hidden" th:value="${clinicMedicine.dosageForm}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label is-required">价格：</label>
+                                <div class="col-sm-8">
+                                    <input name="price" placeholder="请输入价格" class="form-control" type="number" step="0.01" th:field="*{price}" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label is-required">预警阈值：</label>
+                                <div class="col-sm-8">
+                                    <input name="warningThreshold" placeholder="请输入预警阈值" class="form-control" type="number" th:field="*{warningThreshold}" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">分类：</label>
+                                <div class="col-sm-8">
+                                    <input name="category" placeholder="请输入分类" class="form-control" type="text" th:field="*{category}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">是否处方药：</label>
+                                <div class="col-sm-8">
+                                    <select name="isPrescription" class="form-control m-b" th:field="*{isPrescription}">
+                                        <option value="0">非处方药</option>
+                                        <option value="1">处方药</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">药理信息：</label>
+                                <div class="col-sm-8">
+                                    <textarea name="pharmacology" placeholder="请输入药理信息" class="form-control" rows="3" th:field="*{pharmacology}"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">适应症：</label>
+                                <div class="col-sm-8">
+                                    <textarea name="indications" placeholder="请输入适应症" class="form-control" rows="3" th:field="*{indications}"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">用法用量：</label>
+                                <div class="col-sm-8">
+                                    <textarea name="dosage" placeholder="请输入用法用量" class="form-control" rows="3" th:field="*{dosage}"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">不良反应：</label>
+                                <div class="col-sm-8">
+                                    <textarea name="sideEffects" placeholder="请输入不良反应" class="form-control" rows="3" th:field="*{sideEffects}"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">储存条件：</label>
+                                <div class="col-sm-8">
+                                    <input name="storage" placeholder="请输入储存条件" class="form-control" type="text" th:field="*{storage}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">最近有效期：</label>
+                                <div class="col-sm-8">
+                                    <input id="nearestExpiryDate" class="form-control" type="text" value="加载中..." readonly>
+                                    <span class="help-block m-b-none">该值实时读取批次数据，仅展示不可编辑</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-3 col-sm-8">
+                                    <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;
+                                    <button type="button" class="btn btn-sm btn-info" onclick="openBatchPage()"><i class="fa fa-list"></i>批次管理</button>&nbsp;
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script>
+        var prefix = ctx + "clinic/medicine";
+        $("#form-medicine-edit").validate({
+        	onkeyup: false,
+        	rules:{},
+        	messages: {}
+        });
+        $(function () {
+            $('select[name="form"]').on('change', function () {
+                $('input[name="dosageForm"]').val($(this).val());
+            }).trigger('change');
+            loadNearestExpiryDate();
+        });
+        function submitHandler() {
+	        if ($.validate.form()) {
+	        	$.operate.save(prefix + "/edit", $('#form-medicine-edit').serialize());
+	        }
+	    }
+
+        function openBatchPage() {
+            var medicineId = $('input[name="medicineId"]').val();
+            $.modal.openTab("药品批次", prefix + "/batch?medicineId=" + medicineId);
+        }
+
+        function loadNearestExpiryDate() {
+            var medicineId = $('input[name="medicineId"]').val();
+            $.ajax({
+                url: prefix + '/batch/list',
+                method: 'POST',
+                data: { medicineId: medicineId, pageNum: 1, pageSize: 2000 },
+                success: function (res) {
+                    if (!res || res.code !== 0) {
+                        $('#nearestExpiryDate').val('-');
+                        return;
+                    }
+                    var rows = res.rows || [];
+                    var nearest = null;
+                    rows.forEach(function (item) {
+                        var qty = Number(item.remainingQuantity || 0);
+                        if (qty <= 0 || !item.expiryDate) {
+                            return;
+                        }
+                        if (!nearest || item.expiryDate < nearest) {
+                            nearest = item.expiryDate;
+                        }
+                    });
+                    $('#nearestExpiryDate').val(nearest || '-');
+                },
+                error: function () {
+                    $('#nearestExpiryDate').val('-');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+.reminders-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding-bottom: 40rpx;
+}
+
+.header {
+  padding: 30rpx;
+  background: #fff;
+  margin-bottom: 20rpx;
+}
+
+.header-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.header-desc {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.setting-section {
+  margin: 0 30rpx 20rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+}
+
+.setting-title {
+  font-size: 30rpx;
+  color: #111827;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #eef2f7;
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-label {
+  font-size: 26rpx;
+  color: #334155;
+}
+
+.picker-value {
+  color: #2563eb;
+  font-size: 26rpx;
+}
+
+.setting-save {
+  margin-top: 20rpx;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.todo-section {
+  margin: 0 30rpx 20rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 24rpx;
+}
+
+.workbench-entry {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14rpx;
+}
+
+.todo-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+}
+
+.todo-stat-item {
+  background: #f6f8fb;
+  border-radius: 16rpx;
+  text-align: center;
+  padding: 16rpx 8rpx;
+}
+
+.todo-stat-value {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #111827;
+}
+
+.todo-stat-label {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #64748b;
+}
+
+.todo-list {
+  margin-top: 20rpx;
+  border-top: 1rpx solid #f1f5f9;
+  padding-top: 16rpx;
+}
+
+.todo-item {
+  background: #f8fafc;
+  border-radius: 14rpx;
+  padding: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.todo-item:last-child {
+  margin-bottom: 0;
+}
+
+.todo-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.todo-item-title {
+  font-size: 28rpx;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.todo-item-body {
+  margin-top: 8rpx;
+}
+
+.todo-item-line {
+  display: block;
+  font-size: 24rpx;
+  color: #475569;
+  margin-top: 6rpx;
+}
+
+.reminder-list {
+  padding: 0 30rpx;
+}
+
+.reminder-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.reminder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.patient-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.patient-name {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.reminder-body {
+  margin-bottom: 24rpx;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+  font-size: 28rpx;
+}
+
+.info-row .label {
+  color: #999;
+  width: 140rpx;
+}
+
+.info-row .value {
+  color: #333;
+  flex: 1;
+}
+
+.reminder-footer {
+  border-top: 1rpx solid #eee;
+  padding-top: 20rpx;
+  display: flex;
+  justify-content: flex-end;
+}

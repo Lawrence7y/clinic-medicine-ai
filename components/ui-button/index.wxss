@@ -1,0 +1,19 @@
+.ui-btn {
+  letter-spacing: 0.4rpx;
+}
+
+.ui-btn--large {
+  min-height: 88rpx;
+}
+
+.ui-btn--medium {
+  min-height: 72rpx;
+}
+
+.ui-btn--small {
+  min-height: 64rpx;
+}
+
+.ui-btn--block {
+  width: 100%;
+}

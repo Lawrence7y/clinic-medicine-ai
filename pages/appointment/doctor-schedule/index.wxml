@@ -1,0 +1,109 @@
+<view class="doctor-schedule-container">
+  <view class="date-selector">
+    <scroll-view scroll-x class="date-scroll">
+      <view class="date-list">
+        <view
+          wx:for="{{dateList}}"
+          wx:key="date"
+          class="date-item {{currentDateIndex === index ? 'active' : ''}}"
+          bindtap="onDateSelect"
+          data-index="{{index}}"
+        >
+          <text class="week-day">{{item.weekDay}}</text>
+          <text class="date">{{item.displayDate}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="schedule-list">
+    <async-state
+      wx:if="{{uiState === 'loading'}}"
+      mode="loading"
+      title="加载中..."
+    />
+
+    <async-state
+      wx:elif="{{uiState === 'error'}}"
+      mode="error"
+      title="{{errorMessage || '加载排班失败'}}"
+      buttonText="重试"
+      bind:retry="onRetry"
+    />
+
+    <view wx:elif="{{scheduleList.length === 0}}" class="empty-state">
+      <t-icon name="calendar" size="80rpx" color="#ccc" />
+      <text>当日暂无排班</text>
+    </view>
+
+    <view wx:else class="schedule-cards">
+      <view wx:for="{{scheduleList}}" wx:key="id" class="schedule-card">
+        <view class="doctor-info">
+          <view class="doctor-header">
+            <text class="doctor-name">{{item.doctorName || '-'}}</text>
+          </view>
+        </view>
+
+        <view class="time-info">
+          <view class="time-range">
+            <t-icon name="time" size="28rpx" color="#222222" />
+            <text>{{item.startTime}} - {{item.endTime}}</text>
+          </view>
+          <view class="slots-info">
+            <text class="available">剩余 {{item.totalSlots - item.bookedSlots}} 号</text>
+            <text class="total"> / 总号源 {{item.totalSlots}}</text>
+          </view>
+        </view>
+
+        <view class="action-btn">
+          <t-button
+            theme="primary"
+            size="small"
+            disabled="{{item.bookedSlots >= item.totalSlots}}"
+            bindtap="goToAppointment"
+            data-schedule="{{item}}"
+          >
+            {{item.bookedSlots >= item.totalSlots ? '已满' : '预约'}}
+          </t-button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+
+  <t-popup visible="{{showOfflineModal}}" bind:visible-change="closeOfflineModal">
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">线下加号</text>
+        <t-icon name="close" size="40rpx" bindtap="closeOfflineModal" />
+      </view>
+      <view class="modal-body">
+        <view class="form-item">
+          <text class="label">患者手机号</text>
+          <t-input
+            value="{{offlineForm.patientPhone}}"
+            placeholder="请输入11位手机号"
+            type="number"
+            bindchange="onOfflinePhoneChange"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">患者姓名（可选）</text>
+          <t-input
+            value="{{offlineForm.patientName}}"
+            placeholder="请输入患者姓名"
+            bindchange="onOfflineNameChange"
+          />
+        </view>
+        <view class="tips">
+          <text>手机号必须已绑定患者账号。</text>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <t-button theme="default" bindtap="closeOfflineModal">取消</t-button>
+        <t-button theme="primary" loading="{{offlineSubmitting}}" bindtap="submitOfflineRegistration">提交</t-button>
+      </view>
+    </view>
+  </t-popup>
+</view>

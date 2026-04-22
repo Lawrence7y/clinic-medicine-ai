@@ -1,0 +1,116 @@
+<view class="medicine-container">
+  <view class="search-section">
+    <t-search
+      placeholder="{{isPatient ? texts.patientSearchPlaceholder : texts.medicineSearchPlaceholder}}"
+      value="{{searchKeyword}}"
+      bind:change="onSearchChange"
+      bind:submit="onSearch"
+    />
+  </view>
+
+  <view class="stats-section" wx:if="{{canManageMedicine}}">
+    <view class="stats-grid">
+      <view class="stat-card">
+        <text class="stat-value">{{stats.totalMedicines}}</text>
+        <text class="stat-label">{{texts.statTotal}}</text>
+      </view>
+      <view class="stat-card warning">
+        <text class="stat-value">{{stats.warningCount}}</text>
+        <text class="stat-label">{{texts.statWarning}}</text>
+      </view>
+      <view class="stat-card">
+        <text class="stat-value">{{stats.totalStockValue}}</text>
+        <text class="stat-label">{{texts.statStockValue}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="quick-actions" wx:if="{{canManageMedicine}}">
+    <view class="action-btn" bindtap="goToAddMedicine"><view class="action-icon"><t-icon name="add" size="40rpx" color="#fff" /></view><text>{{texts.addMedicine}}</text></view>
+    <view class="action-btn" bindtap="goToStockIn"><view class="action-icon action-icon--green"><t-icon name="download" size="40rpx" color="#fff" /></view><text>{{texts.stockIn}}</text></view>
+    <view class="action-btn" bindtap="goToStockOut"><view class="action-icon action-icon--orange"><t-icon name="upload" size="40rpx" color="#fff" /></view><text>{{texts.stockOut}}</text></view>
+    <view class="action-btn" bindtap="goToInventory"><view class="action-icon action-icon--blue"><t-icon name="inventory" size="40rpx" color="#fff" /></view><text>{{texts.inventory}}</text></view>
+  </view>
+
+  <view class="quick-actions" wx:if="{{isPatient}}">
+    <view class="action-btn" bindtap="goToRecognitionHistory"><view class="action-icon"><t-icon name="history" size="40rpx" color="#fff" /></view><text>{{texts.recognitionHistory}}</text></view>
+    <view class="action-btn" bindtap="goToAiAssistant"><view class="action-icon action-icon--teal"><t-icon name="chat" size="40rpx" color="#fff" /></view><text>{{systemConfig.aiAssistantName || texts.continueAskAi}}</text></view>
+  </view>
+
+  <view class="warning-banner" wx:if="{{warningMedicines.length > 0 && canManageMedicine}}">
+    <t-notice-bar
+      visible="{{true}}"
+      content="{{texts.warningNoticePrefix + warningMedicines.length + texts.warningNoticeSuffix}}"
+      theme="warning"
+      prefixIcon="error-circle"
+    />
+  </view>
+
+  <view class="filter-section" wx:if="{{canManageMedicine}}">
+    <view class="filter-item">
+      <picker mode="selector" range="{{dosageForms}}" value="{{dosageFormIndex}}" bindchange="onDosageFormChange">
+        <view class="picker">{{dosageFormIndex === -1 ? texts.allDosageForms : dosageForms[dosageFormIndex]}}</view>
+      </picker>
+    </view>
+    <view class="filter-item" bindtap="onWarningToggle">
+      <view class="picker {{showWarningOnly ? 'picker--active' : ''}}">
+        {{showWarningOnly ? texts.warningToggleOn : texts.warningToggleOff}}
+      </view>
+    </view>
+  </view>
+
+  <view class="content-section">
+    <async-state
+      wx:if="{{stateMode !== 'success'}}"
+      mode="{{stateMode}}"
+      title="{{stateTitle}}"
+      description="{{stateDescription}}"
+      buttonText="{{stateButtonText}}"
+      bind:retry="onStateRetry"
+    />
+
+    <block wx:else>
+      <view class="medicine-list" wx:if="{{isPatient}}">
+        <view class="section-title" wx:if="{{filteredPrescriptionMedicines.length > 0}}">{{texts.myPrescription}}</view>
+        <view class="prescription-medicine-card" wx:for="{{filteredPrescriptionMedicines}}" wx:key="id" bindtap="goToMedicineDetail" data-id="{{item.id}}">
+          <view class="medicine-header">
+            <view class="medicine-info">
+              <text class="medicine-name">{{item.name}}</text>
+              <text class="medicine-spec" wx:if="{{item.specification}}">{{item.specification}}</text>
+            </view>
+            <t-tag size="small" theme="{{item.expiryReminder ? item.expiryReminder.theme : 'default'}}" wx:if="{{item.expiryReminder}}">
+              {{item.expiryReminder.text}}
+            </t-tag>
+          </view>
+          <view class="medicine-body">
+            <view class="info-row"><text class="label">{{texts.usage}}</text><text class="value">{{item.dosage}} / {{item.frequency}} / {{item.days}}{{texts.days}}</text></view>
+            <view class="info-row"><text class="label">{{texts.doctor}}</text><text class="value">{{item.doctorName || '-'}}</text></view>
+            <view class="info-row"><text class="label">{{texts.expiryDate}}</text><text class="value">{{item.stockOutExpiryDate || '-'}}</text></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="medicine-list" wx:else>
+        <view class="medicine-card {{item.stock <= (item.warningStock || 10) ? 'warning' : ''}}" wx:for="{{medicineList}}" wx:key="id" bindtap="goToMedicineDetail" data-id="{{item.id}}">
+          <view class="medicine-header">
+            <view class="medicine-info">
+              <text class="medicine-name">{{item.name}}</text>
+              <text class="medicine-spec">{{item.specification}}</text>
+            </view>
+            <t-tag size="small" theme="danger" wx:if="{{item.stock <= (item.warningStock || 10)}}">{{texts.lowStock}}</t-tag>
+          </view>
+          <view class="medicine-body">
+            <view class="info-row"><text class="label">{{texts.dosageForm}}</text><text class="value">{{item.dosageForm || '-'}}</text></view>
+            <view class="info-row"><text class="label">{{texts.expiryDate}}</text><text class="value">{{item.nearestBatchExpiryDate || item.expiryDate || '-'}}</text></view>
+          </view>
+          <view class="medicine-footer">
+            <view class="stock-info"><text class="stock-label">{{texts.stockLabel}}</text><text class="stock-value {{item.stock <= (item.warningStock || 10) ? 'warning' : ''}}">{{item.stock}}</text></view>
+            <view class="price-info"><text class="price-label">{{texts.priceLabel}}</text><text class="price-value">{{texts.yuan}}{{item.price}}</text></view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

@@ -1,0 +1,130 @@
+<view class="report-page">
+  <view class="filter-card">
+    <view class="filter-grid">
+      <view class="filter-item">
+        <text class="filter-label">{{texts.dimension}}</text>
+        <picker mode="selector" range="{{dimensionOptions}}" range-key="label" value="{{dimensionIndex}}" bindchange="onDimensionChange">
+          <view class="filter-value">{{dimensionOptions[dimensionIndex].label}}</view>
+        </picker>
+      </view>
+      <view class="filter-item">
+        <text class="filter-label">{{texts.startDate}}</text>
+        <picker mode="date" value="{{filterStartDate}}" bindchange="onStartDateChange">
+          <view class="filter-value">{{filterStartDate || '请选择开始日期'}}</view>
+        </picker>
+      </view>
+      <view class="filter-item">
+        <text class="filter-label">{{texts.endDate}}</text>
+        <picker mode="date" value="{{filterEndDate}}" bindchange="onEndDateChange">
+          <view class="filter-value">{{filterEndDate || '请选择结束日期'}}</view>
+        </picker>
+      </view>
+    </view>
+    <view class="filter-actions">
+      <t-button size="small" theme="primary" loading="{{loading}}" bindtap="onApplyFilter">{{texts.applyFilter}}</t-button>
+      <t-button size="small" theme="default" variant="outline" disabled="{{loading}}" bindtap="onResetFilter">{{texts.resetFilter}}</t-button>
+      <t-button size="small" theme="success" disabled="{{loading}}" loading="{{exporting}}" bindtap="onExportCsv">{{texts.exportCsv}}</t-button>
+    </view>
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'empty'}}"
+    mode="empty"
+    title="{{texts.emptyTitle}}"
+    description="{{texts.emptyDesc}}"
+  />
+
+  <block wx:else>
+    <view class="header-card">
+      <view class="title">基础报表</view>
+      <view class="subtitle">最后更新：{{generatedAtText || '--'}} | {{dimensionOptions[dimensionIndex].label}}</view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">预约统计</view>
+      <view class="metrics-grid">
+        <view class="metric"><text class="metric-value">{{overview.appointment.total}}</text><text class="metric-label">总预约</text></view>
+        <view class="metric"><text class="metric-value">{{overview.appointment.today}}</text><text class="metric-label">今日预约</text></view>
+        <view class="metric"><text class="metric-value">{{overview.appointment.pending}}</text><text class="metric-label">待确认</text></view>
+        <view class="metric"><text class="metric-value">{{overview.appointment.confirmed}}</text><text class="metric-label">已确认</text></view>
+        <view class="metric"><text class="metric-value">{{overview.appointment.completed}}</text><text class="metric-label">已完成</text></view>
+        <view class="metric"><text class="metric-value">{{overview.appointment.cancelled}}</text><text class="metric-label">已取消</text></view>
+        <view class="metric"><text class="metric-value">{{overview.appointment.expired}}</text><text class="metric-label">已过期</text></view>
+      </view>
+
+      <view class="sub-title">预约按日趋势</view>
+      <view wx:if="{{overview.appointment.dailyStats.length === 0}}" class="empty-row">暂无数据</view>
+      <view wx:for="{{overview.appointment.dailyStats}}" wx:key="date" class="rank-row">
+        <text class="rank-name">{{item.date}}</text>
+        <text class="rank-value">{{item.count}}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">库存统计</view>
+      <view class="metrics-grid">
+        <view class="metric"><text class="metric-value">{{overview.inventory.medicineCount}}</text><text class="metric-label">药品种类</text></view>
+        <view class="metric"><text class="metric-value">{{overview.inventory.lowStockCount}}</text><text class="metric-label">低库存</text></view>
+        <view class="metric"><text class="metric-value">{{overview.inventory.totalStockQuantity}}</text><text class="metric-label">库存总量</text></view>
+        <view class="metric"><text class="metric-value">{{overview.inventory.totalStockValue}}</text><text class="metric-label">库存估值</text></view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">近效期统计（{{overview.nearExpiry.thresholdDays}}天）</view>
+      <view class="metrics-grid">
+        <view class="metric"><text class="metric-value">{{overview.nearExpiry.nearExpiryBatchCount}}</text><text class="metric-label">近效期批次</text></view>
+        <view class="metric"><text class="metric-value">{{overview.nearExpiry.nearExpiryQuantity}}</text><text class="metric-label">近效期数量</text></view>
+        <view class="metric"><text class="metric-value">{{overview.nearExpiry.expiredBatchCount}}</text><text class="metric-label">已过期批次</text></view>
+        <view class="metric"><text class="metric-value">{{overview.nearExpiry.expiredQuantity}}</text><text class="metric-label">已过期数量</text></view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">AI 调用统计</view>
+      <view class="metrics-grid">
+        <view class="metric"><text class="metric-value">{{overview.aiInvocation.sampleSize}}</text><text class="metric-label">样本总数</text></view>
+        <view class="metric"><text class="metric-value">{{overview.aiInvocation.successCount}}</text><text class="metric-label">成功次数</text></view>
+        <view class="metric"><text class="metric-value">{{overview.aiInvocation.failedCount}}</text><text class="metric-label">失败次数</text></view>
+        <view class="metric"><text class="metric-value">{{overview.aiInvocation.successRate}}%</text><text class="metric-label">成功率</text></view>
+        <view class="metric"><text class="metric-value">{{overview.aiInvocation.avgDurationMs}}</text><text class="metric-label">平均耗时(ms)</text></view>
+      </view>
+
+      <view class="sub-title">AI按日趋势</view>
+      <view wx:if="{{overview.aiInvocation.dailyStats.length === 0}}" class="empty-row">暂无数据</view>
+      <view wx:for="{{overview.aiInvocation.dailyStats}}" wx:key="date" class="rank-row">
+        <text class="rank-name">{{item.date}}</text>
+        <text class="rank-value">成功 {{item.success}} / 失败 {{item.failed}}</text>
+      </view>
+
+      <view class="sub-title">按场景</view>
+      <view wx:if="{{overview.aiInvocation.sceneStats.length === 0}}" class="empty-row">暂无数据</view>
+      <view wx:for="{{overview.aiInvocation.sceneStats}}" wx:key="name" class="rank-row">
+        <text class="rank-name">{{item.name}}</text>
+        <text class="rank-value">{{item.count}}</text>
+      </view>
+
+      <view class="sub-title">按模型</view>
+      <view wx:if="{{overview.aiInvocation.modelStats.length === 0}}" class="empty-row">暂无数据</view>
+      <view wx:for="{{overview.aiInvocation.modelStats}}" wx:key="name" class="rank-row">
+        <text class="rank-name">{{item.name}}</text>
+        <text class="rank-value">{{item.count}}</text>
+      </view>
+    </view>
+  </block>
+  <t-toast id="t-toast"/>
+</view>

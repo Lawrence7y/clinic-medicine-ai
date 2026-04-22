@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "\u8fd1\u6548\u671f\u9884\u8b66",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-search": "tdesign-miniprogram/search/search",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "async-state": "/components/async-state/index"
+  }
+}

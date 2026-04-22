@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "\u6211\u7684",
+  "usingComponents": {
+    "t-avatar": "tdesign-miniprogram/avatar/avatar",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-cell-group": "tdesign-miniprogram/cell-group/cell-group",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "async-state": "/components/async-state/index"
+  }
+}

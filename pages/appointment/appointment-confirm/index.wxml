@@ -1,0 +1,60 @@
+<view class="appointment-confirm-container">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="加载中..."
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || '加载排班详情失败'}}"
+    buttonText="重试"
+    bind:retry="retryLoad"
+  />
+
+  <view wx:else class="content">
+    <view class="schedule-info">
+      <view class="section-title">排班信息</view>
+      <view class="info-card">
+        <view class="info-row"><text class="label">医生：</text><text class="value">{{schedule.doctorName}} {{schedule.title || ''}}</text></view>
+        <view class="info-row"><text class="label">日期：</text><text class="value">{{schedule.date || schedule.scheduleDate}}</text></view>
+        <view class="info-row"><text class="label">时间：</text><text class="value">{{schedule.startTime}} - {{schedule.endTime}}</text></view>
+        <view class="info-row"><text class="label">余号：</text><text class="value">{{schedule.totalSlots - schedule.bookedSlots}} / {{schedule.totalSlots}}</text></view>
+      </view>
+    </view>
+
+    <view class="patient-info">
+      <view class="section-title">就诊人信息</view>
+      <view class="form-card">
+        <view class="form-item">
+          <t-input
+            placeholder="请输入就诊人姓名"
+            value="{{patientInfo.name}}"
+            bind:change="onInputChange"
+            data-field="name"
+            class="input"
+          />
+        </view>
+        <view class="form-item">
+          <t-input
+            placeholder="请输入手机号"
+            value="{{patientInfo.phone}}"
+            bind:change="onInputChange"
+            data-field="phone"
+            class="input"
+          />
+        </view>
+      </view>
+    </view>
+
+    <view class="submit-section">
+      <t-button theme="primary" size="large" loading="{{submitted}}" disabled="{{submitted}}" bind:tap="submitAppointment" class="submit-button">
+        确认预约
+      </t-button>
+      <t-button theme="light" size="large" bind:tap="goBack" class="back-button">取消</t-button>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

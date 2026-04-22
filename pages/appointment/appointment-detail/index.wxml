@@ -1,0 +1,145 @@
+<view class="appointment-detail-container">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <block wx:elif="{{uiState === 'error'}}">
+    <async-state
+      mode="error"
+      title="{{errorText || texts.loadFailed}}"
+      buttonText="{{texts.retry}}"
+      bind:retry="retryLoad"
+    />
+    <view class="state-actions">
+      <t-button size="small" theme="default" bindtap="goBack">{{texts.back}}</t-button>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="status-section" style="background-color: {{getStatusColor(appointment.status)}}">
+      <t-icon name="{{getStatusIcon(appointment.status)}}" size="64rpx" color="#fff"/>
+      <text class="status-text">{{getStatusText(appointment.status)}}</text>
+    </view>
+
+    <view class="info-section">
+      <view class="info-card">
+        <view class="card-header">
+          <t-icon name="doctor" size="32rpx" color="#222222"/>
+          <text class="card-title">{{texts.doctorInfo}}</text>
+        </view>
+        <view class="info-content">
+          <view class="info-row">
+            <text class="label">{{texts.name}}</text>
+            <text class="value">{{appointment.doctorName || '-'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="info-card">
+        <view class="card-header">
+          <t-icon name="calendar" size="32rpx" color="#222222"/>
+          <text class="card-title">{{texts.appointmentInfo}}</text>
+        </view>
+        <view class="info-content">
+          <view class="info-row">
+            <text class="label">{{texts.date}}</text>
+            <text class="value">{{appointment.appointmentDate || '-'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">{{texts.time}}</text>
+            <text class="value">{{appointment.appointmentTime || '-'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">{{texts.seq}}</text>
+            <text class="value">{{appointment.sequenceNumber || '-'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">{{texts.createTime}}</text>
+            <text class="value">{{formatTime(appointment.createdAt) || '-'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="info-card">
+        <view class="card-header">
+          <t-icon name="user" size="32rpx" color="#222222"/>
+          <text class="card-title">{{texts.patientInfo}}</text>
+        </view>
+        <view class="info-content">
+          <view class="info-row">
+            <text class="label">{{texts.name}}</text>
+            <text class="value">{{appointment.patientName || '-'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">{{texts.phone}}</text>
+            <text class="value">{{appointment.patientPhone || '-'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">{{texts.remark}}</text>
+            <text class="value">{{appointment.remark || appointment.symptoms || '-'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="info-card" wx:if="{{queueInfo && appointment.status === 'confirmed'}}">
+        <view class="card-header">
+          <t-icon name="queue" size="32rpx" color="#222222"/>
+          <text class="card-title">{{texts.queueInfo}}</text>
+        </view>
+        <view class="info-content">
+          <view class="info-row" wx:if="{{queueInfo.currentCalledNumber}}">
+            <text class="label">{{texts.currentCalled}}</text>
+            <text class="value">{{queueInfo.currentCalledNumber}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">{{texts.yourSeq}}</text>
+            <text class="value">{{appointment.sequenceNumber}}</text>
+          </view>
+          <view class="info-row" wx:if="{{queueInfo.aheadCount >= 0}}">
+            <text class="label">{{texts.aheadCount}}</text>
+            <text class="value">{{queueInfo.aheadCount}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="action-section" wx:if="{{canManageAppointment || canCancelAppointment}}">
+      <t-button
+        theme="primary"
+        size="large"
+        wx:if="{{canManageAppointment && appointment.status === 'pending'}}"
+        bind:tap="confirmAppointment"
+      >
+        {{texts.btnConfirm}}
+      </t-button>
+      <t-button
+        theme="primary"
+        size="large"
+        wx:if="{{canManageAppointment && appointment.status === 'confirmed'}}"
+        bind:tap="callPatient"
+      >
+        {{texts.btnCall}}
+      </t-button>
+      <t-button
+        theme="success"
+        size="large"
+        wx:if="{{canManageAppointment && appointment.status === 'confirmed'}}"
+        bind:tap="completeAppointment"
+      >
+        {{texts.btnComplete}}
+      </t-button>
+      <t-button
+        theme="danger"
+        size="large"
+        wx:if="{{canCancelAppointment && (appointment.status === 'pending' || appointment.status === 'confirmed')}}"
+        bind:tap="cancelAppointment"
+      >
+        {{texts.btnCancel}}
+      </t-button>
+    </view>
+  </block>
+
+  <t-toast id="t-toast"/>
+</view>

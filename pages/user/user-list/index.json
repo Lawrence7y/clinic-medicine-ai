@@ -1,0 +1,15 @@
+{
+  "navigationBarTitleText": "用户管理",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-search": "tdesign-miniprogram/search/search",
+    "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",
+    "t-radio": "tdesign-miniprogram/radio/radio",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar",
+    "t-button": "tdesign-miniprogram/button/button",
+    "async-state": "/components/async-state/index",
+    "t-popup": "tdesign-miniprogram/popup/popup",
+    "t-input": "tdesign-miniprogram/input/input",
+    "load-more": "../../../components/load-more/index"
+  }
+}

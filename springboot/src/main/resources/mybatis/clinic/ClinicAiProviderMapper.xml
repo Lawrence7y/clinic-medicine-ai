@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.clinic.ai.mapper.ClinicAiProviderMapper">
+    <resultMap id="ClinicAiProviderResult" type="com.ruoyi.project.clinic.ai.domain.ClinicAiProvider">
+        <id property="providerId" column="provider_id"/>
+        <result property="providerCode" column="provider_code"/>
+        <result property="providerName" column="provider_name"/>
+        <result property="apiBaseUrl" column="api_base_url"/>
+        <result property="apiKey" column="api_key"/>
+        <result property="enabled" column="enabled"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="ClinicAiProviderColumns">
+        provider_id, provider_code, provider_name, api_base_url, api_key, enabled,
+        remark, create_by, create_time, update_by, update_time
+    </sql>
+
+    <select id="selectClinicAiProviderById" resultMap="ClinicAiProviderResult">
+        SELECT <include refid="ClinicAiProviderColumns"/> FROM clinic_ai_provider WHERE provider_id = #{providerId}
+    </select>
+
+    <select id="selectClinicAiProviderByCode" resultMap="ClinicAiProviderResult">
+        SELECT <include refid="ClinicAiProviderColumns"/> FROM clinic_ai_provider WHERE provider_code = #{providerCode} LIMIT 1
+    </select>
+
+    <select id="selectClinicAiProviderList" resultMap="ClinicAiProviderResult">
+        SELECT <include refid="ClinicAiProviderColumns"/>
+        FROM clinic_ai_provider
+        WHERE 1 = 1
+        <if test="providerCode != null and providerCode != ''">
+            AND provider_code LIKE CONCAT('%', #{providerCode}, '%')
+        </if>
+        <if test="providerName != null and providerName != ''">
+            AND provider_name LIKE CONCAT('%', #{providerName}, '%')
+        </if>
+        <if test="enabled != null">
+            AND enabled = #{enabled}
+        </if>
+        ORDER BY provider_id DESC
+    </select>
+
+    <select id="selectEnabledProviders" resultMap="ClinicAiProviderResult">
+        SELECT <include refid="ClinicAiProviderColumns"/>
+        FROM clinic_ai_provider
+        WHERE enabled = 1
+        ORDER BY provider_name ASC, provider_id ASC
+    </select>
+
+    <insert id="insertClinicAiProvider" useGeneratedKeys="true" keyProperty="providerId">
+        INSERT INTO clinic_ai_provider (
+            provider_code, provider_name, api_base_url, api_key, enabled,
+            remark, create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{providerCode}, #{providerName}, #{apiBaseUrl}, #{apiKey}, #{enabled},
+            #{remark}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updateClinicAiProvider">
+        UPDATE clinic_ai_provider
+        <set>
+            <if test="providerCode != null and providerCode != ''">provider_code = #{providerCode},</if>
+            <if test="providerName != null and providerName != ''">provider_name = #{providerName},</if>
+            <if test="apiBaseUrl != null">api_base_url = #{apiBaseUrl},</if>
+            <if test="apiKey != null">api_key = #{apiKey},</if>
+            <if test="enabled != null">enabled = #{enabled},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        </set>
+        WHERE provider_id = #{providerId}
+    </update>
+
+    <delete id="deleteClinicAiProviderById">
+        DELETE FROM clinic_ai_provider WHERE provider_id = #{providerId}
+    </delete>
+
+    <delete id="deleteClinicAiProviderByIds">
+        DELETE FROM clinic_ai_provider
+        WHERE provider_id IN
+        <foreach collection="providerIds" item="providerId" open="(" separator="," close=")">
+            #{providerId}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,84 @@
+<view class="ai-logs-page">
+  <view class="filter-card">
+    <view class="filter-title">筛选条件</view>
+    <view class="filter-grid">
+      <view class="filter-item">
+        <text class="filter-label">{{texts.keywordScene}}</text>
+        <input
+          class="filter-input"
+          value="{{filterScene}}"
+          placeholder="例如：medicine_recognition"
+          bindinput="onSceneInput"
+        />
+      </view>
+      <view class="filter-item">
+        <text class="filter-label">{{texts.keywordModel}}</text>
+        <input
+          class="filter-input"
+          value="{{filterModel}}"
+          placeholder="例如：gpt-4o-mini"
+          bindinput="onModelInput"
+        />
+      </view>
+      <view class="filter-item">
+        <text class="filter-label">{{texts.status}}</text>
+        <picker mode="selector" range="{{successOptions}}" range-key="label" value="{{successIndex}}" bindchange="onSuccessFilterChange">
+          <view class="filter-picker">{{successOptions[successIndex].label}}</view>
+        </picker>
+      </view>
+      <view class="filter-item">
+        <text class="filter-label">{{texts.startDate}}</text>
+        <picker mode="date" value="{{filterStartDate}}" bindchange="onStartDateChange">
+          <view class="filter-picker">{{filterStartDate || '请选择开始日期'}}</view>
+        </picker>
+      </view>
+      <view class="filter-item">
+        <text class="filter-label">{{texts.endDate}}</text>
+        <picker mode="date" value="{{filterEndDate}}" bindchange="onEndDateChange">
+          <view class="filter-picker">{{filterEndDate || '请选择结束日期'}}</view>
+        </picker>
+      </view>
+    </view>
+    <view class="filter-actions">
+      <t-button theme="primary" size="small" loading="{{loading}}" bindtap="applyFilters">{{texts.query}}</t-button>
+      <t-button theme="default" variant="outline" size="small" disabled="{{loading}}" bindtap="resetFilters">{{texts.reset}}</t-button>
+      <text class="result-count">{{texts.resultCount}}：{{logs.length}}{{texts.recordsUnit}}</text>
+    </view>
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorMessage || texts.loadFail}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+
+  <async-state
+    wx:elif="{{logs.length === 0}}"
+    mode="empty"
+    title="{{texts.empty}}"
+  />
+
+  <view wx:else class="log-list">
+    <view class="log-card" wx:for="{{logs}}" wx:key="id">
+      <view class="log-head">
+        <text class="scene">{{item.displayScene}}</text>
+        <t-tag size="small" theme="{{item.success ? 'success' : 'danger'}}" variant="light">{{item.successText}}</t-tag>
+      </view>
+      <view class="row"><text class="k">{{texts.time}}</text><text class="v">{{item.displayTime}}</text></view>
+      <view class="row"><text class="k">{{texts.model}}</text><text class="v">{{item.displayModel}}</text></view>
+      <view class="row"><text class="k">{{texts.security}}</text><text class="v">{{item.securityText}}</text></view>
+      <view class="row"><text class="k">{{texts.duration}}</text><text class="v">{{item.durationText}}</text></view>
+      <view class="row"><text class="k">{{texts.failureReason}}</text><text class="v">{{item.displayFailureReason}}</text></view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

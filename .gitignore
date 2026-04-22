@@ -1,0 +1,11 @@
+clinic_thesis.docx
+PasswordHashGenerator.class
+docs/.$*.drawio.bkp
+docs/~$*.docx
+node_modules/
+miniprogram_npm/
+springboot/target/
+springboot/logs/
+.idea/
+.DS_Store
+Thumbs.db

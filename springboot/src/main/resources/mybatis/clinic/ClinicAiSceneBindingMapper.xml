@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.clinic.ai.mapper.ClinicAiSceneBindingMapper">
+    <resultMap id="ClinicAiSceneBindingResult" type="com.ruoyi.project.clinic.ai.domain.ClinicAiSceneBinding">
+        <id property="sceneId" column="scene_id"/>
+        <result property="sceneCode" column="scene_code"/>
+        <result property="sceneName" column="scene_name"/>
+        <result property="executionMode" column="execution_mode"/>
+        <result property="primaryModelId" column="primary_model_id"/>
+        <result property="fallbackModelId" column="fallback_model_id"/>
+        <result property="primaryModelName" column="primary_model_name"/>
+        <result property="fallbackModelName" column="fallback_model_name"/>
+        <result property="candidateLimit" column="candidate_limit"/>
+        <result property="timeoutMs" column="timeout_ms"/>
+        <result property="enabled" column="enabled"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="ClinicAiSceneBindingColumns">
+        s.scene_id, s.scene_code, s.scene_name, s.execution_mode, s.primary_model_id, s.fallback_model_id,
+        pm.model_name AS primary_model_name, fm.model_name AS fallback_model_name,
+        s.candidate_limit, s.timeout_ms, s.enabled, s.remark, s.create_by, s.create_time, s.update_by, s.update_time
+    </sql>
+
+    <select id="selectClinicAiSceneBindingById" resultMap="ClinicAiSceneBindingResult">
+        SELECT <include refid="ClinicAiSceneBindingColumns"/>
+        FROM clinic_ai_scene_binding s
+        LEFT JOIN clinic_ai_model pm ON pm.model_id = s.primary_model_id
+        LEFT JOIN clinic_ai_model fm ON fm.model_id = s.fallback_model_id
+        WHERE s.scene_id = #{sceneId}
+    </select>
+
+    <select id="selectClinicAiSceneBindingByCode" resultMap="ClinicAiSceneBindingResult">
+        SELECT <include refid="ClinicAiSceneBindingColumns"/>
+        FROM clinic_ai_scene_binding s
+        LEFT JOIN clinic_ai_model pm ON pm.model_id = s.primary_model_id
+        LEFT JOIN clinic_ai_model fm ON fm.model_id = s.fallback_model_id
+        WHERE s.scene_code = #{sceneCode}
+        LIMIT 1
+    </select>
+
+    <select id="selectClinicAiSceneBindingList" resultMap="ClinicAiSceneBindingResult">
+        SELECT <include refid="ClinicAiSceneBindingColumns"/>
+        FROM clinic_ai_scene_binding s
+        LEFT JOIN clinic_ai_model pm ON pm.model_id = s.primary_model_id
+        LEFT JOIN clinic_ai_model fm ON fm.model_id = s.fallback_model_id
+        WHERE 1 = 1
+        <if test="sceneCode != null and sceneCode != ''">
+            AND s.scene_code LIKE CONCAT('%', #{sceneCode}, '%')
+        </if>
+        <if test="sceneName != null and sceneName != ''">
+            AND s.scene_name LIKE CONCAT('%', #{sceneName}, '%')
+        </if>
+        <if test="enabled != null">
+            AND s.enabled = #{enabled}
+        </if>
+        ORDER BY s.scene_id DESC
+    </select>
+
+    <insert id="insertClinicAiSceneBinding" useGeneratedKeys="true" keyProperty="sceneId">
+        INSERT INTO clinic_ai_scene_binding (
+            scene_code, scene_name, execution_mode, primary_model_id, fallback_model_id,
+            candidate_limit, timeout_ms, enabled, remark, create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{sceneCode}, #{sceneName}, #{executionMode}, #{primaryModelId}, #{fallbackModelId},
+            #{candidateLimit}, #{timeoutMs}, #{enabled}, #{remark}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updateClinicAiSceneBinding">
+        UPDATE clinic_ai_scene_binding
+        <set>
+            <if test="sceneCode != null and sceneCode != ''">scene_code = #{sceneCode},</if>
+            <if test="sceneName != null and sceneName != ''">scene_name = #{sceneName},</if>
+            <if test="executionMode != null and executionMode != ''">execution_mode = #{executionMode},</if>
+            <if test="primaryModelId != null">primary_model_id = #{primaryModelId},</if>
+            <if test="fallbackModelId != null">fallback_model_id = #{fallbackModelId},</if>
+            <if test="candidateLimit != null">candidate_limit = #{candidateLimit},</if>
+            <if test="timeoutMs != null">timeout_ms = #{timeoutMs},</if>
+            <if test="enabled != null">enabled = #{enabled},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        </set>
+        WHERE scene_id = #{sceneId}
+    </update>
+
+    <update id="syncGlobalModels">
+        UPDATE clinic_ai_scene_binding
+        SET primary_model_id = #{primaryModelId,jdbcType=BIGINT},
+            fallback_model_id = #{fallbackModelId,jdbcType=BIGINT},
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+    </update>
+
+    <delete id="deleteClinicAiSceneBindingById">
+        DELETE FROM clinic_ai_scene_binding WHERE scene_id = #{sceneId}
+    </delete>
+
+    <delete id="deleteClinicAiSceneBindingByIds">
+        DELETE FROM clinic_ai_scene_binding
+        WHERE scene_id IN
+        <foreach collection="sceneIds" item="sceneId" open="(" separator="," close=")">
+            #{sceneId}
+        </foreach>
+    </delete>
+</mapper>

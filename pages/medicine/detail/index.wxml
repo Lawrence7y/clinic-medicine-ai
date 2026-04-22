@@ -1,0 +1,149 @@
+<view class="medicine-detail-container">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorMessage || texts.loadFailedCommon}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+
+  <block wx:else>
+    <view wx:if="{{expiryReminder.show}}" style="margin-bottom: 20rpx;">
+      <t-notice-bar
+        visible="{{true}}"
+        theme="{{expiryReminder.expired ? 'error' : 'warning'}}"
+        prefixIcon="error-circle"
+        content="{{expiryReminder.text}}"
+      />
+    </view>
+
+    <view class="info-section">
+      <view class="section-title">
+        <t-icon name="medicine-box" size="32rpx" color="#222222" />
+        <text>{{texts.basicInfo}}</text>
+      </view>
+      <view class="info-content">
+        <view class="info-row">
+          <text class="info-label">{{texts.name}}</text>
+          <view style="display: flex; align-items: center; gap: 16rpx;">
+            <text class="info-value">{{medicineInfo.name || '-'}}</text>
+            <t-tag wx:if="{{medicineInfo.isPrescription}}" size="small" theme="danger" variant="light">{{texts.prescriptionTag}}</t-tag>
+            <t-tag wx:else size="small" theme="success" variant="light">{{texts.nonPrescriptionTag}}</t-tag>
+          </view>
+        </view>
+        <view class="info-row">
+          <text class="info-label">{{texts.specification}}</text>
+          <text class="info-value">{{medicineInfo.specification || '-'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">{{texts.dosageForm}}</text>
+          <text class="info-value">{{medicineInfo.dosageForm || '-'}}</text>
+        </view>
+        <view class="info-row" wx:if="{{isAdmin || isDoctor}}">
+          <text class="info-label">{{texts.location}}</text>
+          <text class="info-value">{{medicineInfo.location || '-'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">{{texts.price}}</text>
+          <text class="info-value price">{{medicineInfo.price}} {{texts.currencyUnit}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="info-section">
+      <view class="section-title">
+        <t-icon name="inventory" size="32rpx" color="#222222" />
+        <text>{{texts.inventoryInfo}}</text>
+      </view>
+      <view class="info-content">
+        <view class="info-row">
+          <text class="info-label">{{texts.stock}}</text>
+          <text class="info-value stock">{{medicineInfo.stock}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">{{texts.stockStatus}}</text>
+          <t-tag size="small" theme="{{medicineInfo.stock <= 10 ? 'danger' : 'success'}}" variant="light">
+            {{medicineInfo.stock <= 0 ? texts.noStock : medicineInfo.stock <= 10 ? texts.lowStock : texts.inStock}}
+          </t-tag>
+        </view>
+        <view class="info-row">
+          <text class="info-label">{{texts.warningThreshold}}</text>
+          <text class="info-value">{{medicineInfo.warningStock || medicineInfo.warningThreshold || '-'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">{{texts.nearestExpiry}}</text>
+          <text class="info-value">{{medicineInfo.nearestBatchExpiryDate || medicineInfo.expiryDate || '-'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="info-section">
+      <view class="section-title">
+        <t-icon name="file" size="32rpx" color="#222222" />
+        <text>{{texts.clinicalInfo}}</text>
+      </view>
+      <view class="info-content">
+        <view class="info-row">
+          <text class="info-label">{{texts.pharmacology}}</text>
+          <text class="info-value">{{medicineInfo.pharmacology || '-'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">{{texts.indications}}</text>
+          <text class="info-value">{{medicineInfo.indications || '-'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">{{texts.dosageText}}</text>
+          <text class="info-value">{{medicineInfo.dosage || '-'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">{{texts.sideEffects}}</text>
+          <text class="info-value">{{medicineInfo.sideEffects || '-'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="info-section">
+      <view class="section-title">
+        <t-icon name="clock" size="32rpx" color="#222222" />
+        <text>{{texts.recentUsage}}</text>
+        <t-button size="small" theme="primary" variant="outline" bind:tap="goToUsageRecord" style="margin-left: auto;">{{texts.viewAll}}</t-button>
+      </view>
+      <view class="record-list">
+        <view class="record-card" wx:for="{{recentUsage}}" wx:key="id">
+          <view class="record-header">
+            <text class="record-date">{{item.usageTime || '-'}}</text>
+            <t-tag size="small" theme="primary" variant="light">{{item.patientName || '-'}}</t-tag>
+          </view>
+          <view class="record-body">
+            <text class="record-amount">{{texts.amount}}{{item.quantity}} {{medicineInfo.specification || ''}}</text>
+            <text class="record-doctor">{{texts.doctor}}{{item.doctorName || '-'}}</text>
+          </view>
+        </view>
+        <view class="empty-record" wx:if="{{recentUsage.length === 0}}">
+          <t-empty description="{{texts.emptyUsage}}" />
+        </view>
+      </view>
+    </view>
+
+    <view class="action-section" wx:if="{{isAdmin || isDoctor}}">
+      <t-button theme="primary" size="large" bind:tap="goToEdit" style="margin-bottom: 20rpx;">{{texts.editMedicine}}</t-button>
+      <t-button theme="default" size="large" bind:tap="goToBatchManage" style="margin-bottom: 20rpx;">{{texts.batchManage}}</t-button>
+      <t-button theme="default" size="large" bind:tap="goToStockIn">{{texts.stockIn}}</t-button>
+      <t-button theme="primary" variant="outline" size="large" bind:tap="goToAiMedicineAssistant" style="margin-top: 20rpx;">{{texts.medicineAiAssistant}}</t-button>
+      <t-button theme="default" size="large" bind:tap="goToAiAssistant" style="margin-top: 20rpx;">{{systemConfig.aiAssistantName || texts.continueAskAi}}</t-button>
+    </view>
+
+    <view class="action-section" wx:if="{{!isAdmin && !isDoctor}}">
+      <t-button theme="primary" variant="outline" size="large" block bind:tap="goToAiMedicineAssistant" style="margin-bottom: 20rpx;">{{texts.medicineAiAssistant}}</t-button>
+      <t-button theme="default" size="large" block bind:tap="goToAiAssistant">{{systemConfig.aiAssistantName || texts.continueAskAi}}</t-button>
+    </view>
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

@@ -1,0 +1,74 @@
+<view class="patient-service-page">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="retryLoad"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'empty'}}"
+    mode="empty"
+    title="{{texts.noArchiveTitle}}"
+    description="{{texts.noArchiveHint}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="retryLoad"
+  />
+
+  <view wx:else class="content">
+    <view class="panel">
+      <view class="panel-title">患者概览</view>
+      <view class="row"><text class="label">姓名：</text><text class="value">{{patientInfo.name || '-'}}</text></view>
+      <view class="row"><text class="label">手机号：</text><text class="value">{{patientInfo.phone || '-'}}</text></view>
+      <view class="row"><text class="label">总就诊：</text><text class="value">{{historySummary.totalVisits || 0}} 次</text></view>
+      <view class="row"><text class="label">最近就诊：</text><text class="value">{{historySummary.lastVisitTime || '-'}}</text></view>
+      <view class="row">
+        <text class="label">常见诊断：</text>
+        <text class="value">{{historySummary.commonDiagnoses.length ? historySummary.commonDiagnoses.join('、') : texts.noData}}</text>
+      </view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-title">我的处方</view>
+      <view class="list-item" wx:for="{{prescriptions}}" wx:key="index" bindtap="goToRecordDetail" data-record-id="{{item.recordId}}">
+        <view class="list-main">
+          <view class="list-name">{{item.medicineName || '-'}}</view>
+          <view class="list-desc">{{item.dosage || '-'}} · {{item.frequency || '-'}} · {{item.days || '-'}}天</view>
+          <view class="list-time">{{item.visitTime || '-'}}</view>
+        </view>
+      </view>
+      <view wx:if="{{!prescriptions.length}}" class="empty">{{texts.noData}}</view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-title">用药提醒</view>
+      <view class="list-item" wx:for="{{medicationReminders}}" wx:key="medicineId" bindtap="goToMedicineDetail" data-medicine-id="{{item.medicineId}}">
+        <view class="list-main">
+          <view class="list-name">{{item.medicineName || '-'}}</view>
+          <view class="list-desc">数量：{{item.totalQuantity || 0}}，医生：{{item.doctorName || '-'}}</view>
+          <view class="list-time">{{item.expiryHint}}</view>
+        </view>
+      </view>
+      <view wx:if="{{!medicationReminders.length}}" class="empty">{{texts.noData}}</view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-title">复诊提醒</view>
+      <view class="list-item" wx:for="{{revisitReminders}}" wx:key="index">
+        <view class="list-main">
+          <view class="list-name">{{item.sceneText}}</view>
+          <view class="list-desc">医生：{{item.doctorName || '-'}}</view>
+          <view class="list-time">{{item.appointmentDate || '-'}} {{item.appointmentTime || '-'}}</view>
+        </view>
+      </view>
+      <view wx:if="{{!revisitReminders.length}}" class="empty">{{texts.noData}}</view>
+    </view>
+  </view>
+</view>

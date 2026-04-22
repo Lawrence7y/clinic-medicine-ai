@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.clinic.appointment.mapper.ClinicAppointmentMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.project.clinic.appointment.domain.ClinicAppointment">
+        <id property="appointmentId" column="appointment_id"/>
+        <result property="patientId" column="patient_id"/>
+        <result property="patientName" column="patient_name"/>
+        <result property="patientPhone" column="patient_phone"/>
+        <result property="doctorId" column="doctor_id"/>
+        <result property="doctorName" column="doctor_name"/>
+        <result property="scheduleId" column="schedule_id"/>
+        <result property="appointmentDate" column="appointment_date"/>
+        <result property="appointmentTime" column="appointment_time"/>
+        <result property="sequenceNumber" column="sequence_number"/>
+        <result property="status" column="status"/>
+        <result property="isOffline" column="is_offline"/>
+        <result property="called" column="called"/>
+        <result property="calledTime" column="called_time"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        appointment_id,
+        patient_id,
+        patient_name,
+        patient_phone,
+        doctor_id,
+        doctor_name,
+        schedule_id,
+        appointment_date,
+        appointment_time,
+        sequence_number,
+        status,
+        is_offline,
+        called,
+        called_time,
+        remark,
+        create_by,
+        create_time,
+        update_by,
+        update_time
+    </sql>
+
+    <select id="selectClinicAppointmentById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_appointment
+        WHERE appointment_id = #{appointmentId}
+    </select>
+
+    <select id="selectClinicAppointmentList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_appointment
+        WHERE 1=1
+        <if test="patientName != null and patientName != ''">
+            AND patient_name LIKE CONCAT('%', #{patientName}, '%')
+        </if>
+        <if test="doctorName != null and doctorName != ''">
+            AND doctor_name LIKE CONCAT('%', #{doctorName}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        <if test="patientId != null">
+            AND patient_id = #{patientId}
+        </if>
+        <if test="doctorId != null">
+            AND doctor_id = #{doctorId}
+        </if>
+        <if test="appointmentDate != null">
+            AND appointment_date = #{appointmentDate}
+        </if>
+        <if test="appointmentTime != null and appointmentTime != ''">
+            AND appointment_time = #{appointmentTime}
+        </if>
+    </select>
+
+    <insert id="insertClinicAppointment" useGeneratedKeys="true" keyProperty="appointmentId">
+        INSERT INTO clinic_appointment(
+        patient_id,
+        patient_name,
+        patient_phone,
+        doctor_id,
+        doctor_name,
+        schedule_id,
+        appointment_date,
+        appointment_time,
+        sequence_number,
+        status,
+        is_offline,
+        remark,
+        create_by,
+        create_time
+        ) VALUES (
+        #{patientId},
+        #{patientName},
+        #{patientPhone},
+        #{doctorId},
+        #{doctorName},
+        #{scheduleId},
+        #{appointmentDate},
+        #{appointmentTime},
+        #{sequenceNumber},
+        #{status},
+        #{isOffline},
+        #{remark},
+        #{createBy},
+        #{createTime}
+        )
+    </insert>
+
+    <update id="updateClinicAppointment">
+        UPDATE clinic_appointment
+        <set>
+            <if test="patientId != null">patient_id = #{patientId},</if>
+            <if test="patientName != null and patientName != ''">patient_name = #{patientName},</if>
+            <if test="patientPhone != null and patientPhone != ''">patient_phone = #{patientPhone},</if>
+            <if test="doctorId != null">doctor_id = #{doctorId},</if>
+            <if test="doctorName != null and doctorName != ''">doctor_name = #{doctorName},</if>
+            <if test="scheduleId != null">schedule_id = #{scheduleId},</if>
+            <if test="appointmentDate != null">appointment_date = #{appointmentDate},</if>
+            <if test="appointmentTime != null and appointmentTime != ''">appointment_time = #{appointmentTime},</if>
+            <if test="sequenceNumber != null">sequence_number = #{sequenceNumber},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="isOffline != null">is_offline = #{isOffline},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        </set>
+        WHERE appointment_id = #{appointmentId}
+    </update>
+
+    <delete id="deleteClinicAppointmentById">
+        DELETE FROM clinic_appointment
+        WHERE appointment_id = #{appointmentId}
+    </delete>
+
+    <delete id="deleteClinicAppointmentByIds">
+        DELETE FROM clinic_appointment
+        WHERE appointment_id IN
+        <foreach collection="appointmentIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <update id="completeAppointment">
+        UPDATE clinic_appointment
+        SET status = 'completed',
+            called = 0,
+            called_time = NULL,
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+        WHERE appointment_id = #{appointmentId}
+    </update>
+
+    <select id="countAppointmentByStatus" resultType="int">
+        SELECT COUNT(*) FROM clinic_appointment WHERE status = #{status}
+    </select>
+
+    <select id="selectPendingAppointments" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_appointment
+        WHERE status = 'pending'
+        ORDER BY appointment_date ASC, appointment_time ASC
+        LIMIT 10
+    </select>
+
+    <select id="countTodayAppointments" resultType="int">
+        SELECT COUNT(*) FROM clinic_appointment
+        WHERE appointment_date = #{date}
+        <if test="doctorId != null">
+            AND doctor_id = #{doctorId}
+        </if>
+    </select>
+
+    <select id="selectPendingAppointmentsList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM clinic_appointment
+        WHERE status = 'pending'
+        <if test="doctorId != null">
+            AND doctor_id = #{doctorId}
+        </if>
+        ORDER BY appointment_date ASC, appointment_time ASC
+        LIMIT #{limit}
+    </select>
+
+    <update id="updateDoctorNameByDoctorId">
+        UPDATE clinic_appointment
+        SET doctor_name = #{doctorName}
+        WHERE doctor_id = #{doctorId}
+    </update>
+
+    <update id="updatePatientInfoByPatientId">
+        UPDATE clinic_appointment
+        SET patient_name = #{patientName},
+            patient_phone = #{patientPhone}
+        WHERE patient_id = #{patientId}
+    </update>
+
+    <select id="selectUpcomingAppointments" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_appointment
+        WHERE 1=1
+        <if test="patientId != null">
+            AND patient_id = #{patientId}
+        </if>
+        <if test="doctorId != null">
+            AND doctor_id = #{doctorId}
+        </if>
+        AND status IN ('pending','confirmed')
+        <if test="startDate != null">
+            AND appointment_date &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND appointment_date &lt;= #{endDate}
+        </if>
+        ORDER BY appointment_date ASC, appointment_time ASC
+        LIMIT 20
+    </select>
+    
+    <select id="selectAppointmentsForReminder" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_appointment
+        WHERE status = 'confirmed'
+        AND appointment_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY appointment_date ASC, appointment_time ASC, sequence_number ASC
+    </select>
+
+    <!-- 叫号相关SQL -->
+
+    <select id="selectCalledAppointment" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_appointment
+        WHERE doctor_id = #{doctorId}
+        AND appointment_date = #{appointmentDate}
+        AND appointment_time = #{appointmentTime}
+        AND called = 1
+        LIMIT 1
+    </select>
+
+    <update id="clearCalledStatus">
+        UPDATE clinic_appointment
+        SET called = 0,
+            called_time = NULL
+        WHERE doctor_id = #{doctorId}
+        AND appointment_date = #{appointmentDate}
+        AND appointment_time = #{appointmentTime}
+        AND called = 1
+    </update>
+
+    <update id="callAppointment">
+        UPDATE clinic_appointment
+        SET called = 1,
+            called_time = #{calledTime}
+        WHERE appointment_id = #{appointmentId}
+    </update>
+
+    <select id="selectNextConfirmedAppointments" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_appointment
+        WHERE doctor_id = #{doctorId}
+        AND appointment_date = #{appointmentDate}
+        AND appointment_time = #{appointmentTime}
+        AND status = 'confirmed'
+        AND sequence_number &gt; #{currentSequenceNumber}
+        ORDER BY sequence_number ASC
+        LIMIT 2
+    </select>
+
+    <select id="selectQueueByDoctorAndDate" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_appointment
+        WHERE doctor_id = #{doctorId}
+        AND appointment_date = #{appointmentDate}
+        AND status = 'confirmed'
+        ORDER BY sequence_number ASC
+    </select>
+
+    <select id="countAheadInQueue" resultType="int">
+        SELECT COUNT(*) FROM clinic_appointment
+        WHERE doctor_id = #{doctorId}
+        AND appointment_date = #{appointmentDate}
+        AND appointment_time = #{appointmentTime}
+        AND status = 'confirmed'
+        AND sequence_number &lt; #{sequenceNumber}
+    </select>
+
+    <select id="getCalledAppointments" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_appointment
+        WHERE patient_id = #{patientId}
+        AND appointment_date = #{appointmentDate}
+        AND called = 1
+        AND status = 'confirmed'
+        ORDER BY sequence_number ASC
+    </select>
+
+    <update id="expirePendingAppointments">
+        UPDATE clinic_appointment
+        SET status = 'expired',
+            update_by = #{updateBy},
+            update_time = NOW()
+        WHERE status = 'pending'
+          AND (
+            appointment_date &lt; #{today}
+            OR (
+              appointment_date = #{today}
+              AND (
+                CASE
+                  WHEN INSTR(appointment_time, '-') &gt; 0
+                    THEN SUBSTRING_INDEX(appointment_time, '-', 1)
+                  ELSE appointment_time
+                END
+              ) &lt;= #{currentTime}
+            )
+          )
+    </update>
+
+    <select id="selectExpirablePendingAppointments" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_appointment
+        WHERE status = 'pending'
+          AND (
+            appointment_date &lt; #{today}
+            OR (
+              appointment_date = #{today}
+              AND (
+                CASE
+                  WHEN INSTR(appointment_time, '-') &gt; 0
+                    THEN SUBSTRING_INDEX(appointment_time, '-', 1)
+                  ELSE appointment_time
+                END
+              ) &lt;= #{currentTime}
+            )
+            <if test="pendingTimeoutMinutes != null and pendingTimeoutMinutes &gt; 0">
+              OR (
+                create_time IS NOT NULL
+                AND create_time &lt;= DATE_SUB(NOW(), INTERVAL #{pendingTimeoutMinutes} MINUTE)
+              )
+            </if>
+          )
+        ORDER BY create_time ASC, appointment_id ASC
+    </select>
+
+    <update id="expirePendingAppointmentById">
+        UPDATE clinic_appointment
+        SET status = 'expired',
+            update_by = #{updateBy},
+            update_time = NOW()
+        WHERE appointment_id = #{appointmentId}
+          AND status = 'pending'
+    </update>
+</mapper>

@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "就诊记录",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-button": "tdesign-miniprogram/button/button",
+    "async-state": "/components/async-state/index",
+    "load-more": "/components/load-more/index"
+  }
+}

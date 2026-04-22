@@ -1,0 +1,83 @@
+<view class="usage-record-container">
+  <!-- 搜索和筛选 -->
+  <view class="search-section">
+    <t-search
+      value="{{searchKeyword}}"
+      placeholder="搜索患者或医生"
+      bind:change="onSearchChange"
+      bind:search="onSearch"
+    />
+    <picker mode="selector" range="{{medicineList}}" range-key="name" bindchange="onMedicineChange">
+      <view class="filter-btn">
+        <t-icon name="filter" size="32rpx" color="#222222"/>
+        <text>{{selectedMedicine ? '已选择' : '全部药品'}}</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 使用记录列表 -->
+  <view class="usage-list">
+    <async-state
+      wx:if="{{uiState === 'loading'}}"
+      mode="loading"
+      title="{{texts.loading}}"
+    />
+
+    <async-state
+      wx:elif="{{uiState === 'error'}}"
+      mode="error"
+      title="{{errorText || texts.loadFailed}}"
+      buttonText="{{texts.retry}}"
+      bind:retry="onRetry"
+    />
+
+    <async-state
+      wx:elif="{{uiState === 'empty'}}"
+      mode="empty"
+      title="{{texts.empty}}"
+    />
+    
+    <view wx:else class="usage-cards">
+      <view 
+        wx:for="{{usageList}}" 
+        wx:key="id"
+        class="usage-card"
+        bindtap="goToDetail"
+        data-record="{{item}}"
+      >
+        <view class="usage-header">
+          <text class="medicine-name">{{item.medicineName}}</text>
+          <t-tag theme="primary" size="small">已使用</t-tag>
+        </view>
+        
+        <view class="usage-body">
+          <view class="info-row">
+            <text class="label">患者：</text>
+            <text class="value">{{item.patientName}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">医生：</text>
+            <text class="value">{{item.doctorName}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">使用数量：</text>
+            <text class="value">{{item.quantity}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">使用时间：</text>
+            <text class="value">{{item.usageTime}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载更多 -->
+  <load-more
+    wx:if="{{usageList.length > 0}}"
+    status="{{loadMoreStatus}}"
+    bind:loadmore="loadMore"
+  />
+
+  <t-toast id="t-toast"/>
+</view>

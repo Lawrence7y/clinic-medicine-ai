@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "病历统计",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-button": "tdesign-miniprogram/button/button",
+    "async-state": "/components/async-state/index"
+  }
+}

@@ -1,0 +1,104 @@
+<view class="session-security-page">
+  <view class="header-card">
+    <view class="header-title">会话安全</view>
+    <view class="header-subtitle">当前在线会话：{{total}}</view>
+    <view class="header-subtitle">{{policyText}}</view>
+    <view class="header-subtitle">最近刷新：{{lastUpdatedText || '-'}}</view>
+    <view class="header-actions">
+      <t-button
+        theme="default"
+        variant="outline"
+        size="small"
+        loading="{{loading}}"
+        bindtap="handleRefresh"
+      >
+        刷新列表
+      </t-button>
+      <t-button
+        theme="danger"
+        variant="outline"
+        size="small"
+        loading="{{loading}}"
+        disabled="{{loading || sessions.length <= 1}}"
+        bindtap="handleKickOthers"
+      >
+        下线其他设备
+      </t-button>
+    </view>
+    <t-notice-bar
+      wx:if="{{noticeText}}"
+      visible="{{true}}"
+      theme="{{noticeTheme}}"
+      content="{{noticeText}}"
+      prefixIcon="info-circle"
+      style="margin-top: 16rpx;"
+    />
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="加载会话中..."
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || '加载失败'}}"
+    buttonText="重试"
+    bind:retry="retryLoad"
+  />
+
+  <block wx:else>
+    <async-state wx:if="{{sessions.length === 0}}" mode="empty" title="暂无在线会话" />
+    <view wx:else class="session-list">
+      <view wx:for="{{sessions}}" wx:key="sessionId" class="session-card">
+        <view class="session-top">
+          <view class="device-text">{{item.deviceText}}</view>
+          <t-tag theme="{{item.statusTagTheme}}" variant="light" size="small">
+            {{item.statusText}}
+          </t-tag>
+        </view>
+
+        <view class="session-row">
+          <text class="row-label">登录地址</text>
+          <text class="row-value">{{item.ipText}}</text>
+        </view>
+        <view class="session-row">
+          <text class="row-label">登录地点</text>
+          <text class="row-value">{{item.loginLocationText}}</text>
+        </view>
+        <view class="session-row">
+          <text class="row-label">首次登录</text>
+          <text class="row-value">{{item.startTimeText}}</text>
+        </view>
+        <view class="session-row">
+          <text class="row-label">最后活跃</text>
+          <text class="row-value">{{item.lastAccessTimeText}}</text>
+        </view>
+        <view class="session-row">
+          <text class="row-label">会话过期</text>
+          <text class="row-value">{{item.expireTimeText}}</text>
+        </view>
+
+        <view class="session-actions">
+          <t-button
+            wx:if="{{!item.current}}"
+            theme="danger"
+            variant="outline"
+            size="small"
+            loading="{{loading}}"
+            bindtap="handleKickSession"
+            data-session-id="{{item.sessionId}}"
+            data-current="{{item.current}}"
+          >
+            强制下线
+          </t-button>
+          <text wx:if="{{item.current}}" class="current-tip">这是你当前正在使用的会话。</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

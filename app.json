@@ -1,0 +1,151 @@
+{
+  "pages": [
+    "pages/login/index",
+    "pages/verify/index",
+    "pages/home/home",
+    "pages/contact-doctor/index",
+    "pages/appointment-main/index",
+    "pages/medical-record/index",
+    "pages/medicine-main/index",
+    "pages/usercenter/index"
+  ],
+  "subpackages": [
+    {
+      "root": "pages/user",
+      "name": "user",
+      "pages": [
+        "person-info/index",
+        "password-reset/index",
+        "session-security/index",
+        "user-list/index",
+        "user-detail/index",
+        "field-edit/index"
+      ]
+    },
+    {
+      "root": "pages/patient",
+      "name": "patient",
+      "pages": [
+        "list/index",
+        "detail/index",
+        "edit/index",
+        "medical-history/index",
+        "service-center/index"
+      ]
+    },
+    {
+      "root": "pages/medical",
+      "name": "medical",
+      "pages": [
+        "record-list/index",
+        "record-detail/index",
+        "record-edit/index",
+        "record-statistics/index",
+        "prescription/index"
+      ]
+    },
+    {
+      "root": "pages/appointment",
+      "name": "appointment",
+      "pages": [
+        "doctor-list/index",
+        "doctor-schedule/index",
+        "my-appointments/index",
+        "appointment-detail/index",
+        "schedule-manage/index",
+        "appointment-confirm/index",
+        "reminders/index",
+        "doctor-workbench/index"
+      ]
+    },
+    {
+      "root": "pages/medicine",
+      "name": "medicine",
+      "pages": [
+        "list/index",
+        "detail/index",
+        "edit/index",
+        "stock-in/index",
+        "stock-out/index",
+        "inventory/index",
+        "batch-manage/index",
+        "usage-record/index",
+        "expiry-warning/index",
+        "recognition-history/index"
+      ]
+    },
+    {
+      "root": "pages/admin",
+      "name": "admin",
+      "pages": [
+        "dashboard/index",
+        "ai-assistant/index",
+        "ai-operations/index",
+        "audit-center/index",
+        "system-config/index",
+        "reports/index",
+        "ai-logs/index",
+        "ai-prompts/index",
+        "ai-scene-test/index",
+        "ai-model-doc/index"
+      ]
+    },
+    {
+      "root": "pages/ai",
+      "name": "ai",
+      "pages": [
+        "chat/index",
+        "medical-assistant/index",
+        "medicine-assistant/index"
+      ]
+    },
+    {
+      "root": "pages/notification",
+      "name": "notification",
+      "pages": [
+        "index"
+      ]
+    }
+  ],
+  "tabBar": {
+    "custom": true,
+    "color": "#666666",
+    "selectedColor": "#222222",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "\u9996\u9875"
+      },
+      {
+        "pagePath": "pages/appointment-main/index",
+        "text": "\u9884\u7ea6"
+      },
+      {
+        "pagePath": "pages/medical-record/index",
+        "text": "\u75c5\u5386"
+      },
+      {
+        "pagePath": "pages/medicine-main/index",
+        "text": "\u836f\u54c1"
+      },
+      {
+        "pagePath": "pages/usercenter/index",
+        "text": "\u6211\u7684"
+      }
+    ]
+  },
+  "lazyCodeLoading": "requiredComponents",
+  "usingComponents": {
+    "ui-button": "/components/ui-button/index"
+  },
+  "preloadRule": {},
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "\u8bca\u6240\u7cfb\u7edf",
+    "navigationBarTextStyle": "black"
+  },
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,181 @@
+<view class="medicine-edit-container">
+  <view class="page-header">
+    <text class="title">{{isEdit ? '编辑药品' : '新建药品'}}</text>
+    <text class="desc">识别结果仅作辅助，请在建档和入库前确认并纠正关键字段。</text>
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetryInit"
+  />
+
+  <block wx:else>
+  <view class="card action-card">
+    <view class="card-title">智能识别</view>
+    <view class="action-row">
+      <t-button theme="primary" variant="outline" size="medium" loading="{{recognizing}}" bindtap="handleScanRecognition">扫码识别</t-button>
+      <t-button theme="primary" size="medium" loading="{{recognizing}}" bindtap="handleImageRecognition">拍照识别</t-button>
+    </view>
+    <view class="notice">扫码/拍照 -> 识别 -> 确认 -> 纠错 -> 保存入库</view>
+    <view class="notice">当前页只保留扫码识别和拍照识别入口，避免误触其它 AI 功能后直接带错数据入库。</view>
+  </view>
+
+  <view class="card" wx:if="{{recognitionErrorText}}">
+    <view class="card-title">识别异常</view>
+    <view class="warning-item">
+      <text class="warning-dot"></text>
+      <text class="warning-text">{{recognitionErrorText}}</text>
+    </view>
+    <t-button theme="primary" variant="outline" size="small" loading="{{recognizing}}" bindtap="retryLastRecognition">
+      重试上一步识别
+    </t-button>
+  </view>
+
+  <view class="card" wx:if="{{recognitionWarnings.length}}">
+    <view class="card-title">识别提醒</view>
+    <view class="warning-item" wx:for="{{recognitionWarnings}}" wx:key="*this">
+      <text class="warning-dot"></text>
+      <text class="warning-text">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{recognitionCandidates.length}}">
+    <view class="card-title">{{recognitionSource}}候选结果</view>
+    <view class="candidate-actions">
+      <t-button theme="default" variant="outline" size="small" bindtap="skipRecognitionCandidates">跳过识别，手动填写</t-button>
+    </view>
+    <view class="candidate-card {{selectedCandidateId === item.candidateId ? 'candidate-card--active' : ''}}" wx:for="{{recognitionCandidates}}" wx:key="candidateId">
+      <view class="candidate-top">
+        <view>
+          <text class="candidate-name">{{item.displayName}}</text>
+          <text class="candidate-spec" wx:if="{{item.specification}}">{{item.specification}}</text>
+        </view>
+        <text class="candidate-confidence" wx:if="{{item.confidenceText}}">{{item.confidenceText}}</text>
+      </view>
+      <view class="candidate-meta">
+        <text wx:if="{{item.barcode}}">条码：{{item.barcode}}</text>
+        <text wx:if="{{item.dosageForm}}">剂型：{{item.dosageForm}}</text>
+        <text wx:if="{{item.category}}">分类：{{item.category}}</text>
+      </view>
+      <view class="candidate-desc" wx:if="{{item.indications}}">适应症：{{item.indications}}</view>
+      <t-button theme="{{selectedCandidateId === item.candidateId ? 'success' : 'primary'}}" size="small" bindtap="onSelectCandidate" data-index="{{index}}">
+        {{selectedCandidateId === item.candidateId ? '已选中' : '使用该结果'}}
+      </t-button>
+    </view>
+  </view>
+
+  <view class="card correction-card" wx:if="{{selectedCandidateId}}">
+    <view class="card-title">纠错说明</view>
+    <view class="notice">你可以继续修改下方字段，系统会记录与识别结果的差异。</view>
+    <view class="confirm-tip {{recognitionNeedConfirm ? 'confirm-tip--warning' : 'confirm-tip--done'}}">
+      {{recognitionNeedConfirm ? '当前候选结果尚未确认，请先确认再保存。' : '识别结果已确认，可继续保存。'}}
+    </view>
+    <t-textarea
+      label="纠错备注"
+      value="{{correctionNote}}"
+      bind:change="onCorrectionNoteChange"
+      placeholder="选填：记录纠错原因和修改内容"
+      autosize="{{true}}"
+    />
+    <view class="correction-action">
+      <t-button
+        wx:if="{{recognitionNeedConfirm}}"
+        theme="primary"
+        size="small"
+        bindtap="confirmRecognitionSelection"
+      >
+        确认识别结果
+      </t-button>
+      <t-button theme="default" variant="outline" size="small" bindtap="clearSelectedCandidate">清空已选结果</t-button>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">基础信息</view>
+    <t-input label="药品名称" required value="{{formData.name}}" data-field="name" bind:change="onFieldChange" placeholder="请输入药品名称" />
+    <t-input label="规格" required value="{{formData.specification}}" data-field="specification" bind:change="onFieldChange" placeholder="示例：0.25g*24" />
+    <t-input label="生产厂家" value="{{formData.manufacturer}}" data-field="manufacturer" bind:change="onFieldChange" placeholder="请输入生产厂家" />
+    <t-input label="条码" value="{{formData.barcode}}" data-field="barcode" bind:change="onFieldChange" placeholder="请输入条码" />
+    <t-input label="货位" value="{{formData.location}}" data-field="location" bind:change="onFieldChange" placeholder="示例：A2货架" />
+
+    <view class="picker-row">
+      <text class="picker-label">剂型</text>
+      <picker bindchange="onDosageFormChange" value="{{dosageFormIndex}}" range="{{dosageFormOptions}}">
+        <view class="picker-value">{{formData.form || formData.dosageForm || '请选择剂型'}}</view>
+      </picker>
+    </view>
+
+    <view class="switch-row">
+      <text class="picker-label">处方药</text>
+      <switch checked="{{formData.isPrescription}}" bindchange="onPrescriptionSwitch" color="#0f766e" />
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">价格与库存规则</view>
+    <view class="notice strong">价格需人工确认，识别结果不会自动填充价格。</view>
+    <t-input label="单价(元)" required type="number" value="{{formData.price}}" data-field="price" bind:change="onFieldChange" placeholder="请输入单价" />
+    <t-input label="预警阈值" required type="number" value="{{formData.warningThreshold}}" data-field="warningThreshold" bind:change="onFieldChange" placeholder="默认：10" />
+    <t-input label="单位" value="{{formData.unit}}" data-field="unit" bind:change="onFieldChange" placeholder="示例：盒 / 瓶 / 支" />
+    <t-input label="分类" value="{{formData.category}}" data-field="category" bind:change="onFieldChange" placeholder="示例：退烧药" />
+    <t-input label="储存条件" value="{{formData.storage}}" data-field="storage" bind:change="onFieldChange" placeholder="示例：阴凉干燥处" />
+  </view>
+
+  <view class="card" wx:if="{{!isEdit}}">
+    <view class="card-title">首批入库信息</view>
+    <view class="notice">如本次建档后需要直接入库，请一并填写首批数量、批次号和有效期。</view>
+    <t-input
+      label="首批数量"
+      type="number"
+      value="{{formData.initialStockQuantity}}"
+      data-field="initialStockQuantity"
+      bind:change="onFieldChange"
+      placeholder="选填：不填则仅保存药品档案"
+    />
+    <t-input
+      label="首批批次号"
+      value="{{formData.initialBatchNumber}}"
+      data-field="initialBatchNumber"
+      bind:change="onFieldChange"
+      placeholder="选填：如需直接入库请填写"
+    />
+
+    <view class="picker-row">
+      <text class="picker-label">入库时间</text>
+      <view class="picker-value">{{formData.initialStockInDate || '系统自动填写当前时间'}}</view>
+    </view>
+
+    <view class="picker-row picker-row--picker">
+      <text class="picker-label">首批有效期</text>
+      <picker mode="date" value="{{formData.initialExpiryDate}}" bindchange="onInitialExpiryDateChange">
+        <view class="picker-value">{{formData.initialExpiryDate || '请选择首批有效期'}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">临床信息（选填）</view>
+    <t-textarea label="药理作用" value="{{formData.pharmacology}}" data-field="pharmacology" bind:change="onFieldChange" placeholder="请输入药理作用" autosize="{{true}}" />
+    <t-textarea label="适应症" value="{{formData.indications}}" data-field="indications" bind:change="onFieldChange" placeholder="请输入适应症" autosize="{{true}}" />
+    <t-textarea label="用法用量" value="{{formData.dosage}}" data-field="dosage" bind:change="onFieldChange" placeholder="请输入用法用量" autosize="{{true}}" />
+    <t-textarea label="不良反应" value="{{formData.sideEffects}}" data-field="sideEffects" bind:change="onFieldChange" placeholder="请输入不良反应" autosize="{{true}}" />
+  </view>
+
+  <view class="submit-section">
+    <t-button theme="primary" size="large" block loading="{{loading || submitting}}" disabled="{{loading || submitting}}" bindtap="submitForm">
+      {{isEdit ? '保存修改' : (formData.initialStockQuantity ? '确认建档并入库' : '保存药品档案')}}
+    </t-button>
+  </view>
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

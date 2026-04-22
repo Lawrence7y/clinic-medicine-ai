@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.clinic.prescription.mapper.ClinicPrescriptionMapper">
+
+    <resultMap id="BaseResultMap" type="com.ruoyi.project.clinic.prescription.domain.ClinicPrescription">
+        <id property="prescriptionId" column="prescription_id"/>
+        <result property="patientId" column="patient_id"/>
+        <result property="patientName" column="patient_name"/>
+        <result property="medicalRecordId" column="medical_record_id"/>
+        <result property="doctorId" column="doctor_id"/>
+        <result property="doctorName" column="doctor_name"/>
+        <result property="prescriptionDate" column="prescription_date"/>
+        <result property="diagnosis" column="diagnosis"/>
+        <result property="chiefComplaint" column="chief_complaint"/>
+        <result property="medicalHistory" column="medical_history"/>
+        <result property="allergyHistory" column="allergy_history"/>
+        <result property="category" column="category"/>
+        <result property="status" column="status"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="medicines" column="medicines"/>
+        <result property="usage" column="usage"/>
+        <result property="remark" column="remark"/>
+        <result property="signature" column="signature"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        prescription_id, patient_id, patient_name, medical_record_id, doctor_id, doctor_name,
+        prescription_date, diagnosis, chief_complaint, medical_history, allergy_history,
+        category, status, total_amount, medicines, usage, remark, signature,
+        create_by, create_time, update_by, update_time
+    </sql>
+
+    <select id="selectPrescriptionById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM clinic_prescription
+        WHERE prescription_id = #{prescriptionId}
+    </select>
+
+    <select id="selectPrescriptionList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM clinic_prescription
+        <where>
+            <if test="patientId != null">
+                AND patient_id = #{patientId}
+            </if>
+            <if test="patientName != null and patientName != ''">
+                AND patient_name LIKE CONCAT('%', #{patientName}, '%')
+            </if>
+            <if test="doctorId != null">
+                AND doctor_id = #{doctorId}
+            </if>
+            <if test="doctorName != null and doctorName != ''">
+                AND doctor_name LIKE CONCAT('%', #{doctorName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+            <if test="params.beginPrescriptionDate != null and params.beginPrescriptionDate != ''">
+                AND prescription_date &gt;= #{params.beginPrescriptionDate}
+            </if>
+            <if test="params.endPrescriptionDate != null and params.endPrescriptionDate != ''">
+                AND prescription_date &lt;= #{params.endPrescriptionDate}
+            </if>
+        </where>
+        ORDER BY prescription_date DESC
+    </select>
+
+    <insert id="insertPrescription" useGeneratedKeys="true" keyProperty="prescriptionId">
+        INSERT INTO clinic_prescription(
+            patient_id, patient_name, medical_record_id, doctor_id, doctor_name,
+            prescription_date, diagnosis, chief_complaint, medical_history, allergy_history,
+            category, status, total_amount, medicines, usage, remark, signature, create_by, create_time
+        ) VALUES (
+            #{patientId}, #{patientName}, #{medicalRecordId}, #{doctorId}, #{doctorName},
+            #{prescriptionDate}, #{diagnosis}, #{chiefComplaint}, #{medicalHistory}, #{allergyHistory},
+            #{category}, #{status}, #{totalAmount}, #{medicines}, #{usage}, #{remark}, #{signature},
+            #{createBy}, #{createTime}
+        )
+    </insert>
+
+    <update id="updatePrescription">
+        UPDATE clinic_prescription
+        <set>
+            <if test="patientId != null">patient_id = #{patientId},</if>
+            <if test="patientName != null">patient_name = #{patientName},</if>
+            <if test="diagnosis != null">diagnosis = #{diagnosis},</if>
+            <if test="chiefComplaint != null">chief_complaint = #{chiefComplaint},</if>
+            <if test="medicalHistory != null">medical_history = #{medicalHistory},</if>
+            <if test="allergyHistory != null">allergy_history = #{allergyHistory},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="medicines != null">medicines = #{medicines},</if>
+            <if test="usage != null">usage = #{usage},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="signature != null">signature = #{signature},</if>
+            update_by = #{updateBy}, update_time = #{updateTime}
+        </set>
+        WHERE prescription_id = #{prescriptionId}
+    </update>
+
+    <delete id="deletePrescriptionById">
+        DELETE FROM clinic_prescription WHERE prescription_id = #{prescriptionId}
+    </delete>
+
+    <delete id="deletePrescriptionByIds">
+        DELETE FROM clinic_prescription WHERE prescription_id IN
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="countPrescriptionByPatient" resultType="int">
+        SELECT COUNT(*) FROM clinic_prescription WHERE patient_id = #{patientId}
+    </select>
+
+</mapper>

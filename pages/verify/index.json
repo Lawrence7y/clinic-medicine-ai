@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "完成注册",
+  "usingComponents": {
+    "async-state": "/components/async-state/index",
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-input": "tdesign-miniprogram/input/input",
+    "t-button": "tdesign-miniprogram/button/button"
+  }
+}

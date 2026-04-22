@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('药品批次')" />
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="batch-form">
+                <div class="select-list">
+                    <ul>
+                        <li>药品名称：<input type="text" name="medicineName"/></li>
+                        <li>药品ID：<input type="text" name="medicineId"/></li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var prefix = ctx + "clinic/medicine";
+
+    $(function () {
+        var medicineId = getQueryParam("medicineId");
+        if (medicineId) {
+            $('input[name="medicineId"]').val(medicineId);
+        }
+
+        var options = {
+            url: prefix + "/batch/list",
+            modalName: "药品批次",
+            columns: [{
+                field: 'batchId',
+                title: '批次ID'
+            }, {
+                field: 'medicineId',
+                title: '药品ID'
+            }, {
+                field: 'medicineName',
+                title: '药品名称'
+            }, {
+                field: 'stockInDate',
+                title: '入库日期'
+            }, {
+                field: 'expiryDate',
+                title: '有效期'
+            }, {
+                field: 'remainingQuantity',
+                title: '剩余库存'
+            }, {
+                field: 'updateTime',
+                title: '更新时间'
+            }]
+        };
+        $.table.init(options);
+    });
+
+    function getQueryParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) {
+            return decodeURIComponent(r[2]);
+        }
+        return "";
+    }
+</script>
+</body>
+</html>

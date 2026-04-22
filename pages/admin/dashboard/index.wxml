@@ -1,0 +1,119 @@
+<view class="dashboard-container">
+  <view class="welcome-section" wx:if="{{uiState === 'ready'}}">
+    <text class="welcome-text">{{texts.welcomePrefix}}{{userInfo.name || texts.defaultAdminName}}</text>
+    <text class="welcome-subtitle">{{texts.dateLabel}}{{currentDate}}</text>
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+    description="{{texts.loadingDesc}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.busyHint}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="retryLoad"
+  />
+
+  <block wx:else>
+    <view class="stats-grid">
+      <view class="stat-card" bindtap="goToAppointments">
+        <view class="stat-icon" style="background-color: #e6f7ff;">
+          <t-icon name="calendar" size="40rpx" color="#1890ff" />
+        </view>
+        <view class="stat-info">
+          <text class="stat-value">{{stats.todayAppointments}}</text>
+          <text class="stat-label">{{texts.todayAppointments}}</text>
+        </view>
+      </view>
+
+      <view class="stat-card" bindtap="goToPatients">
+        <view class="stat-icon" style="background-color: #f6ffed;">
+          <t-icon name="user" size="40rpx" color="#52c41a" />
+        </view>
+        <view class="stat-info">
+          <text class="stat-value">{{stats.totalPatients}}</text>
+          <text class="stat-label">{{texts.totalPatients}}</text>
+        </view>
+      </view>
+
+      <view class="stat-card" bindtap="goToMedicines">
+        <view class="stat-icon" style="background-color: #fff7e6;">
+          <t-icon name="medicine-box" size="40rpx" color="#fa8c16" />
+        </view>
+        <view class="stat-info">
+          <text class="stat-value">{{stats.totalMedicines}}</text>
+          <text class="stat-label">{{texts.totalMedicines}}</text>
+        </view>
+      </view>
+
+      <view class="stat-card">
+        <view class="stat-icon" style="background-color: #fff1f0;">
+          <t-icon name="time" size="40rpx" color="#f5222d" />
+        </view>
+        <view class="stat-info">
+          <text class="stat-value">{{stats.pendingAppointments}}</text>
+          <text class="stat-label">{{texts.pendingAppointments}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="quick-actions">
+      <view class="section-title">{{texts.quickEntry}}</view>
+      <view class="action-grid">
+        <view class="action-item" bindtap="goToScheduleManage">
+          <t-icon name="calendar" size="48rpx" color="#222222" />
+          <text>{{texts.scheduleManage}}</text>
+        </view>
+        <view class="action-item" bindtap="goToUserManage">
+          <t-icon name="user" size="48rpx" color="#222222" />
+          <text>{{texts.userManage}}</text>
+        </view>
+        <view class="action-item" bindtap="goToMedicines">
+          <t-icon name="medicine-box" size="48rpx" color="#222222" />
+          <text>{{texts.medicineManage}}</text>
+        </view>
+        <view class="action-item" bindtap="goToSystemConfig">
+          <t-icon name="setting" size="48rpx" color="#222222" />
+          <text>{{texts.systemConfig}}</text>
+        </view>
+        <view class="action-item" bindtap="goToAuditCenter">
+          <t-icon name="secured" size="48rpx" color="#222222" />
+          <text>{{texts.auditCenter}}</text>
+        </view>
+        <view class="action-item" bindtap="goToReports">
+          <t-icon name="chart-bar" size="48rpx" color="#222222" />
+          <text>{{texts.reports}}</text>
+        </view>
+        <view class="action-item" bindtap="goToAiAssistantHub">
+          <t-icon name="chat" size="48rpx" color="#222222" />
+          <text>{{texts.aiAssistant}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="todo-section">
+      <view class="section-title">{{texts.recentAppointments}}</view>
+      <view class="todo-list">
+        <view wx:if="{{recentAppointments.length === 0}}" class="empty-todo">
+          <text>{{texts.emptyAppointments}}</text>
+        </view>
+        <view wx:for="{{recentAppointments}}" wx:key="id" class="todo-item">
+          <view class="todo-info">
+            <text class="todo-patient">{{item.patientName || '-'}}</text>
+            <text class="todo-detail">{{item.doctorName || '-'}} - {{item.appointmentTime || item.time || '-'}}</text>
+          </view>
+          <t-tag size="small" theme="{{item.status === 'pending' ? 'warning' : 'success'}}" variant="light">
+            {{item.status === 'pending' ? texts.pending : texts.confirmed}}
+          </t-tag>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

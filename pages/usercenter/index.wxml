@@ -1,0 +1,108 @@
+<view class="usercenter-container">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="retryLoad"
+  />
+
+  <block wx:else>
+    <view class="user-card">
+      <view class="user-profile">
+        <t-avatar size="large" text="{{userInfo.name ? userInfo.name[0] : texts.defaultUser}}" />
+        <view class="user-detail">
+          <view class="user-name">{{userInfo.name || texts.defaultUser}}</view>
+          <view class="user-role">{{roleName}}</view>
+          <view class="user-phone" wx:if="{{userInfo.phone}}">{{userInfo.phone}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="menu-section">
+      <view class="menu-group" wx:if="{{isAdmin}}">
+        <view class="group-title">{{texts.adminGroup}}</view>
+        <t-cell-group>
+          <t-cell title="{{texts.userManage}}" arrow bindtap="goToUserManage">
+            <t-icon slot="left-icon" name="user" size="48rpx" color="#222222" />
+          </t-cell>
+          <t-cell title="{{texts.systemConfig}}" arrow bindtap="goToSystemConfig">
+            <t-icon slot="left-icon" name="setting" size="48rpx" color="#222222" />
+          </t-cell>
+          <t-cell title="{{texts.auditCenter}}" arrow bindtap="goToAuditCenter">
+            <t-icon slot="left-icon" name="secured" size="48rpx" color="#222222" />
+          </t-cell>
+        </t-cell-group>
+      </view>
+
+      <view class="menu-group">
+        <view class="group-title">{{texts.aiGroup}}</view>
+        <t-cell-group>
+          <t-cell title="{{systemConfig.aiAssistantName || texts.aiAssistant}}" note="{{texts.aiAssistantNote}}" arrow bindtap="goToAiAssistant">
+            <t-icon slot="left-icon" name="chat" size="48rpx" color="#0f766e" />
+          </t-cell>
+        </t-cell-group>
+        <view class="recent-ai" wx:if="{{recentAiFeatures.length > 0}}">
+          <view class="recent-ai-title">{{texts.recentAi}}</view>
+          <view class="recent-ai-list">
+            <view
+              class="recent-ai-item"
+              wx:for="{{recentAiFeatures}}"
+              wx:key="path"
+              bindtap="openRecentAi"
+              data-path="{{item.path}}"
+              data-name="{{item.name}}"
+            >
+              <text class="recent-ai-name">{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="menu-group">
+        <view class="group-title">{{texts.serviceGroup}}</view>
+        <t-cell-group>
+          <t-cell title="{{texts.myAppointments}}" arrow bindtap="goToMyAppointments">
+            <t-icon slot="left-icon" name="calendar" size="48rpx" color="#666" />
+          </t-cell>
+          <t-cell title="{{texts.notificationCenter}}" arrow bindtap="goToNotificationCenter">
+            <t-icon slot="left-icon" name="info-circle" size="48rpx" color="#666" />
+          </t-cell>
+          <t-cell wx:if="{{isPatient}}" title="{{texts.patientServiceCenter}}" arrow bindtap="goToPatientServiceCenter">
+            <t-icon slot="left-icon" name="user" size="48rpx" color="#666" />
+          </t-cell>
+        </t-cell-group>
+      </view>
+
+      <view class="menu-group">
+        <view class="group-title">{{texts.settingGroup}}</view>
+        <t-cell-group>
+          <t-cell title="{{texts.personInfo}}" arrow bindtap="goToPersonInfo">
+            <t-icon slot="left-icon" name="user" size="48rpx" color="#666" />
+          </t-cell>
+          <t-cell title="{{texts.resetPassword}}" arrow bindtap="goToResetPassword">
+            <t-icon slot="left-icon" name="lock-on" size="48rpx" color="#666" />
+          </t-cell>
+          <t-cell title="{{texts.sessionSecurity}}" note="{{texts.sessionSecurityNote}}" arrow bindtap="goToSessionSecurity">
+            <t-icon slot="left-icon" name="lock-on" size="48rpx" color="#666" />
+          </t-cell>
+          <t-cell title="{{texts.about}}" arrow bindtap="goToAbout">
+            <t-icon slot="left-icon" name="info-circle" size="48rpx" color="#666" />
+          </t-cell>
+        </t-cell-group>
+      </view>
+    </view>
+
+    <view class="logout-section" wx:if="{{userInfo.id}}">
+      <t-button theme="danger" variant="outline" block bindtap="handleLogout">{{texts.logout}}</t-button>
+    </view>
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

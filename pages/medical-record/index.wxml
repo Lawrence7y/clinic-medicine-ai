@@ -1,0 +1,133 @@
+<view class="medical-record-container">
+  <!-- 搜索栏 -->
+  <view class="search-section">
+    <t-search
+      placeholder="搜索患者姓名、手机号"
+      value="{{searchKeyword}}"
+      bind:change="onSearchChange"
+      bind:submit="onSearch"
+    />
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="retryLoad"
+  />
+
+  <block wx:else>
+    <!-- 统计卡片（管理员/医生可见） -->
+    <view class="stats-section" wx:if="{{canViewStats}}">
+      <view class="stats-card">
+        <view class="stat-item">
+          <text class="stat-value">{{stats.totalRecords}}</text>
+          <text class="stat-label">总病历数</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value">{{stats.todayRecords}}</text>
+          <text class="stat-label">今日新增</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-value">{{stats.thisMonth}}</text>
+          <text class="stat-label">本月病历</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 快捷操作 -->
+    <view class="quick-actions" wx:if="{{canCreateRecord}}">
+      <view class="action-btn" bindtap="goToCreateRecord">
+        <view class="action-icon">
+          <t-icon name="add" size="40rpx" color="#fff"/>
+        </view>
+        <text>新建病历</text>
+      </view>
+      <view class="action-btn" bindtap="goToPatientList">
+        <view class="action-icon" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+          <t-icon name="user" size="40rpx" color="#fff"/>
+        </view>
+        <text>患者列表</text>
+      </view>
+      <view class="action-btn" bindtap="goToStatistics" wx:if="{{canViewStats}}">
+        <view class="action-icon" style="background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);">
+          <t-icon name="chart" size="40rpx" color="#fff"/>
+        </view>
+        <text>数据统计</text>
+      </view>
+    </view>
+
+    <!-- 筛选栏 -->
+    <view class="filter-section">
+      <view class="filter-item">
+        <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
+          <view class="picker">
+            开始日期: {{startDate || '请选择'}}
+          </view>
+        </picker>
+      </view>
+      <view class="filter-item">
+        <picker mode="date" value="{{endDate}}" bindchange="onEndDateChange">
+          <view class="picker">
+            结束日期: {{endDate || '请选择'}}
+          </view>
+        </picker>
+      </view>
+      <view class="filter-item" wx:if="{{departments.length > 0}}">
+        <picker bindchange="onDeptChange" value="{{deptIndex}}" range="{{departments}}">
+          <view class="picker">
+            科室: {{departments[deptIndex] || '全部'}}
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 病历列表 -->
+    <view class="record-list">
+      <view class="record-card" wx:for="{{recordList}}" wx:key="id" bindtap="goToRecordDetail" data-id="{{item.id}}">
+        <view class="record-header">
+          <view class="patient-info">
+            <text class="patient-name">{{item.patientName}}</text>
+            <text class="patient-gender">{{item.patientGender === 'male' ? '男' : '女'}}</text>
+            <text class="patient-age">{{item.patientAge}}岁</text>
+          </view>
+          <text class="record-time">{{item.visitTime}}</text>
+        </view>
+        <view class="record-body">
+          <view class="info-row">
+            <text class="label">主诉：</text>
+            <text class="value">{{item.chiefComplaint}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">诊断：</text>
+            <text class="value diagnosis">{{item.diagnosis}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">医生：</text>
+            <text class="value">{{item.doctorName}}</text>
+          </view>
+        </view>
+        <view class="record-footer">
+          <t-tag size="small" variant="light" wx:if="{{item.prescription && item.prescription.length > 0}}">
+            已开药
+          </t-tag>
+          <t-tag size="small" theme="primary" variant="light" wx:if="{{item.followUp}}">
+            需复诊
+          </t-tag>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <async-state wx:if="{{uiState === 'empty'}}" mode="empty" title="{{texts.empty}}" />
+  </block>
+
+  <t-toast id="t-toast"/>
+</view>

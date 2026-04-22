@@ -1,0 +1,23 @@
+{
+  "name": "medical-clinic-system",
+  "version": "1.0.0",
+  "description": "诊所管理系统",
+  "main": "app.js",
+  "scripts": {
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "npm run check:encoding && npm run check:page-text && npm run check:main-flow-api",
+    "test:backend": "mvn -q -f ./springboot/pom.xml test",
+    "auto:push": "powershell -ExecutionPolicy Bypass -File ./scripts/auto_commit_push.ps1",
+    "check:encoding": "node ./scripts/check_encoding.js",
+    "check:page-text": "node ./scripts/check_page_text.js",
+    "check:main-flow-api": "node ./scripts/check_main_flow_api.js",
+    "fix:encoding:bom": "node ./scripts/check_encoding.js --fix-bom"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dayjs": "^1.9.3",
+    "tdesign-miniprogram": "1.9.5",
+    "tslib": "^1.11.1"
+  }
+}

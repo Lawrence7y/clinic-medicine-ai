@@ -1,0 +1,96 @@
+.audit-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.filter-card,
+.log-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.filter-title {
+  font-size: 30rpx;
+  color: #1f2937;
+  font-weight: 600;
+  margin-bottom: 14rpx;
+}
+
+.filter-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.filter-label {
+  color: #64748b;
+  font-size: 24rpx;
+}
+
+.filter-input,
+.filter-picker {
+  min-height: 64rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid #dbe2ea;
+  padding: 0 18rpx;
+  background: #f8fafc;
+  color: #111827;
+  font-size: 26rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.filter-actions {
+  margin-top: 16rpx;
+  display: flex;
+  gap: 12rpx;
+}
+
+.log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.log-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.scene {
+  font-size: 30rpx;
+  color: #222;
+  font-weight: 600;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 8rpx;
+}
+
+.k {
+  width: 140rpx;
+  color: #888;
+  font-size: 24rpx;
+}
+
+.v {
+  flex: 1;
+  color: #333;
+  font-size: 24rpx;
+  word-break: break-all;
+}

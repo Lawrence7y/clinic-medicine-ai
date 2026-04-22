@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('系统配置')" />
+    <style>
+        .config-shell { padding: 18px; }
+        .config-card { background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06); margin-bottom: 18px; }
+        .config-card .card-head { padding: 16px 18px; border-bottom: 1px solid #eef2f7; font-weight: 600; color: #1f2937; }
+        .config-card .card-body { padding: 18px; }
+        .field-tip { margin-top: 6px; font-size: 12px; color: #6b7280; line-height: 1.6; }
+        .section-desc { margin-bottom: 14px; color: #6b7280; line-height: 1.7; }
+        .sticky-actions { position: sticky; bottom: 0; background: rgba(244, 246, 251, 0.95); padding: 14px 0 4px; z-index: 2; }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="config-shell">
+    <form id="form-clinic-config">
+        <div id="config-sections"></div>
+
+        <div class="sticky-actions" shiro:hasPermission="clinic:config:edit">
+            <button class="btn btn-primary" type="button" onclick="submitHandler()">保存配置</button>
+            <button class="btn btn-default" type="button" onclick="window.location.reload()">重新加载</button>
+        </div>
+    </form>
+</div>
+
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var prefix = ctx + "clinic/config";
+    var initialConfig = /*[[${config}]]*/ {};
+    var URL_FIELDS = ['apiBaseUrl', 'adminBaseUrl', 'miniProgramBaseUrl', 'experienceDomain', 'tunnelBaseUrl'];
+    var CONFIG_SECTIONS = [
+        {
+            title: '基础信息',
+            desc: '统一维护诊所基础展示信息，前后端页面都会从这里读取。',
+            fields: [
+                { key: 'clinicName', name: '诊所名称', type: 'text', required: true },
+                { key: 'contactPhone', name: '联系电话', type: 'text', required: true },
+                { key: 'businessHours', name: '营业时间', type: 'text', required: true, placeholder: '例如：08:00 - 20:00' }
+            ]
+        },
+        {
+            title: '预约与规则',
+            desc: '预约开放、取消、超时与多端登录规则统一从这里生效。',
+            fields: [
+                { key: 'appointmentDays', name: '可预约天数', type: 'number', required: true },
+                { key: 'appointmentDuration', name: '预约时长（分钟）', type: 'number', required: true },
+                { key: 'pendingConfirmTimeoutMinutes', name: '待确认超时（分钟）', type: 'number', required: true },
+                { key: 'patientCancelAdvanceMinutes', name: '患者取消提前（分钟）', type: 'number', required: true },
+                { key: 'maxSessionCount', name: '最大并发会话数', type: 'number', required: true },
+                { key: 'kickoutAfterNewLogin', name: '超限时踢出新登录', type: 'switch' },
+                { key: 'loginMaxFailCount', name: '登录失败阈值（次）', type: 'number', required: true },
+                { key: 'loginLockMinutes', name: '登录锁定时长（分钟）', type: 'number', required: true },
+                { key: 'allowUserRegister', name: '允许自助注册', type: 'switch' },
+                { key: 'loginMode', name: '登录模式（固定）', type: 'text', readonly: true, tip: '当前固定为“手机号登录 + admin 账号”。' }
+            ]
+        },
+        {
+            title: '环境与地址',
+            desc: '小程序、后台、体验版和内网穿透地址统一收口到这里，避免“本地能用、真机不能用”。',
+            fields: [
+                { key: 'apiBaseUrl', name: '小程序 API 地址', type: 'text', tip: '必须为 https 地址，且不能使用 localhost。' },
+                { key: 'adminBaseUrl', name: '后台地址', type: 'text' },
+                { key: 'miniProgramBaseUrl', name: '小程序访问地址', type: 'text' },
+                { key: 'experienceDomain', name: '体验版域名', type: 'text' },
+                { key: 'tunnelBaseUrl', name: '内网穿透地址', type: 'text' },
+                { key: 'databaseName', name: '数据库名称', type: 'text', tip: '如未单独维护，将自动显示当前后端实际连接的数据库。' }
+            ]
+        },
+        {
+            title: 'AI 助手与提示词',
+            desc: '后台、小程序与接口统一读取这一套 AI 开关、名称和提示词配置。',
+            fields: [
+                { key: 'aiAssistantEnabled', name: '启用 AI 助手', type: 'switch' },
+                { key: 'aiAssistantName', name: 'AI 助手名称', type: 'text' },
+                { key: 'aiPromptTemplateGeneral', name: 'AI 通用提示词', type: 'textarea' },
+                { key: 'aiPromptTemplateBusiness', name: 'AI 业务提示词', type: 'textarea' },
+                { key: 'aiModelDescriptionDoc', name: 'AI 模型说明', type: 'textarea' }
+            ]
+        }
+    ];
+
+    $(function () {
+        renderSections();
+    });
+
+    function renderSections() {
+        var html = [];
+        for (var i = 0; i < CONFIG_SECTIONS.length; i++) {
+            html.push(renderSection(CONFIG_SECTIONS[i], i));
+        }
+        $("#config-sections").html(html.join(""));
+    }
+
+    function renderSection(section, sectionIndex) {
+        var parts = [
+            '<div class="config-card">',
+            '<div class="card-head">' + escapeHtml(section.title) + '</div>',
+            '<div class="card-body">'
+        ];
+        if (section.desc) {
+            parts.push('<div class="section-desc">' + escapeHtml(section.desc) + '</div>');
+        }
+        for (var i = 0; i < section.fields.length; i++) {
+            parts.push(renderField(section.fields[i], sectionIndex + "-" + i));
+        }
+        parts.push('</div></div>');
+        return parts.join("");
+    }
+
+    function renderField(field, domId) {
+        var value = initialConfig[field.key];
+        if (value === undefined || value === null) {
+            value = field.type === 'switch' ? false : '';
+        }
+        var inputHtml = '';
+        if (field.type === 'switch') {
+            inputHtml =
+                '<label class="checkbox-inline i-checks">'
+                + '<input type="checkbox" id="' + domId + '" data-key="' + field.key + '"' + (value ? ' checked' : '') + '> <i></i> 启用'
+                + '</label>';
+        } else if (field.type === 'textarea') {
+            inputHtml =
+                '<textarea id="' + domId + '" data-key="' + field.key + '" class="form-control" rows="5"'
+                + (field.readonly ? ' readonly' : '')
+                + ' placeholder="' + escapeAttr(field.placeholder || '') + '">'
+                + escapeHtml(value)
+                + '</textarea>';
+        } else {
+            inputHtml =
+                '<input id="' + domId + '" data-key="' + field.key + '" class="form-control" type="' + (field.type || 'text') + '"'
+                + (field.readonly ? ' readonly' : '')
+                + ' value="' + escapeAttr(value) + '"'
+                + ' placeholder="' + escapeAttr(field.placeholder || '') + '">';
+        }
+
+        var requiredMark = field.required ? ' is-required' : '';
+        var tipHtml = field.tip ? '<div class="field-tip">' + escapeHtml(field.tip) + '</div>' : '';
+        return ''
+            + '<div class="form-group">'
+            + '  <label class="col-sm-3 control-label' + requiredMark + '">' + escapeHtml(field.name) + '：</label>'
+            + '  <div class="col-sm-8">' + inputHtml + tipHtml + '</div>'
+            + '</div>';
+    }
+
+    function escapeHtml(text) {
+        return String(text || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(text) {
+        return escapeHtml(text).replace(/\n/g, '&#10;');
+    }
+
+    function normalizeUrl(value) {
+        var raw = String(value || '').trim().replace(/\/+$/, '');
+        if (!raw) return '';
+        var normalized = raw;
+        if (!/^https?:\/\//i.test(normalized)) {
+            if (!/^[\w.-]+(?::\d+)?(?:\/.*)?$/i.test(normalized)) {
+                return null;
+            }
+            normalized = 'https://' + normalized;
+        }
+        if (!/^https:\/\//i.test(normalized)) return null;
+        if (/localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(normalized)) return null;
+        return normalized;
+    }
+
+    function validateNumber(key, value) {
+        if (key === 'appointmentDays' && (value < 1 || value > 30)) return '可预约天数必须在 1 到 30 之间';
+        if (key === 'appointmentDuration' && (value < 5 || value > 240)) return '预约时长必须在 5 到 240 分钟之间';
+        if (key === 'pendingConfirmTimeoutMinutes' && (value < 1 || value > 1440)) return '待确认超时必须在 1 到 1440 分钟之间';
+        if (key === 'patientCancelAdvanceMinutes' && (value < 30 || value > 1440)) return '患者取消提前时间必须在 30 到 1440 分钟之间';
+        if (key === 'maxSessionCount' && (value < 1 || value > 10)) return '最大并发会话数必须在 1 到 10 之间';
+        if (key === 'loginMaxFailCount' && (value < 3 || value > 10)) return '登录失败阈值必须在 3 到 10 之间';
+        if (key === 'loginLockMinutes' && (value < 1 || value > 120)) return '登录锁定时长必须在 1 到 120 分钟之间';
+        return '';
+    }
+
+    function buildPayload() {
+        var payload = {};
+        for (var s = 0; s < CONFIG_SECTIONS.length; s++) {
+            var fields = CONFIG_SECTIONS[s].fields || [];
+            for (var i = 0; i < fields.length; i++) {
+                var field = fields[i];
+                var $input = $('[data-key="' + field.key + '"]');
+                var value = field.type === 'switch' ? $input.is(':checked') : $.trim($input.val());
+
+                if (field.type === 'number') {
+                    var num = Number(value);
+                    if (!isFinite(num)) throw new Error(field.name + '必须是有效数字');
+                    value = Math.floor(num);
+                    var numberError = validateNumber(field.key, value);
+                    if (numberError) throw new Error(numberError);
+                }
+
+                if (URL_FIELDS.indexOf(field.key) >= 0) {
+                    var normalizedUrl = normalizeUrl(value);
+                    if (normalizedUrl === null) {
+                        throw new Error(field.name + '必须是有效 https 地址，且不能使用 localhost');
+                    }
+                    value = normalizedUrl;
+                }
+
+                if (field.key === 'loginMode') {
+                    value = 'phone_and_admin';
+                }
+                payload[field.key] = value;
+            }
+        }
+
+        if (!payload.apiBaseUrl && !payload.tunnelBaseUrl) {
+            throw new Error('小程序 API 地址与内网穿透地址至少配置一项');
+        }
+        return payload;
+    }
+
+    function submitHandler() {
+        var payload;
+        try {
+            payload = buildPayload();
+        } catch (error) {
+            $.modal.msgError(error.message || '配置校验失败');
+            return;
+        }
+
+        $.modal.loading("正在保存配置，请稍候...");
+        $.ajax({
+            url: prefix + "/save",
+            type: "post",
+            data: JSON.stringify(payload),
+            dataType: "json",
+            contentType: "application/json;charset=UTF-8",
+            success: function(result) {
+                $.modal.closeLoading();
+                if (result.code === 0) {
+                    $.modal.msgSuccess("保存成功，配置已同步生效");
+                    initialConfig = result.data || payload;
+                    renderSections();
+                } else {
+                    $.modal.msgError(result.msg || "保存失败");
+                }
+            },
+            error: function(xhr) {
+                $.modal.closeLoading();
+                var response = xhr && xhr.responseJSON ? xhr.responseJSON : null;
+                $.modal.msgError(response && response.msg ? response.msg : "保存失败");
+            }
+        });
+    }
+</script>
+</body>
+</html>

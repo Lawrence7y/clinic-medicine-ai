@@ -1,0 +1,181 @@
+.statistics-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding-bottom: 40rpx;
+}
+
+/* 统计概览 */
+.overview-section {
+  background: #fff;
+  margin-bottom: 20rpx;
+  padding: 30rpx;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.section-title text {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-left: 12rpx;
+}
+
+.overview-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+
+.overview-card {
+  background: linear-gradient(135deg, #222222 0%, #222222 100%);
+  border-radius: 12rpx;
+  padding: 30rpx;
+  color: #fff;
+  text-align: center;
+}
+
+.card-value {
+  font-size: 48rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.card-label {
+  font-size: 24rpx;
+  opacity: 0.9;
+}
+
+/* 时间筛选 */
+.filter-section {
+  background: #fff;
+  margin-bottom: 20rpx;
+  padding: 20rpx 30rpx;
+}
+
+.time-range-buttons {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+/* 图表区域 */
+.chart-section {
+  background: #fff;
+  margin-bottom: 20rpx;
+  padding: 30rpx;
+}
+
+.chart-container {
+  margin-top: 20rpx;
+}
+
+.chart-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.chart-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.item-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 26rpx;
+}
+
+.item-name {
+  color: #333;
+  font-weight: 500;
+}
+
+.item-value {
+  color: #222222;
+  font-weight: bold;
+}
+
+.progress-bar {
+  height: 12rpx;
+  background: #f0f0f0;
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #222222 0%, #222222 100%);
+  border-radius: 6rpx;
+  transition: width 0.3s ease;
+}
+
+/* 趋势图 */
+.trend-list {
+  display: flex;
+  align-items: flex-end;
+  gap: 12rpx;
+  height: 200rpx;
+  padding: 20rpx 0;
+}
+
+.trend-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.trend-date {
+  font-size: 20rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.trend-bar {
+  flex: 1;
+  width: 32rpx;
+  background: #f0f0f0;
+  border-radius: 16rpx 16rpx 0 0;
+  overflow: hidden;
+  margin: 8rpx 0;
+}
+
+.trend-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #222222 0%, #222222 100%);
+  transition: height 0.3s ease;
+}
+
+.trend-value {
+  font-size: 20rpx;
+  color: #222222;
+  font-weight: bold;
+  margin-top: 8rpx;
+}
+
+.empty-text {
+  color: #94a3b8;
+  font-size: 24rpx;
+  padding: 20rpx 0;
+}
+
+/* 导出按钮 */
+.export-section {
+  padding: 30rpx;
+}
+
+.export-section t-button {
+  width: 100%;
+}

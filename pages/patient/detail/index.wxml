@@ -1,0 +1,65 @@
+<view class="patient-detail-container">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorMessage || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+
+  <view wx:else>
+    <view class="info-section">
+      <view class="section-title">
+        <t-icon name="user" size="32rpx" color="#222222"/>
+        <text>{{texts.basicInfo}}</text>
+      </view>
+      <view class="info-content">
+        <view class="info-row"><text class="info-label">{{texts.name}}</text><text class="info-value">{{patientInfo.name || '-'}}</text></view>
+        <view class="info-row"><text class="info-label">{{texts.gender}}</text><text class="info-value">{{getGenderText(patientInfo.gender)}}</text></view>
+        <view class="info-row"><text class="info-label">{{texts.age}}</text><text class="info-value">{{patientInfo.age || '-'}}</text></view>
+        <view class="info-row"><text class="info-label">{{texts.phone}}</text><text class="info-value">{{patientInfo.phone || '-'}}</text></view>
+        <view class="info-row"><text class="info-label">{{texts.address}}</text><text class="info-value">{{patientInfo.address || '-'}}</text></view>
+      </view>
+    </view>
+
+    <view class="info-section">
+      <view class="section-title">
+        <t-icon name="heart" size="32rpx" color="#222222"/>
+        <text>{{texts.healthInfo}}</text>
+      </view>
+      <view class="info-content">
+        <view class="info-row"><text class="info-label">{{texts.allergy}}</text><text class="info-value">{{patientInfo.allergyHistory || '-'}}</text></view>
+        <view class="info-row"><text class="info-label">{{texts.pastHistory}}</text><text class="info-value">{{patientInfo.pastHistory || '-'}}</text></view>
+        <view class="info-row"><text class="info-label">{{texts.bloodType}}</text><text class="info-value">{{patientInfo.bloodType || '-'}}</text></view>
+      </view>
+    </view>
+
+    <view class="info-section">
+      <view class="section-title">
+        <t-icon name="calendar" size="32rpx" color="#222222"/>
+        <text>{{texts.recentRecords}}</text>
+        <text class="link-btn" bindtap="goToMedicalHistory">{{texts.viewAll}}</text>
+      </view>
+      <view class="record-list">
+        <view class="record-card" wx:for="{{recentRecords}}" wx:key="id" bindtap="goToRecordDetail" data-id="{{item.id}}">
+          <view class="record-header"><text class="record-date">{{item.visitTime || '-'}}</text></view>
+          <view class="record-body">
+            <text class="record-diagnosis">{{item.diagnosis || '-'}}</text>
+            <text class="record-doctor">{{texts.doctorPrefix}}{{item.doctorName || '-'}}</text>
+          </view>
+        </view>
+        <view class="empty-record" wx:if="{{recentRecords.length === 0}}">
+          <t-empty description="{{texts.noRecords}}"/>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast"/>
+</view>

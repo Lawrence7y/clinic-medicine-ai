@@ -1,0 +1,13 @@
+{
+  "navigationBarTitleText": "\u60a3\u8005\u5217\u8868",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "t-search": "tdesign-miniprogram/search/search",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar",
+    "async-state": "/components/async-state/index",
+    "load-more": "/components/load-more/index",
+    "t-toast": "tdesign-miniprogram/toast/toast"
+  }
+}

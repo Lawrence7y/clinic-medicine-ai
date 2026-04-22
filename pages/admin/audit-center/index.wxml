@@ -1,0 +1,54 @@
+<view class="audit-page">
+  <view class="filter-card">
+    <view class="filter-title">筛选条件</view>
+    <view class="filter-grid">
+      <view class="filter-item">
+        <text class="filter-label">{{texts.module}}</text>
+        <input class="filter-input" value="{{filterModule}}" placeholder="例如：appointment / ai / config" bindinput="onModuleInput" />
+      </view>
+      <view class="filter-item">
+        <text class="filter-label">{{texts.action}}</text>
+        <input class="filter-input" value="{{filterAction}}" placeholder="例如：create / update / blocked" bindinput="onActionInput" />
+      </view>
+      <view class="filter-item">
+        <text class="filter-label">{{texts.keyword}}</text>
+        <input class="filter-input" value="{{filterKeyword}}" placeholder="输入目标ID、操作人或关键字" bindinput="onKeywordInput" />
+      </view>
+      <view class="filter-item">
+        <text class="filter-label">{{texts.startDate}}</text>
+        <picker mode="date" value="{{filterStartDate}}" bindchange="onStartDateChange">
+          <view class="filter-picker">{{filterStartDate || '请选择开始日期'}}</view>
+        </picker>
+      </view>
+      <view class="filter-item">
+        <text class="filter-label">{{texts.endDate}}</text>
+        <picker mode="date" value="{{filterEndDate}}" bindchange="onEndDateChange">
+          <view class="filter-picker">{{filterEndDate || '请选择结束日期'}}</view>
+        </picker>
+      </view>
+    </view>
+    <view class="filter-actions">
+      <t-button theme="primary" size="small" loading="{{loading}}" bindtap="applyFilters">{{texts.query}}</t-button>
+      <t-button theme="default" variant="outline" size="small" disabled="{{loading}}" bindtap="resetFilters">{{texts.reset}}</t-button>
+    </view>
+  </view>
+
+  <async-state wx:if="{{uiState === 'loading'}}" mode="loading" title="{{texts.loading}}" />
+  <async-state wx:elif="{{uiState === 'error'}}" mode="error" title="{{errorMessage || texts.loadFail}}" buttonText="{{texts.retry}}" bind:retry="onRetry" />
+  <async-state wx:elif="{{logs.length === 0}}" mode="empty" title="{{texts.empty}}" />
+
+  <view wx:else class="log-list">
+    <view class="log-card" wx:for="{{logs}}" wx:key="time">
+      <view class="log-head">
+        <text class="scene">{{item.module || '-'}}</text>
+        <t-tag size="small" theme="primary" variant="light">{{item.action || '-'}}</t-tag>
+      </view>
+      <view class="row"><text class="k">{{texts.time}}</text><text class="v">{{item.time || '-'}}</text></view>
+      <view class="row"><text class="k">{{texts.operator}}</text><text class="v">{{item.operatorName || '-'}} / {{item.operatorId || '-'}}</text></view>
+      <view class="row"><text class="k">{{texts.target}}</text><text class="v">{{item.targetId || '-'}}</text></view>
+      <view class="row"><text class="k">{{texts.detail}}</text><text class="v">{{item.detail || '-'}}</text></view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

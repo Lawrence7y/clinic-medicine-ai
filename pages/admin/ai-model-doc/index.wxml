@@ -1,0 +1,35 @@
+<view class="page">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+  <block wx:else>
+    <view class="card">
+      <view class="title">模型说明</view>
+      <textarea class="textarea" value="{{doc}}" bindinput="onDocInput" maxlength="-1"/>
+      <t-button theme="primary" loading="{{saving}}" bindtap="onSaveDoc">保存说明</t-button>
+    </view>
+
+    <view class="card">
+      <view class="title">模型列表</view>
+      <view wx:if="{{models.length === 0}}" class="empty">暂无模型</view>
+      <view wx:for="{{models}}" wx:key="modelId" class="row">
+        <view class="left">
+          <text class="name">{{item.modelName || item.modelCode || '-'}}</text>
+          <text class="meta">{{item.providerName || '-'}}</text>
+        </view>
+        <text class="tag">{{item.enabled ? '启用' : '停用'}}</text>
+      </view>
+    </view>
+  </block>
+
+  <t-toast id="t-toast"/>
+</view>

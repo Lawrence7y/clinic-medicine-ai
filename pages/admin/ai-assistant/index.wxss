@@ -1,0 +1,83 @@
+.ai-assistant-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.title {
+  font-size: 42rpx;
+  color: #111;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin-top: -4rpx;
+  margin-bottom: 10rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.entry-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 22rpx;
+}
+
+.entry-name {
+  font-size: 30rpx;
+  color: #222;
+  font-weight: 600;
+}
+
+.entry-desc {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.recent-wrap {
+  margin-top: 8rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+}
+
+.recent-title {
+  font-size: 28rpx;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.recent-empty {
+  margin-top: 12rpx;
+  color: #94a3b8;
+  font-size: 24rpx;
+}
+
+.recent-list {
+  margin-top: 8rpx;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #eef2f7;
+}
+
+.recent-item:last-child {
+  border-bottom: 0;
+}
+
+.recent-name {
+  font-size: 26rpx;
+  color: #334155;
+}

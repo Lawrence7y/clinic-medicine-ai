@@ -1,0 +1,113 @@
+<view class="home-container">
+  <view class="header-section">
+    <view class="welcome-text">
+      <view class="greeting">{{greeting}} {{userInfo.name || texts.defaultUser}}</view>
+      <view class="role-tag">{{roleName}}</view>
+    </view>
+    <view class="date-info">{{currentDate}}</view>
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="retryLoad"
+  />
+
+  <block wx:else>
+    <view class="section">
+      <view class="section-title">{{texts.quickEntry}}</view>
+      <view class="quick-actions">
+        <view class="action-item" bindtap="goToAppointment">
+          <view class="action-icon appointment"><t-icon name="time" size="48rpx" color="#fff" /></view>
+          <text class="action-text">{{texts.appointment}}</text>
+        </view>
+        <view class="action-item" bindtap="goToMedicalRecord">
+          <view class="action-icon record"><t-icon name="file" size="48rpx" color="#fff" /></view>
+          <text class="action-text">{{texts.medicalRecord}}</text>
+        </view>
+        <view class="action-item" bindtap="goToMedicine">
+          <view class="action-icon medicine"><t-icon name="cart" size="48rpx" color="#fff" /></view>
+          <text class="action-text">{{texts.medicine}}</text>
+        </view>
+        <view class="action-item" bindtap="goToAiAssistant">
+          <view class="action-icon contact"><t-icon name="chat" size="48rpx" color="#fff" /></view>
+          <text class="action-text">{{systemConfig.aiAssistantName || texts.aiAssistant}}</text>
+        </view>
+        <view class="action-item" bindtap="goToNotificationCenter">
+          <view class="action-icon notice"><t-icon name="info-circle" size="48rpx" color="#fff" /></view>
+          <text class="action-text">{{texts.notificationCenter}}</text>
+        </view>
+        <view class="action-item" bindtap="goToPatientList" wx:if="{{canManagePatient}}">
+          <view class="action-icon patient"><t-icon name="user" size="48rpx" color="#fff" /></view>
+          <text class="action-text">{{texts.patient}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section" wx:if="{{recentAiFeatures.length > 0}}">
+      <view class="section-title">{{texts.recentAi}}</view>
+      <view class="todo-list">
+        <view class="todo-item" wx:for="{{recentAiFeatures}}" wx:key="path" bindtap="openRecentAi" data-path="{{item.path}}" data-name="{{item.name}}">
+          <view class="todo-info">
+            <text class="todo-title">{{item.name}}</text>
+            <text class="todo-time">{{item.path}}</text>
+          </view>
+          <t-icon name="chevron-right" size="28rpx" color="#9ca3af" />
+        </view>
+      </view>
+    </view>
+
+    <view class="section" wx:if="{{canViewStatistics}}">
+      <view class="section-title">{{texts.todayStats}}</view>
+      <view class="stats-grid">
+        <view class="stat-card"><view class="stat-number">{{stats.todayAppointments}}</view><view class="stat-label">{{texts.statAppointments}}</view></view>
+        <view class="stat-card"><view class="stat-number">{{stats.todayRecords}}</view><view class="stat-label">{{texts.statRecords}}</view></view>
+        <view class="stat-card"><view class="stat-number">{{stats.warningMedicines}}</view><view class="stat-label">{{texts.statWarnings}}</view></view>
+        <view class="stat-card"><view class="stat-number">{{stats.totalPatients}}</view><view class="stat-label">{{texts.patient}}</view></view>
+      </view>
+    </view>
+
+    <view class="section" wx:if="{{pendingAppointments.length > 0}}">
+      <view class="section-title">{{texts.pendingAppointments}}</view>
+      <view class="todo-list">
+        <view class="todo-item" wx:for="{{pendingAppointments}}" wx:key="id" bindtap="goToAppointmentDetail" data-id="{{item.id}}">
+          <view class="todo-info">
+            <text class="todo-title">{{item.patientName || '-'}}</text>
+            <text class="todo-time">{{item.appointmentDate || '-'}} {{item.appointmentTime || '-'}}</text>
+          </view>
+          <t-tag theme="warning" variant="light">{{texts.pendingConfirm}}</t-tag>
+        </view>
+      </view>
+    </view>
+
+    <view class="section" wx:if="{{canManageMedicine}}">
+      <view class="section-title">
+        {{texts.expiryWarning}}
+        <text class="more" bindtap="goToExpiryWarning">{{texts.goHandle}}</text>
+      </view>
+      <view class="warning-list" wx:if="{{expiryWarningBatches.length > 0}}">
+        <view class="warning-item" wx:for="{{expiryWarningBatches}}" wx:key="batchId">
+          <view class="warning-info">
+            <text class="warning-name">{{item.medicineName}}</text>
+            <text class="warning-spec">{{item.batchNumber}} | {{item.expiryDate}}</text>
+          </view>
+          <view class="warning-stock">
+            <text class="stock-num">{{item.daysToExpiry}}</text>
+            <text class="stock-label">{{texts.days}}</text>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="todo-time">{{texts.noRecentExpiryBatch}}</view>
+    </view>
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

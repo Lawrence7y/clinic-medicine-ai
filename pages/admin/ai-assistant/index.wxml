@@ -1,0 +1,70 @@
+<view class="ai-assistant-page">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorMessage || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="retryInit"
+  />
+
+  <view wx:else class="card-list">
+    <view class="title">{{assistantName}}</view>
+    <view class="subtitle">{{assistantName}}能力总览</view>
+
+    <view class="entry-card" bindtap="goToAiChat">
+      <view class="entry-name">{{assistantName}}</view>
+      <view class="entry-desc">进入聊天工作台</view>
+    </view>
+
+    <view class="entry-card" bindtap="goToAiLogs">
+      <view class="entry-name">调用日志</view>
+      <view class="entry-desc">查看时间、场景、模型、成功状态、失败原因、耗时</view>
+    </view>
+
+    <view class="entry-card" bindtap="goToAiOperations">
+      <view class="entry-name">AI 运营助手</view>
+      <view class="entry-desc">直接问：今天预约情况、近效期风险、库存异常与处理建议</view>
+    </view>
+
+    <view class="entry-card" bindtap="goToAiPrompts">
+      <view class="entry-name">提示词管理</view>
+      <view class="entry-desc">维护通用与业务提示词</view>
+    </view>
+
+    <view class="entry-card" bindtap="goToAiSceneTest">
+      <view class="entry-name">场景测试</view>
+      <view class="entry-desc">验证场景与模型效果</view>
+    </view>
+
+    <view class="entry-card" bindtap="goToAiModelDoc">
+      <view class="entry-name">模型说明</view>
+      <view class="entry-desc">查看模型说明与能力边界</view>
+    </view>
+
+    <view class="recent-wrap">
+      <view class="recent-title">最近使用的 AI 功能</view>
+      <view wx:if="{{recentAiFeatures.length === 0}}" class="recent-empty">{{texts.noRecent}}</view>
+      <view wx:else class="recent-list">
+        <view
+          class="recent-item"
+          wx:for="{{recentAiFeatures}}"
+          wx:key="path"
+          bindtap="openRecentAi"
+          data-path="{{item.path}}"
+          data-name="{{item.name}}"
+        >
+          <text class="recent-name">{{item.name}}</text>
+          <t-icon name="chevron-right" size="28rpx" color="#94a3b8" />
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.clinic.patient.mapper.ClinicPatientMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.project.clinic.patient.domain.ClinicPatient">
+        <id property="patientId" column="patient_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="name" column="name"/>
+        <result property="gender" column="gender"/>
+        <result property="age" column="age"/>
+        <result property="phone" column="phone"/>
+        <result property="birthday" column="birthday"/>
+        <result property="address" column="address"/>
+        <result property="allergyHistory" column="allergy_history"/>
+        <result property="pastHistory" column="past_history"/>
+        <result property="bloodType" column="blood_type"/>
+        <result property="wechat" column="wechat"/>
+        <result property="avatar" column="avatar"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        patient_id,
+        user_id,
+        name,
+        gender,
+        age,
+        phone,
+        birthday,
+        address,
+        allergy_history,
+        past_history,
+        blood_type,
+        wechat,
+        avatar,
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        remark
+    </sql>
+
+    <select id="selectClinicPatientById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_patient
+        WHERE patient_id = #{patientId}
+    </select>
+
+    <select id="selectClinicPatientByUserId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_patient
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectClinicPatientList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_patient
+        WHERE 1=1
+        <if test="name != null and name != ''">
+            AND name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="phone != null and phone != ''">
+            AND phone LIKE CONCAT('%', #{phone}, '%')
+        </if>
+        <if test="gender != null and gender != ''">
+            AND gender = #{gender}
+        </if>
+    </select>
+
+    <select id="selectClinicPatientByIds" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_patient
+        WHERE patient_id IN
+        <foreach collection="patientIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <insert id="insertClinicPatient" useGeneratedKeys="true" keyProperty="patientId">
+        INSERT INTO clinic_patient(
+        user_id,
+        name,
+        gender,
+        age,
+        phone,
+        birthday,
+        address,
+        allergy_history,
+        past_history,
+        blood_type,
+        wechat,
+        avatar,
+        create_by,
+        create_time
+        ) VALUES (
+        #{userId},
+        #{name},
+        #{gender},
+        #{age},
+        #{phone},
+        #{birthday},
+        #{address},
+        #{allergyHistory},
+        #{pastHistory},
+        #{bloodType},
+        #{wechat},
+        #{avatar},
+        #{createBy},
+        #{createTime}
+        )
+    </insert>
+
+    <update id="updateClinicPatient">
+        UPDATE clinic_patient
+        <set>
+        <if test="userId != null">user_id = #{userId},</if>
+        <if test="name != null and name != ''">name = #{name},</if>
+        <if test="gender != null and gender != ''">gender = #{gender},</if>
+        <if test="age != null">age = #{age},</if>
+        <if test="phone != null and phone != ''">phone = #{phone},</if>
+        <if test="birthday != null">birthday = #{birthday},</if>
+        <if test="address != null">address = #{address},</if>
+        <if test="allergyHistory != null">allergy_history = #{allergyHistory},</if>
+        <if test="pastHistory != null">past_history = #{pastHistory},</if>
+        <if test="bloodType != null and bloodType != ''">blood_type = #{bloodType},</if>
+        <if test="wechat != null">wechat = #{wechat},</if>
+        <if test="avatar != null">avatar = #{avatar},</if>
+        <if test="remark != null">remark = #{remark},</if>
+        update_by = #{updateBy},
+        update_time = #{updateTime}
+        </set>
+        WHERE patient_id = #{patientId}
+    </update>
+
+    <delete id="deleteClinicPatientById">
+        DELETE FROM clinic_patient
+        WHERE patient_id = #{patientId}
+    </delete>
+
+    <delete id="deleteClinicPatientByIds">
+        DELETE FROM clinic_patient
+        WHERE patient_id IN
+        <foreach collection="patientIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="countPatient" resultType="int">
+        SELECT COUNT(*) FROM clinic_patient
+    </select>
+</mapper>

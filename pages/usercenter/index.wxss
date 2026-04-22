@@ -1,0 +1,153 @@
+.usercenter-container {
+  min-height: 100vh;
+  background: #ffffff;
+  padding-bottom: 120rpx;
+  box-sizing: border-box;
+}
+
+.user-card {
+  background: #fff;
+  padding: 70rpx 40rpx 80rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.user-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -40%;
+  width: 80%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.user-avatar {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  border: 6rpx solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.15);
+}
+
+.user-detail {
+  margin-left: 36rpx;
+  color: #222;
+  flex: 1;
+}
+
+.user-name {
+  font-size: 44rpx;
+  font-weight: 700;
+  margin-bottom: 16rpx;
+  text-shadow: none;
+}
+
+.user-role {
+  display: inline-block;
+  font-size: 24rpx;
+  background: #f5f5f5;
+  padding: 10rpx 24rpx;
+  border-radius: 28rpx;
+  margin-bottom: 14rpx;
+  backdrop-filter: blur(12rpx);
+  border: 2rpx solid #e8e8e8;
+  font-weight: 500;
+}
+
+.user-phone {
+  font-size: 26rpx;
+  opacity: 1;
+  color: #666;
+  font-weight: 500;
+}
+
+.menu-section {
+  padding: 30rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.state-wrap {
+  margin: 30rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.state-text {
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+.menu-group {
+  margin-bottom: 32rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  box-shadow: 0 6rpx 24rpx rgba(0, 0, 0, 0.06);
+}
+
+.group-title {
+  font-size: 28rpx;
+  color: #888;
+  margin-bottom: 20rpx;
+  padding-left: 12rpx;
+  font-weight: 600;
+  letter-spacing: 0.5rpx;
+}
+
+.recent-ai {
+  margin-top: 20rpx;
+  background: #f8fafc;
+  border-radius: 12rpx;
+  padding: 14rpx;
+}
+
+.recent-ai-title {
+  font-size: 24rpx;
+  color: #64748b;
+  margin-bottom: 10rpx;
+}
+
+.recent-ai-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.recent-ai-item {
+  background: #e2e8f0;
+  border-radius: 999rpx;
+  padding: 8rpx 16rpx;
+}
+
+.recent-ai-name {
+  font-size: 22rpx;
+  color: #334155;
+}
+
+.logout-section {
+  padding: 30rpx;
+  margin-top: 20rpx;
+}
+
+.logout-section t-button {
+  border-radius: 50rpx;
+  height: 96rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}

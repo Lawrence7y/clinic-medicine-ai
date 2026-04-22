@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header(${assistantName})" />
+    <style>
+        .assistant-shell { padding: 18px; background: #f4f6fb; min-height: calc(100vh - 40px); }
+        .assistant-card { background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06); margin-bottom: 16px; }
+        .assistant-card .card-head { padding: 16px 18px; border-bottom: 1px solid #eef2f7; font-weight: 600; color: #1f2937; }
+        .assistant-card .card-body { padding: 16px 18px; }
+        .conversation-list { max-height: 540px; overflow-y: auto; }
+        .conversation-item { padding: 12px 14px; border-radius: 10px; background: #f8fafc; margin-bottom: 10px; cursor: pointer; border: 1px solid transparent; }
+        .conversation-item.active { border-color: #2563eb; background: #eff6ff; }
+        .conversation-title { font-weight: 600; color: #1f2937; margin-bottom: 6px; }
+        .conversation-meta { font-size: 12px; color: #6b7280; }
+        .message-board { height: 540px; overflow-y: auto; background: linear-gradient(180deg, #fbfdff 0%, #f8fafc 100%); padding: 16px; }
+        .message-row { margin-bottom: 14px; display: flex; }
+        .message-row.user { justify-content: flex-end; }
+        .message-bubble { max-width: 82%; padding: 12px 14px; border-radius: 14px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+        .message-row.assistant .message-bubble { background: #ffffff; border: 1px solid #e5e7eb; color: #1f2937; }
+        .message-row.user .message-bubble { background: #2563eb; color: #fff; }
+        .toolbar-actions .btn { margin-right: 8px; margin-bottom: 8px; }
+        .quick-list .btn { margin: 0 8px 8px 0; }
+        .role-hint { padding: 12px 14px; border-radius: 10px; background: #fef3c7; color: #92400e; line-height: 1.6; }
+        .status-tip { padding: 12px 14px; border-radius: 10px; background: #eff6ff; color: #1d4ed8; line-height: 1.6; margin-bottom: 12px; }
+        .status-panel { margin-bottom: 12px; }
+        .status-summary { padding: 10px 12px; border-radius: 8px; line-height: 1.6; margin-bottom: 10px; }
+        .status-summary.ok { color: #166534; background: #f0fdf4; }
+        .status-summary.fail { color: #991b1b; background: #fef2f2; }
+        .status-item { padding: 8px 10px; border-radius: 8px; background: #f8fafc; margin-bottom: 8px; }
+        .status-item:last-child { margin-bottom: 0; }
+        .status-item .status-label { font-weight: 600; color: #1f2937; }
+        .status-item .status-message { color: #64748b; margin-top: 4px; line-height: 1.6; }
+        .status-item .status-flag { font-size: 12px; margin-left: 8px; }
+        .status-item .status-flag.ok { color: #15803d; }
+        .status-item .status-flag.fail { color: #b91c1c; }
+        .log-item { padding: 10px 0; border-bottom: 1px dashed #e5e7eb; }
+        .log-item:last-child { border-bottom: none; }
+        .log-top { font-weight: 600; color: #1f2937; margin-bottom: 4px; }
+        .log-meta { font-size: 12px; color: #6b7280; line-height: 1.6; }
+        .composer-box { padding: 16px 18px; border-top: 1px solid #eef2f7; }
+        .empty-text { color: #9ca3af; font-size: 13px; line-height: 1.8; }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="assistant-shell">
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="assistant-card">
+                <div class="card-head">会话列表</div>
+                <div class="card-body">
+                    <div class="toolbar-actions">
+                        <button class="btn btn-primary btn-sm" type="button" onclick="startNewConversation()">新建会话</button>
+                        <button class="btn btn-default btn-sm" type="button" onclick="refreshConversations()">刷新</button>
+                    </div>
+                    <div class="conversation-list" id="conversation-list">
+                        <div class="empty-text">正在加载会话...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="assistant-card">
+                <div class="card-head" th:text="${assistantName}">AI 助手</div>
+                <div class="card-body" style="padding:0;">
+                    <div class="message-board" id="message-board"></div>
+                    <div class="composer-box">
+                        <div class="toolbar-actions">
+                            <button class="btn btn-default btn-sm" type="button" onclick="clearCurrentConversation()">清空当前会话</button>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <textarea id="chat-input" class="form-control" rows="4" placeholder="请输入你的问题，使用发送快捷键可直接发送。"></textarea>
+                        </div>
+                        <div class="text-right">
+                            <button id="send-btn" class="btn btn-primary" type="button" onclick="sendMessage()">发送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <div class="assistant-card">
+                <div class="card-head">使用说明</div>
+                <div class="card-body">
+                    <div class="status-tip" th:if="${assistantEnabled}">后台 AI 助手已启用，可直接在此验证问答、角色限制与调用链路。</div>
+                    <div class="status-panel" id="assistant-status">
+                        <div class="empty-text">正在检测助手状态...</div>
+                    </div>
+                    <div class="role-hint" id="role-hint">正在加载角色能力...</div>
+                </div>
+            </div>
+
+            <div class="assistant-card">
+                <div class="card-head">快捷提问</div>
+                <div class="card-body quick-list" id="quick-list">
+                    <div class="empty-text">正在加载快捷问题...</div>
+                </div>
+            </div>
+
+            <div class="assistant-card">
+                <div class="card-head">最近调用日志</div>
+                <div class="card-body" id="log-list">
+                    <div class="empty-text">正在加载日志...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var assistantName = [[${assistantName}]];
+    var assistantEnabled = [[${assistantEnabled}]];
+    var state = {
+        conversationId: "",
+        messages: [],
+        conversations: [],
+        quickActions: [],
+        capability: {},
+        assistantStatus: {}
+    };
+    var apiPrefix = ctx + "api/clinic/ai/chat";
+
+    $(function () {
+        bindComposerShortcut();
+        renderMessages();
+        if (!assistantEnabled) {
+            updateRoleHint("AI 助手已关闭，请先在系统配置中开启后再使用。");
+            renderAssistantStatus({
+                available: false,
+                message: "AI 助手已关闭，请先在系统配置中开启后再使用。",
+                items: [{ label: "助手开关", ok: false, message: "当前系统配置中已关闭 AI 助手。" }]
+            });
+            $("#quick-list").html('<div class="empty-text">AI 助手当前已关闭。</div>');
+            $("#log-list").html('<div class="empty-text">AI 助手当前已关闭。</div>');
+            setSendEnabled(false);
+            return;
+        }
+        loadInitialData();
+    });
+
+    function bindComposerShortcut() {
+        $("#chat-input").on("keydown", function (event) {
+            if (event.ctrlKey && event.keyCode === 13) {
+                sendMessage();
+            }
+        });
+    }
+
+    function loadInitialData() {
+        $.when(
+            $.get(apiPrefix + "/capability"),
+            $.get(apiPrefix + "/templates"),
+            $.get(apiPrefix + "/conversations", { limit: 20 }),
+            $.get(apiPrefix + "/logs", { limit: 6 })
+        ).done(function (capabilityRes, templateRes, conversationsRes, logsRes) {
+            var capabilityPayload = unwrapAjax(capabilityRes[0]);
+            var templatesPayload = unwrapAjax(templateRes[0]);
+            var conversationsPayload = unwrapAjax(conversationsRes[0]);
+            var logsPayload = unwrapAjax(logsRes[0]);
+
+            state.capability = capabilityPayload || {};
+            if (state.capability.assistantName) {
+                assistantName = state.capability.assistantName;
+            }
+            state.assistantStatus = state.capability.assistantStatus || {};
+            state.quickActions = $.isArray(templatesPayload) ? templatesPayload : [];
+            state.conversations = $.isArray(conversationsPayload) ? conversationsPayload : [];
+
+            updateRoleHint(state.capability.roleHint || "支持诊所问答与业务辅助。");
+            renderAssistantStatus(state.assistantStatus);
+            renderQuickActions();
+            renderConversations();
+            renderLogs($.isArray(logsPayload) ? logsPayload : []);
+            setSendEnabled(!(state.assistantStatus && state.assistantStatus.available === false));
+
+            if (state.conversations.length > 0 && state.conversations[0].conversationId) {
+                switchConversation(state.conversations[0].conversationId);
+            } else {
+                startNewConversation();
+            }
+        }).fail(function (xhr) {
+            var message = extractErrorMessage(xhr, "AI 助手初始化失败");
+            updateRoleHint(message);
+            renderAssistantStatus({
+                available: false,
+                message: message,
+                items: [{
+                    label: xhr && xhr.status === 403 ? "权限状态" : "初始化状态",
+                    ok: false,
+                    message: message
+                }]
+            });
+            $("#quick-list").html('<div class="empty-text">' + escapeHtml(message) + '</div>');
+            $("#log-list").html('<div class="empty-text">' + escapeHtml(message) + '</div>');
+            setSendEnabled(false);
+            startNewConversation();
+        });
+    }
+
+    function unwrapAjax(response) {
+        return response && response.code === 0 ? response.data : null;
+    }
+
+    function extractErrorMessage(xhr, fallback) {
+        if (xhr && xhr.status === 403) {
+            return "当前账号无权限访问 AI 助手，请联系管理员分配权限。";
+        }
+        if (xhr && xhr.status === 401) {
+            return "登录状态已失效，请重新登录后再试。";
+        }
+        if (xhr && xhr.status === 0) {
+            return "网络连接异常，请检查网络后重试。";
+        }
+        var response = xhr && xhr.responseJSON ? xhr.responseJSON : null;
+        return response && response.msg ? response.msg : fallback;
+    }
+
+    function escapeHtml(text) {
+        return String(text || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    function updateRoleHint(text) {
+        $("#role-hint").text(text || "支持诊所问答与业务辅助。");
+    }
+
+    function renderAssistantStatus(status) {
+        var payload = status || {};
+        var available = payload.available !== false;
+        var message = payload.message || (available ? "助手已就绪，可开始提问。" : "助手当前不可用。");
+        var items = $.isArray(payload.items) ? payload.items : [];
+        var html = [];
+        html.push('<div class="status-summary ' + (available ? "ok" : "fail") + '">' + escapeHtml(message) + '</div>');
+        if (items.length) {
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i] || {};
+                var ok = item.ok !== false;
+                html.push(
+                    '<div class="status-item">'
+                    + '<div class="status-label">' + escapeHtml(item.label || ("状态项" + (i + 1)))
+                    + '<span class="status-flag ' + (ok ? "ok" : "fail") + '">' + (ok ? "正常" : "未通过") + '</span></div>'
+                    + '<div class="status-message">' + escapeHtml(item.message || "-") + '</div>'
+                    + '</div>'
+                );
+            }
+        }
+        $("#assistant-status").html(html.join(""));
+    }
+
+    function setSendEnabled(enabled) {
+        var canSend = !!enabled;
+        $("#send-btn").prop("disabled", !canSend).text("发送");
+        $("#chat-input").prop("disabled", !canSend);
+    }
+
+    function renderQuickActions() {
+        if (!state.quickActions.length) {
+            $("#quick-list").html('<div class="empty-text">暂无快捷提问模板。</div>');
+            return;
+        }
+        var html = [];
+        for (var i = 0; i < state.quickActions.length; i++) {
+            var prompt = state.quickActions[i];
+            html.push('<button class="btn btn-default btn-sm" type="button" onclick="useQuickAction(' + i + ')">' + escapeHtml(prompt) + '</button>');
+        }
+        $("#quick-list").html(html.join(""));
+    }
+
+    function renderConversations() {
+        if (!state.conversations.length) {
+            $("#conversation-list").html('<div class="empty-text">暂无历史会话。</div>');
+            return;
+        }
+        var html = [];
+        for (var i = 0; i < state.conversations.length; i++) {
+            var item = state.conversations[i];
+            var activeClass = item.conversationId === state.conversationId ? " active" : "";
+            html.push(
+                '<div class="conversation-item' + activeClass + '" onclick="switchConversation(\'' + escapeHtml(item.conversationId) + '\')">'
+                + '<div class="conversation-title">' + escapeHtml(item.preview || item.title || "未命名会话") + '</div>'
+                + '<div class="conversation-meta">' + escapeHtml(item.updatedAt || item.createTime || item.time || "-") + '</div>'
+                + '</div>'
+            );
+        }
+        $("#conversation-list").html(html.join(""));
+    }
+
+    function renderMessages() {
+        var list = state.messages && state.messages.length ? state.messages : [{
+            role: "assistant",
+            content: assistantName + "已就绪，你可以直接开始提问。"
+        }];
+        var html = [];
+        for (var i = 0; i < list.length; i++) {
+            var item = list[i] || {};
+            var role = item.role === "user" ? "user" : "assistant";
+            html.push(
+                '<div class="message-row ' + role + '"><div class="message-bubble">' + escapeHtml(item.content || "") + '</div></div>'
+            );
+        }
+        $("#message-board").html(html.join(""));
+        var board = document.getElementById("message-board");
+        if (board) {
+            board.scrollTop = board.scrollHeight;
+        }
+    }
+
+    function renderLogs(items) {
+        if (!items || !items.length) {
+            $("#log-list").html('<div class="empty-text">暂无调用日志。</div>');
+            return;
+        }
+        var html = [];
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var statusText = item.success === true || item.success === 1 ? "成功" : "失败";
+            var failureText = item.failureReason ? ('<div class="log-meta">失败原因：' + escapeHtml(item.failureReason) + '</div>') : "";
+            html.push(
+                '<div class="log-item">'
+                + '<div class="log-top">' + escapeHtml(item.scene || "-") + ' / ' + escapeHtml(item.model || "-") + '</div>'
+                + '<div class="log-meta">时间：' + escapeHtml(item.time || item.createdAt || "-") + '</div>'
+                + '<div class="log-meta">状态：' + statusText + '，耗时：' + escapeHtml(item.durationMs || item.elapsedMs || 0) + ' ms</div>'
+                + failureText
+                + '</div>'
+            );
+        }
+        $("#log-list").html(html.join(""));
+    }
+
+    function refreshConversations() {
+        $.get(apiPrefix + "/conversations", { limit: 20 })
+            .done(function (response) {
+                state.conversations = unwrapAjax(response) || [];
+                renderConversations();
+            })
+            .fail(function (xhr) {
+                $("#conversation-list").html(
+                    '<div class="empty-text">' + escapeHtml(extractErrorMessage(xhr, "会话列表加载失败")) + '</div>'
+                );
+            });
+        $.get(apiPrefix + "/logs", { limit: 6 })
+            .done(function (response) {
+                renderLogs(unwrapAjax(response) || []);
+            })
+            .fail(function (xhr) {
+                $("#log-list").html(
+                    '<div class="empty-text">' + escapeHtml(extractErrorMessage(xhr, "调用日志加载失败")) + '</div>'
+                );
+            });
+    }
+
+    function startNewConversation() {
+        state.conversationId = "";
+        state.messages = [{
+            role: "assistant",
+            content: assistantName + "已就绪，你可以直接开始提问。"
+        }];
+        renderMessages();
+        renderConversations();
+    }
+
+    function switchConversation(conversationId) {
+        if (!conversationId) {
+            startNewConversation();
+            return;
+        }
+        $.get(apiPrefix + "/history", { conversationId: conversationId }).done(function (response) {
+            state.conversationId = conversationId;
+            state.messages = unwrapAjax(response) || [];
+            renderMessages();
+            renderConversations();
+        }).fail(function (xhr) {
+            $.modal.msgError(extractErrorMessage(xhr, "会话加载失败"));
+        });
+    }
+
+    function clearCurrentConversation() {
+        if (!state.conversationId) {
+            startNewConversation();
+            return;
+        }
+        $.ajax({
+            url: apiPrefix + "/clear",
+            type: "post",
+            data: JSON.stringify({ conversationId: state.conversationId }),
+            contentType: "application/json;charset=UTF-8",
+            success: function (response) {
+                if (response.code === 0) {
+                    $.modal.msgSuccess("当前会话已清空");
+                    startNewConversation();
+                    refreshConversations();
+                } else {
+                    $.modal.msgError(response.msg || "清空会话失败");
+                }
+            },
+            error: function (xhr) {
+                $.modal.msgError(extractErrorMessage(xhr, "清空会话失败"));
+            }
+        });
+    }
+
+    function useQuickAction(index) {
+        var prompt = state.quickActions[index];
+        if (!prompt) {
+            return;
+        }
+        $("#chat-input").val(prompt);
+        sendMessage();
+    }
+
+    function sendMessage() {
+        if (state.assistantStatus && state.assistantStatus.available === false) {
+            $.modal.msgError(state.assistantStatus.message || "AI 助手当前不可用");
+            return;
+        }
+        var message = $.trim($("#chat-input").val());
+        if (!message) {
+            $.modal.msgWarning("请输入问题");
+            return;
+        }
+
+        $("#send-btn").prop("disabled", true).text("发送中...");
+        state.messages = (state.messages || []).concat([{ role: "user", content: message }]);
+        renderMessages();
+        $("#chat-input").val("");
+
+        $.ajax({
+            url: apiPrefix + "/send",
+            type: "post",
+            data: JSON.stringify({
+                message: message,
+                conversationId: state.conversationId
+            }),
+            dataType: "json",
+            contentType: "application/json;charset=UTF-8",
+            success: function (response) {
+                if (response.code !== 0) {
+                    state.messages.push({ role: "assistant", content: response.msg || "AI 助手暂时不可用" });
+                } else {
+                    var payload = response.data || {};
+                    state.conversationId = payload.conversationId || state.conversationId;
+                    state.messages.push({
+                        role: "assistant",
+                        content: payload.reply || "AI 暂无响应，请稍后重试。"
+                    });
+                }
+                renderMessages();
+                refreshConversations();
+            },
+            error: function (xhr) {
+                var message = extractErrorMessage(xhr, "AI 助手调用失败");
+                state.messages.push({ role: "assistant", content: message });
+                renderMessages();
+            },
+            complete: function () {
+                $("#send-btn").prop("disabled", false).text("发送");
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<view class="chat-page">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.initFailed}}"
+    buttonText="{{assistantEnabled ? texts.retry : texts.refreshConfig}}"
+    bind:retry="retryInit"
+  />
+
+  <block wx:else>
+    <view class="toolbar">
+      <button class="toolbar-btn" bindtap="startNewConversation">{{texts.newConversation}}</button>
+      <button class="toolbar-btn toolbar-btn-danger" bindtap="clearConversation">{{texts.clearCurrent}}</button>
+    </view>
+
+    <view class="quick-actions">
+      <view class="section-title">{{texts.roleBoundary}}</view>
+      <view class="log-empty">{{roleHint}}</view>
+    </view>
+
+    <view class="quick-actions">
+      <view class="section-title">{{assistantName}}{{texts.assistantStatusTitle}}</view>
+      <view class="status-summary {{assistantStatus.available === false ? 'status-summary-fail' : 'status-summary-ok'}}">
+        {{assistantStatus.message || texts.assistantReady}}
+      </view>
+      <view class="status-list" wx:if="{{assistantStatusItems.length}}">
+        <view class="status-item" wx:for="{{assistantStatusItems}}" wx:key="key">
+          <text class="status-tag {{item.ok === false ? 'status-tag-fail' : 'status-tag-ok'}}">
+            {{item.ok === false ? texts.assistantStatusFailed : texts.assistantStatusOk}}
+          </text>
+          <view class="status-content">
+            <text class="status-label">{{item.label}}</text>
+            <text class="status-desc">{{item.message}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <scroll-view class="conversation-strip" scroll-x="true" wx:if="{{conversations.length}}">
+      <view class="conversation-list">
+        <view
+          class="conversation-item {{conversationId === item.conversationId ? 'active' : ''}}"
+          wx:for="{{conversations}}"
+          wx:key="conversationId"
+          data-id="{{item.conversationId}}"
+          bindtap="selectConversation"
+        >
+          {{item.title || texts.newConversationTitle}}
+        </view>
+      </view>
+    </scroll-view>
+    <view wx:else class="log-empty conversation-empty">{{texts.noConversation}}</view>
+
+    <view class="quick-actions" wx:if="{{quickActions.length}}">
+      <view class="section-title">{{texts.quickAsk}}</view>
+      <view class="quick-list">
+        <view class="quick-item" wx:for="{{quickActions}}" wx:key="*this" bindtap="useQuickAction" data-prompt="{{item}}">
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <view class="quick-actions" wx:if="{{showLogPanel}}">
+      <view class="section-title">{{texts.aiLogTitle}}</view>
+      <view class="log-list" wx:if="{{aiLogs.length}}">
+        <view class="log-item" wx:for="{{aiLogs}}" wx:key="index">
+          <view class="log-head">
+            <text class="log-time">{{item.time}}</text>
+            <text class="log-status {{item.success ? 'ok' : 'fail'}}">{{item.success ? texts.success : texts.failed}}</text>
+          </view>
+          <view class="log-row">{{texts.sceneLabel}}{{item.scene}}</view>
+          <view class="log-row">{{texts.modelLabel}}{{item.model}}</view>
+          <view class="log-row">{{texts.elapsedLabel}}{{item.elapsedMs}} ms</view>
+          <view class="log-row" wx:if="{{item.reason}}">{{texts.failureReasonLabel}}{{item.reason}}</view>
+        </view>
+      </view>
+      <view wx:elif="{{aiLogErrorText}}" class="log-empty">{{aiLogErrorText}}</view>
+      <view wx:else class="log-empty">{{texts.noLogs}}</view>
+    </view>
+
+    <scroll-view class="message-list" scroll-y="true">
+      <view class="message {{item.role}}" wx:for="{{messages}}" wx:key="index">
+        <view class="bubble">{{item.content}}</view>
+      </view>
+    </scroll-view>
+
+    <view class="input-bar">
+      <input
+        class="chat-input"
+        placeholder="{{texts.chatPlaceholder}}"
+        value="{{inputValue}}"
+        bindinput="onInputChange"
+        confirm-type="send"
+        bindconfirm="handleSend"
+      />
+      <button class="send-btn" loading="{{loading}}" bindtap="handleSend">{{texts.send}}</button>
+    </view>
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

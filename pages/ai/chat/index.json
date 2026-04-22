@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "AI \u52a9\u624b",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "async-state": "/components/async-state/index"
+  }
+}

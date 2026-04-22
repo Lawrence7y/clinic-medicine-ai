@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.clinic.medicine.mapper.ClinicMedicineMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.project.clinic.medicine.domain.ClinicMedicine">
+        <id property="medicineId" column="medicine_id"/>
+        <result property="name" column="name"/>
+        <result property="specification" column="specification"/>
+        <result property="dosageForm" column="dosage_form"/>
+        <result property="form" column="form"/>
+        <result property="manufacturer" column="manufacturer"/>
+        <result property="barcode" column="barcode"/>
+        <result property="expiryDate" column="expiry_date"/>
+        <result property="price" column="price"/>
+        <result property="stock" column="stock"/>
+        <result property="warningStock" column="warning_stock"/>
+        <result property="warningThreshold" column="warning_threshold"/>
+        <result property="minStock" column="min_stock"/>
+        <result property="unit" column="unit"/>
+        <result property="pharmacology" column="pharmacology"/>
+        <result property="indications" column="indications"/>
+        <result property="dosage" column="dosage"/>
+        <result property="sideEffects" column="side_effects"/>
+        <result property="storage" column="storage"/>
+        <result property="status" column="status"/>
+        <result property="isPrescription" column="is_prescription"/>
+        <result property="category" column="category"/>
+        <result property="location" column="location"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        medicine_id,
+        name,
+        specification,
+        dosage_form,
+        form,
+        manufacturer,
+        barcode,
+        expiry_date,
+        price,
+        stock,
+        warning_stock,
+        warning_threshold,
+        min_stock,
+        unit,
+        pharmacology,
+        indications,
+        dosage,
+        side_effects,
+        storage,
+        status,
+        is_prescription,
+        category,
+        location,
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        remark
+    </sql>
+
+    <select id="selectClinicMedicineById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column"/>
+        FROM clinic_medicine
+        WHERE medicine_id = #{medicineId}
+    </select>
+
+    <select id="selectClinicMedicineList" resultMap="BaseResultMap">
+        SELECT
+        m.medicine_id,
+        m.name,
+        m.specification,
+        m.dosage_form,
+        m.form,
+        m.manufacturer,
+        m.barcode,
+        m.expiry_date,
+        m.price,
+        m.stock,
+        m.warning_stock,
+        m.warning_threshold,
+        m.min_stock,
+        m.unit,
+        m.pharmacology,
+        m.indications,
+        m.dosage,
+        m.side_effects,
+        m.storage,
+        m.status,
+        m.is_prescription,
+        m.category,
+        m.location,
+        m.create_by,
+        m.create_time,
+        m.update_by,
+        m.update_time,
+        m.remark
+        FROM clinic_medicine m
+        WHERE 1=1
+        <if test="name != null and name != ''">
+            AND (m.name LIKE CONCAT('%', #{name}, '%')
+                 OR m.manufacturer LIKE CONCAT('%', #{name}, '%'))
+        </if>
+        <if test="barcode != null and barcode != ''">
+            AND m.barcode = #{barcode}
+        </if>
+        <if test="dosageForm != null and dosageForm != ''">
+            AND m.dosage_form = #{dosageForm}
+        </if>
+        <if test="category != null and category != ''">
+            AND m.category = #{category}
+        </if>
+        <if test="status != null and status != ''">
+            AND m.status = #{status}
+        </if>
+        <if test="warningOnly != null and warningOnly == true">
+            AND m.stock &lt;= m.warning_stock
+        </if>
+    </select>
+
+    <insert id="insertClinicMedicine" useGeneratedKeys="true" keyProperty="medicineId">
+        INSERT INTO clinic_medicine(
+        name,
+        specification,
+        dosage_form,
+        form,
+        manufacturer,
+        barcode,
+        expiry_date,
+        price,
+        stock,
+        warning_stock,
+        warning_threshold,
+        min_stock,
+        unit,
+        pharmacology,
+        indications,
+        dosage,
+        side_effects,
+        storage,
+        status,
+        is_prescription,
+        category,
+        location,
+        create_by,
+        create_time
+        ) VALUES (
+        #{name},
+        #{specification},
+        #{dosageForm},
+        #{form},
+        #{manufacturer},
+        #{barcode},
+        #{expiryDate},
+        #{price},
+        #{stock},
+        #{warningStock},
+        #{warningThreshold},
+        #{minStock},
+        #{unit},
+        #{pharmacology},
+        #{indications},
+        #{dosage},
+        #{sideEffects},
+        #{storage},
+        #{status},
+        #{isPrescription},
+        #{category},
+        #{location},
+        #{createBy},
+        #{createTime}
+        )
+    </insert>
+
+    <update id="updateClinicMedicine">
+        UPDATE clinic_medicine
+        <set>
+        <if test="name != null and name != ''">name = #{name},</if>
+        <if test="specification != null">specification = #{specification},</if>
+        <if test="dosageForm != null and dosageForm != ''">dosage_form = #{dosageForm},</if>
+        <if test="form != null">form = #{form},</if>
+        <if test="manufacturer != null and manufacturer != ''">manufacturer = #{manufacturer},</if>
+        <if test="barcode != null">barcode = #{barcode},</if>
+        <if test="expiryDate != null">expiry_date = #{expiryDate},</if>
+        <if test="price != null">price = #{price},</if>
+        <if test="stock != null">stock = #{stock},</if>
+        <if test="warningStock != null">warning_stock = #{warningStock},</if>
+        <if test="warningThreshold != null">warning_threshold = #{warningThreshold},</if>
+        <if test="minStock != null">min_stock = #{minStock},</if>
+        <if test="unit != null">unit = #{unit},</if>
+        <if test="pharmacology != null">pharmacology = #{pharmacology},</if>
+        <if test="indications != null">indications = #{indications},</if>
+        <if test="dosage != null">dosage = #{dosage},</if>
+        <if test="sideEffects != null">side_effects = #{sideEffects},</if>
+        <if test="storage != null">storage = #{storage},</if>
+        <if test="status != null and status != ''">status = #{status},</if>
+        <if test="isPrescription != null">is_prescription = #{isPrescription},</if>
+        <if test="category != null and category != ''">category = #{category},</if>
+        <if test="location != null">location = #{location},</if>
+        <if test="remark != null">remark = #{remark},</if>
+        update_by = #{updateBy},
+        update_time = #{updateTime}
+        </set>
+        WHERE medicine_id = #{medicineId}
+    </update>
+
+    <delete id="deleteClinicMedicineById">
+        DELETE FROM clinic_medicine
+        WHERE medicine_id = #{medicineId}
+    </delete>
+
+    <delete id="deleteClinicMedicineByIds">
+        DELETE FROM clinic_medicine
+        WHERE medicine_id IN
+        <foreach collection="medicineIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="countMedicine" resultType="int">
+        SELECT COUNT(*) FROM clinic_medicine
+    </select>
+
+    <select id="countLowStockMedicine" resultType="int">
+        SELECT COUNT(*) FROM clinic_medicine WHERE stock &lt;= warning_stock
+    </select>
+
+    <select id="selectMedicineByIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM clinic_medicine
+        WHERE medicine_id IN
+        <foreach collection="medicineIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectClinicMedicineByBarcode" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM clinic_medicine
+        WHERE barcode = #{barcode}
+        LIMIT 1
+    </select>
+</mapper>

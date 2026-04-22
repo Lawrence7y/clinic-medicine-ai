@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "医生列表",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-search": "tdesign-miniprogram/search/search",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar",
+    "async-state": "/components/async-state/index"
+  }
+}

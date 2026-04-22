@@ -1,0 +1,29 @@
+.async-state {
+  padding: 80rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  text-align: center;
+}
+
+.async-state__icon {
+  width: 96rpx;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.async-state__title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.async-state__desc {
+  font-size: 24rpx;
+  color: #64748b;
+  line-height: 1.7;
+}

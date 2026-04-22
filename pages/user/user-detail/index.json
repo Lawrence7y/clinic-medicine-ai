@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "用户详情",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "async-state": "/components/async-state/index",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-button": "tdesign-miniprogram/button/button"
+  }
+}

@@ -1,0 +1,78 @@
+<view class="ai-operations-page">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="retryLoad"
+  />
+
+  <view wx:else class="content">
+    <view class="panel">
+      <view class="quick-list">
+        <view class="quick-item" wx:for="{{quickQuestions}}" wx:key="index" bindtap="useQuickQuestion" data-question="{{item}}">
+          {{item}}
+        </view>
+      </view>
+      <t-input
+        value="{{question}}"
+        placeholder="{{texts.placeholder}}"
+        borderless="{{false}}"
+        bindchange="onQuestionChange"
+      />
+      <t-button theme="primary" loading="{{loading}}" bindtap="submitQuestion" style="margin-top: 14rpx;">
+        {{texts.askButton}}
+      </t-button>
+    </view>
+
+    <view class="panel">
+      <view class="title-row">
+        <view class="panel-title">{{texts.answerTitle}}</view>
+        <view class="model-tag" wx:if="{{result.model}}">{{result.model}}</view>
+      </view>
+      <view class="panel-text">{{result.answer || '-'}}</view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-title">{{texts.keyPointsTitle}}</view>
+      <view class="list-item" wx:for="{{result.keyPoints}}" wx:key="index">{{index + 1}}. {{item}}</view>
+      <view wx:if="{{!result.keyPoints.length}}" class="empty">暂无关键观察</view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-title">{{texts.todoTitle}}</view>
+      <view class="list-item" wx:for="{{result.todo}}" wx:key="index">{{index + 1}}. {{item}}</view>
+      <view wx:if="{{!result.todo.length}}" class="empty">暂无待办建议</view>
+    </view>
+
+    <view class="panel" wx:if="{{snapshot}}">
+      <view class="panel-title">{{texts.snapshotTitle}}</view>
+      <view class="snapshot-grid">
+        <view class="snapshot-item">
+          <view class="snapshot-num">{{snapshot.todayAppointments || 0}}</view>
+          <view class="snapshot-label">今日预约</view>
+        </view>
+        <view class="snapshot-item">
+          <view class="snapshot-num">{{snapshot.pendingAppointmentCount || 0}}</view>
+          <view class="snapshot-label">待确认</view>
+        </view>
+        <view class="snapshot-item">
+          <view class="snapshot-num">{{snapshot.lowStockCount || 0}}</view>
+          <view class="snapshot-label">库存异常</view>
+        </view>
+        <view class="snapshot-item">
+          <view class="snapshot-num">{{snapshot.nearExpiryCount || 0}}</view>
+          <view class="snapshot-label">近效期</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

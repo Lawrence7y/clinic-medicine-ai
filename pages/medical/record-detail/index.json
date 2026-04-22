@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "病历详情",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "async-state": "/components/async-state/index",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "t-button": "tdesign-miniprogram/button/button"
+  }
+}

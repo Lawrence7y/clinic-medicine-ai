@@ -1,0 +1,66 @@
+.field-edit-container {
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  background: #fff;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.back-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.header-right {
+  width: 60rpx;
+}
+
+.content {
+  padding: 40rpx 30rpx;
+}
+
+.state-wrapper {
+  padding: 120rpx 30rpx 0;
+}
+
+.form-section {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+}
+
+.date-picker-section {
+  padding: 40rpx 0;
+}
+
+.date-display {
+  text-align: center;
+  font-size: 36rpx;
+  color: #333;
+  padding: 30rpx;
+  background: #f5f7fa;
+  border-radius: 12rpx;
+}
+
+.input-section {
+  padding: 20rpx 0;
+}
+
+.btn-section {
+  margin-top: 60rpx;
+}

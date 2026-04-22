@@ -1,0 +1,137 @@
+<view class="reminders-container">
+  <view class="header">
+    <text class="header-title">预约提醒中心</text>
+    <text class="header-desc">覆盖新建、改约、取消与就诊前提醒</text>
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="加载中..."
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorMessage || '加载提醒失败'}}"
+    buttonText="重试"
+    bind:retry="onRetry"
+  />
+
+  <block wx:else>
+    <view class="setting-section">
+      <view class="setting-title">提醒设置</view>
+      <view class="setting-item">
+        <text class="setting-label">启用预约提醒</text>
+        <switch
+          checked="{{subscription.appointmentReminder === 1}}"
+          color="#2563eb"
+          bindchange="onReminderToggle"
+        />
+      </view>
+      <view class="setting-item">
+        <text class="setting-label">启用订阅状态</text>
+        <switch
+          checked="{{subscription.subscribeStatus === 'enabled'}}"
+          color="#2563eb"
+          bindchange="onSubscribeStatusChange"
+        />
+      </view>
+      <view class="setting-item">
+        <text class="setting-label">提前提醒时间</text>
+        <picker mode="selector" range="{{remindDayOptions}}" range-key="label" value="{{remindDayIndex}}" bindchange="onRemindDayChange">
+          <view class="picker-value">{{remindDayOptions[remindDayIndex].label}}</view>
+        </picker>
+      </view>
+      <view class="setting-save">
+        <t-button size="small" theme="primary" loading="{{savingSubscription}}" bindtap="onSaveSubscription">保存提醒设置</t-button>
+      </view>
+    </view>
+
+    <view class="todo-section" wx:if="{{isDoctorOrAdmin}}">
+      <view class="workbench-entry">
+        <t-button size="small" theme="primary" bindtap="goToDoctorWorkbench">进入医生工作台</t-button>
+      </view>
+      <view class="todo-stats">
+        <view class="todo-stat-item">
+          <text class="todo-stat-value">{{todoStats.pendingCount}}</text>
+          <text class="todo-stat-label">待确认</text>
+        </view>
+        <view class="todo-stat-item">
+          <text class="todo-stat-value">{{todoStats.confirmedCount}}</text>
+          <text class="todo-stat-label">已确认</text>
+        </view>
+        <view class="todo-stat-item">
+          <text class="todo-stat-value">{{todoStats.todayCount}}</text>
+          <text class="todo-stat-label">今日预约</text>
+        </view>
+        <view class="todo-stat-item">
+          <text class="todo-stat-value">{{todoStats.nearVisitCount}}</text>
+          <text class="todo-stat-label">2小时内</text>
+        </view>
+      </view>
+
+      <view class="todo-list" wx:if="{{todoList.length}}">
+        <view class="todo-item" wx:for="{{todoList}}" wx:key="id" bindtap="goToAppointmentDetail" data-id="{{item.appointmentId}}">
+          <view class="todo-item-header">
+            <text class="todo-item-title">{{item.todoTypeText || '待处理'}}</text>
+            <t-tag size="small" theme="warning" variant="light">{{item.sceneText || '医生待办'}}</t-tag>
+          </view>
+          <view class="todo-item-body">
+            <text class="todo-item-line">患者：{{item.patientName || '-'}}</text>
+            <text class="todo-item-line">时间：{{item.appointmentDate || '-'}} {{item.appointmentTime || '-'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="reminder-list">
+      <view
+        class="reminder-card"
+        wx:for="{{reminders}}"
+        wx:key="appointmentId"
+        bindtap="goToAppointmentDetail"
+        data-id="{{item.appointmentId}}"
+      >
+        <view class="reminder-header">
+          <view class="patient-info">
+            <text class="patient-name">{{item.patientName || '未知患者'}}</text>
+            <t-tag size="small" theme="primary" variant="light">号序 {{item.sequenceNumber || '-'}}</t-tag>
+          </view>
+          <t-tag size="small" theme="{{item.sceneTheme || 'primary'}}" variant="light">{{item.sceneText || '提醒'}}</t-tag>
+        </view>
+        <view class="reminder-body">
+          <view class="info-row">
+            <text class="label">医生：</text>
+            <text class="value">{{item.doctorName || '-'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">日期：</text>
+            <text class="value">{{item.appointmentDate || '-'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">时间：</text>
+            <text class="value">{{item.appointmentTime || '-'}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">状态：</text>
+            <text class="value">{{item.statusText || '-'}}</text>
+          </view>
+        </view>
+        <view class="reminder-footer">
+          <t-button size="small" theme="primary" variant="outline" catchtap="goToAppointmentDetail" data-id="{{item.appointmentId}}">
+            查看详情
+          </t-button>
+        </view>
+      </view>
+    </view>
+
+    <async-state
+      wx:if="{{reminders.length === 0 && !loading}}"
+      mode="empty"
+      title="{{emptyText || '暂无预约提醒'}}"
+    />
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

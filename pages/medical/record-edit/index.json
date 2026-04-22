@@ -1,0 +1,14 @@
+{
+  "navigationBarTitleText": "病历编辑",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-input": "tdesign-miniprogram/input/input",
+    "t-textarea": "tdesign-miniprogram/textarea/textarea",
+    "t-button": "tdesign-miniprogram/button/button",
+    "async-state": "/components/async-state/index",
+    "t-empty": "tdesign-miniprogram/empty/empty",
+    "t-popup": "tdesign-miniprogram/popup/popup",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar"
+  }
+}

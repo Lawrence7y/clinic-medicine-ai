@@ -1,0 +1,13 @@
+{
+  "navigationBarTitleText": "病历管理",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "t-search": "tdesign-miniprogram/search/search",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "async-state": "/components/async-state/index",
+    "t-button": "tdesign-miniprogram/button/button",
+    "load-more": "/components/load-more/index",
+    "t-toast": "tdesign-miniprogram/toast/toast"
+  }
+}

@@ -1,0 +1,119 @@
+<view class="history-page">
+  <async-state
+    wx:if="{{stateMode !== 'success'}}"
+    mode="{{stateMode}}"
+    title="{{stateTitle}}"
+    description="{{stateDescription}}"
+    buttonText="重试"
+    bind:retry="onRetry"
+  />
+
+  <view wx:if="{{stateMode === 'success'}}" class="history-list">
+    <view class="history-card" wx:for="{{list}}" wx:key="sessionId">
+      <view class="history-head">
+        <text class="history-time">{{item.time || '-'}}</text>
+        <text class="history-scene">{{item.sourceLabel}} / {{item.sceneLabel}}</text>
+      </view>
+
+      <view class="history-row">
+        <text class="label">识别会话</text>
+        <text class="value">{{item.sessionId || '-'}}</text>
+      </view>
+
+      <view class="history-row">
+        <text class="label">识别原图</text>
+        <view class="value value-action">
+          <text class="value">{{item.imageCount > 0 ? ('共 ' + item.imageCount + ' 张原图') : '无原图记录'}}</text>
+          <text
+            wx:if="{{item.imageCount > 0}}"
+            class="action-link"
+            bindtap="onPreviewOriginal"
+            data-session-id="{{item.sessionId}}"
+          >
+            {{previewLoadingSessionId === item.sessionId ? '加载中...' : (item.imageCount > 1 ? '查看全部原图' : '查看原图')}}
+          </text>
+        </view>
+      </view>
+
+      <view class="history-row" wx:if="{{item.recognizedText}}">
+        <text class="label">转写内容</text>
+        <text class="value">{{item.recognizedText}}</text>
+      </view>
+
+      <view class="history-row">
+        <text class="label">识别结果</text>
+        <view class="value">
+          <view wx:if="{{item.candidates.length}}" class="candidate-list">
+            <view class="candidate-item" wx:for="{{item.candidates}}" wx:key="candidateId" wx:for-item="candidate" wx:for-index="candidateIndex">
+              <text class="value-block">{{candidateIndex + 1}}. {{candidate.name || '-'}}</text>
+              <text wx:if="{{candidate.specification}}" class="value-sub">规格：{{candidate.specification}}</text>
+              <text wx:if="{{candidate.manufacturer}}" class="value-sub">厂家：{{candidate.manufacturer}}</text>
+              <text wx:if="{{candidate.barcode}}" class="value-sub">条码：{{candidate.barcode}}</text>
+              <text wx:if="{{candidate.form || candidate.dosageForm}}" class="value-sub">剂型：{{candidate.form || candidate.dosageForm}}</text>
+              <text wx:if="{{candidate.medicineId}}" class="value-sub">匹配药品 ID：{{candidate.medicineId}}</text>
+              <text wx:if="{{candidate.confidence !== undefined && candidate.confidence !== null}}" class="value-sub">置信度：{{candidate.confidence}}</text>
+              <view wx:if="{{candidate.evidenceUrls.length}}" class="evidence-list">
+                <text class="value-sub">证据链接：</text>
+                <text class="value-sub" wx:for="{{candidate.evidenceUrls}}" wx:key="*this" wx:for-item="evidence">{{evidence}}</text>
+              </view>
+            </view>
+          </view>
+          <text wx:else class="value-block">无候选结果</text>
+        </view>
+      </view>
+
+      <view class="history-row">
+        <text class="label">最终保存</text>
+        <view class="value">
+          <text wx:if="{{item.hasConfirmedPayload && item.selectedCandidateId}}" class="value-sub">
+            确认候选：{{item.selectedCandidateId}}{{item.selectedCandidateName ? ('（' + item.selectedCandidateName + '）') : ''}}
+          </text>
+          <text wx:if="{{item.hasConfirmedPayload && item.finalMedicine.name}}" class="value-block">
+            {{item.finalMedicine.name}}
+          </text>
+          <text wx:if="{{item.hasConfirmedPayload && item.finalMedicineId}}" class="value-sub">
+            最终药品 ID：{{item.finalMedicineId}}
+          </text>
+          <text wx:if="{{item.hasConfirmedPayload && item.finalMedicine.specification}}" class="value-sub">
+            规格：{{item.finalMedicine.specification}}
+          </text>
+          <text wx:if="{{item.hasConfirmedPayload && item.finalMedicine.barcode}}" class="value-sub">
+            条码：{{item.finalMedicine.barcode}}
+          </text>
+          <text wx:if="{{item.hasConfirmedPayload && item.finalMedicine.manufacturer}}" class="value-sub">
+            厂家：{{item.finalMedicine.manufacturer}}
+          </text>
+          <text wx:if="{{item.hasConfirmedPayload && item.finalMedicine.form}}" class="value-sub">
+            剂型：{{item.finalMedicine.form}}
+          </text>
+          <text wx:if="{{!item.hasConfirmedPayload}}" class="value-block">尚未确认并保存</text>
+        </view>
+      </view>
+
+      <view class="history-row" wx:if="{{item.correctionCount > 0}}">
+        <text class="label">纠错字段</text>
+        <view class="value">
+          <text class="value-block">共修正 {{item.correctionCount}} 项</text>
+          <view wx:for="{{item.correctionEntries}}" wx:key="field" class="diff-row">
+            <text class="diff-field">{{item.label}}</text>
+            <text class="diff-value">{{item.from}} → {{item.to}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="history-row" wx:if="{{item.correctionNote}}">
+        <text class="label">纠错备注</text>
+        <text class="value">{{item.correctionNote}}</text>
+      </view>
+
+      <view class="history-row" wx:if="{{item.warnings.length}}">
+        <text class="label">风险提醒</text>
+        <view class="value">
+          <text class="value-block" wx:for="{{item.warnings}}" wx:key="*this">{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

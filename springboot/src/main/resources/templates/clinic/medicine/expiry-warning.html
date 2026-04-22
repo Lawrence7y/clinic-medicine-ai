@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('有效期预警')" />
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="warning-form">
+                <div class="select-list">
+                    <ul>
+                        <li>药品名称：<input type="text" name="medicineName"/></li>
+                        <li>预警天数：
+                            <select name="days">
+                                <option value="30" selected>30天内</option>
+                                <option value="15">15天内</option>
+                                <option value="7">7天内</option>
+                                <option value="0">已过期</option>
+                            </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="clinic:medicine:remove">
+                <i class="fa fa-trash"></i> 批量删除
+            </a>
+            <a class="btn btn-warning" onclick="offShelfNearExpiry()">
+                <i class="fa fa-arrow-down"></i> 一键下架临期批次
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var removeFlag = [[${@permission.hasPermi('clinic:medicine:remove')}]];
+    var prefix = ctx + "clinic/medicine";
+
+    $(function () {
+        var options = {
+            url: prefix + "/expiry-warning/list",
+            removeUrl: prefix + "/expiry-warning/remove",
+            modalName: "有效期预警批次",
+            remember: false,
+            columns: [{
+                checkbox: true
+            }, {
+                field: 'medicineName',
+                title: '药品名称'
+            }, {
+                field: 'batchNumber',
+                title: '批次号'
+            }, {
+                field: 'expiryDate',
+                title: '有效期'
+            }, {
+                field: 'remainingQuantity',
+                title: '剩余库存'
+            }, {
+                field: 'daysToExpiry',
+                title: '剩余天数',
+                formatter: function(value) {
+                    if (value <= 0) {
+                        return '<span class="label label-danger">已过期 ' + Math.abs(value) + ' 天</span>';
+                    } else if (value <= 7) {
+                        return '<span class="label label-danger">' + value + ' 天</span>';
+                    } else if (value <= 15) {
+                        return '<span class="label label-warning">' + value + ' 天</span>';
+                    }
+                    return '<span class="label label-info">' + value + ' 天</span>';
+                }
+            }, {
+                title: '操作',
+                align: 'center',
+                formatter: function(value, row, index) {
+                    var actions = [];
+                    actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.recordId + '\')"><i class="fa fa-trash"></i>删除</a>');
+                    return actions.join('');
+                }
+            }]
+        };
+        $.table.init(options);
+    });
+
+    function offShelfNearExpiry() {
+        var rows = $('#bootstrap-table').bootstrapTable('getSelections');
+        if (rows.length === 0) {
+            $.modal.alertWarning("请先选择要下架的批次");
+            return;
+        }
+        var ids = rows.map(function(row) { return row.recordId; }).join(',');
+        var days = $("select[name='days']").val() || 30;
+        
+        var html = '<div style="padding: 20px;">' +
+            '<div class="form-group">' +
+            '<label>预警天数范围：</label>' +
+            '<select id="offShelfDays" class="form-control">' +
+            '<option value="7">7天内</option>' +
+            '<option value="15">15天内</option>' +
+            '<option value="30" selected>30天内</option>' +
+            '</select>' +
+            '</div>' +
+            '<p style="color: #999; font-size: 12px;">将自动下架选中批次的全部库存</p>' +
+            '</div>';
+        
+        layer.open({
+            title: '批量下架临期批次',
+            content: html,
+            btn: ['确认下架', '取消'],
+            yes: function(index, layero) {
+                var offShelfDays = layero.find('#offShelfDays').val();
+                $.operate.post(prefix + "/expiry-warning/off-shelf", {
+                    ids: ids,
+                    days: offShelfDays
+                }, function(result) {
+                    var data = result.data || {};
+                    $.modal.msgSuccess(
+                        "操作完成：影响 " + (data.affectedCount || 0) + " 个批次"
+                    );
+                    $.table.refresh();
+                    layer.close(index);
+                });
+            }
+        });
+    }
+</script>
+</body>
+</html>

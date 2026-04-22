@@ -1,0 +1,229 @@
+.person-info-container {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 30rpx;
+}
+
+.header {
+  background: #fff;
+  border-radius: 28rpx;
+  padding: 60rpx 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 6rpx 24rpx rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 60%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+.avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar-container {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50%;
+  border: 6rpx solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.default-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.default-avatar-text {
+  font-size: 68rpx;
+  font-weight: bold;
+  color: #222;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);
+}
+
+.avatar-edit {
+  position: absolute;
+  bottom: 8rpx;
+  right: 8rpx;
+  width: 64rpx;
+  height: 64rpx;
+  background: linear-gradient(135deg, #07c160 0%, #06ad56 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3rpx solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.4);
+}
+
+.user-info {
+  flex: 1;
+  margin-left: 36rpx;
+  text-align: right;
+}
+
+.user-name {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 18rpx;
+  text-shadow: none;
+}
+
+.user-role {
+  font-size: 26rpx;
+  color: #666;
+  background: #f5f5f5;
+  padding: 10rpx 24rpx;
+  border-radius: 28rpx;
+  display: inline-block;
+  backdrop-filter: blur(10rpx);
+}
+
+.info-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.section-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 2rpx solid #f5f5f5;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid #f8f9fa;
+  transition: background-color 0.2s ease;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-item:active {
+  background-color: #f8f9fa;
+}
+
+.item-left {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.info-item .label {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.info-item .value {
+  font-size: 28rpx;
+  color: #666;
+  font-weight: 400;
+}
+
+.info-item .value-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.edit-section {
+  padding: 24rpx;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f5f7ff 100%);
+  border-radius: 20rpx;
+  margin: 20rpx 0 30rpx 0;
+  border: 2rpx solid #ececec;
+}
+
+.edit-textarea {
+  margin-bottom: 20rpx;
+}
+
+.name-input {
+  margin-bottom: 20rpx;
+}
+
+.save-btn {
+  width: 100%;
+  border-radius: 16rpx;
+  font-weight: 500;
+  height: 88rpx;
+  font-size: 30rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
+}
+
+.wechat-input {
+  margin-bottom: 20rpx;
+}
+
+.wechat-tip {
+  margin-bottom: 20rpx;
+  padding: 16rpx 20rpx;
+  background: rgba(7, 193, 96, 0.08);
+  border-radius: 12rpx;
+  border-left: 6rpx solid #07c160;
+}
+
+.wechat-tip .tip-text {
+  font-size: 24rpx;
+  color: #07c160;
+  line-height: 1.7;
+  font-weight: 500;
+}
+

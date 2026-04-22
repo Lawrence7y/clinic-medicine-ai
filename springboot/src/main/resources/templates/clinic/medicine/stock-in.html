@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('药品入库')" />
+    <style>
+        .panel-card {background:#fff;border-radius:8px;padding:16px;margin-bottom:12px;}
+        .stat {font-size:24px;font-weight:700;color:#1f7ae0;}
+        .muted {color:#777;}
+    </style>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel-card">
+                <div class="row text-center">
+                    <div class="col-sm-6"><div id="totalCount" class="stat">0</div><div class="muted">入库记录</div></div>
+                    <div class="col-sm-6"><div id="todayCount" class="stat">0</div><div class="muted">今日入库</div></div>
+                </div>
+            </div>
+            <div class="panel-card">
+                <button class="btn btn-primary" onclick="openModal()"><i class="fa fa-plus"></i> 新建入库</button>
+            </div>
+            <div class="panel-card">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="stockInModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">药品入库</h4></div>
+            <div class="modal-body">
+                <form id="stock-in-form">
+                    <div class="form-group"><label>选择药品 *</label><select class="form-control" name="medicineId" id="medicineId" required></select></div>
+                    <div class="form-group"><label>入库数量 *</label><input class="form-control" name="quantity" type="number" min="1" required></div>
+                    <div class="form-group"><label>批次号 *</label><input class="form-control" name="batchNumber" type="text" required></div>
+                    <div class="form-group"><label>有效期 *</label><input class="form-control" name="expiryDate" type="date" required></div>
+                    <div class="form-group"><label>供应商</label><input class="form-control" name="supplier" type="text"></div>
+                    <div class="form-group"><label>进货价格</label><input class="form-control" name="purchasePrice" type="number" min="0" step="0.01"></div>
+                    <div class="form-group"><label>备注</label><textarea class="form-control" name="remark" rows="3"></textarea></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal">取消</button>
+                <button class="btn btn-primary" onclick="submitStockIn()">确认入库</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script>
+    var medicinePrefix = ctx + 'clinic/medicine';
+    var stockPrefix = ctx + 'clinic/medicine/stock';
+    var medicineList = [];
+
+    $(function () {
+        loadMedicines();
+        initTable();
+        loadStockInTableData();
+        refreshStats();
+    });
+
+    function initTable() {
+        $.table.init({
+            method: 'post',
+            sidePagination: 'client',
+            pagination: true,
+            data: [],
+            columns: [
+                { field: 'recordId', title: 'ID' },
+                { field: 'medicineName', title: '药品名称' },
+                { field: 'quantity', title: '入库数量' },
+                { field: 'batchNumber', title: '批次号' },
+                { field: 'expiryDate', title: '有效期' },
+                { field: 'operatorName', title: '操作人' },
+                { field: 'createTime', title: '入库时间' },
+                { field: 'remark', title: '备注' }
+            ]
+        });
+    }
+
+    function loadStockInTableData() {
+        $.ajax({
+            url: stockPrefix + '/list',
+            method: 'POST',
+            data: { operationType: 'in', pageNum: 1, pageSize: 1000 },
+            success: function (res) {
+                if (!res || res.code !== 0) {
+                    $.modal.msgError((res && res.msg) || '入库记录加载失败');
+                    $('#bootstrap-table').bootstrapTable('load', []);
+                    return;
+                }
+                $('#bootstrap-table').bootstrapTable('load', res.rows || []);
+            },
+            error: function () {
+                $.modal.msgError('入库记录加载失败');
+                $('#bootstrap-table').bootstrapTable('load', []);
+            }
+        });
+    }
+
+    function loadMedicines() {
+        $.post(medicinePrefix + '/list', { pageNum: 1, pageSize: 1000 }, function (res) {
+            medicineList = res.rows || [];
+            var options = '<option value="">请选择药品</option>';
+            medicineList.forEach(function (m) { options += '<option value="' + m.medicineId + '">' + m.name + '（库存:' + (m.stock || 0) + '）</option>'; });
+            $('#medicineId').html(options);
+        });
+    }
+
+    function refreshStats() {
+        $.ajax({
+            url: stockPrefix + '/list', method: 'POST',
+            data: { operationType: 'in', pageNum: 1, pageSize: 1000 },
+            success: function (res) {
+                var rows = res.rows || [];
+                $('#totalCount').text(rows.length);
+                var today = new Date().toISOString().slice(0, 10);
+                var todayRows = rows.filter(function (r) { return r.createTime && String(r.createTime).slice(0, 10) === today; });
+                $('#todayCount').text(todayRows.length);
+            }
+        });
+    }
+
+    function openModal() { $('#stock-in-form')[0].reset(); $('#stockInModal').modal('show'); }
+
+    function submitStockIn() {
+        if (!$('#stock-in-form').valid()) { return; }
+        var data = {
+            operationType: 'in',
+            medicineId: Number($('[name="medicineId"]').val()),
+            quantity: Number($('[name="quantity"]').val()),
+            batchNumber: $('[name="batchNumber"]').val(),
+            expiryDate: $('[name="expiryDate"]').val(),
+            supplier: $('[name="supplier"]').val(),
+            purchasePrice: $('[name="purchasePrice"]').val(),
+            remark: $('[name="remark"]').val()
+        };
+        $.ajax({
+            url: stockPrefix + '/add', method: 'POST', data: data,
+            success: function (res) {
+                if (res.code === 0) {
+                    $.modal.msgSuccess('入库成功');
+                    $('#stockInModal').modal('hide');
+                    loadStockInTableData();
+                    refreshStats();
+                    loadMedicines();
+                    return;
+                }
+                $.modal.msgError(res.msg || '入库失败');
+            },
+            error: function (xhr) {
+                $.modal.msgError((xhr.responseJSON && xhr.responseJSON.msg) || '入库失败');
+            }
+        });
+    }
+</script>
+</body>
+</html>

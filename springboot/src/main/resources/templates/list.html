@@ -1,0 +1,788 @@
+<!-- 完整贷款流程管理 -->
+<div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="font-bold text-lg">完整贷款流程管理</h3>
+    </div>
+
+    <!-- 流程Tab导航 -->
+    <div class="border-b border-gray-200 mb-6">
+        <nav class="flex space-x-8">
+            <button class="py-3 px-1 border-b-2 border-primary text-primary font-medium" data-tab="application">贷款申请</button>
+            <button class="py-3 px-1 text-info hover:text-primary" data-tab="investigation">贷前调查</button>
+            <button class="py-3 px-1 text-info hover:text-primary" data-tab="approval">授信决策</button>
+            <button class="py-3 px-1 text-info hover:text-primary" data-tab="pricing">贷款定价</button>
+            <button class="py-3 px-1 text-info hover:text-primary" data-tab="contract">合同签署</button>
+            <button class="py-3 px-1 text-info hover:text-primary" data-tab="monitoring">贷后管理</button>
+            <button class="py-3 px-1 text-info hover:text-primary" data-tab="collection">贷款收回</button>
+        </nav>
+    </div>
+
+    <!-- 流程内容区域 -->
+    <div class="tab-content">
+        <!-- 贷款申请详情 -->
+        <div class="tab-pane active" id="tab-application">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <form class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-info mb-1">借款人姓名</label>
+                                <input type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" placeholder="请输入姓名">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-info mb-1">身份证号码</label>
+                                <input type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" placeholder="请输入身份证号码">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-info mb-1">联系电话</label>
+                                <input type="tel" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" placeholder="请输入手机号码">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-info mb-1">贷款金额(元)</label>
+                                <input type="number" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" placeholder="请输入贷款金额">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-info mb-1">贷款期限(月)</label>
+                                <select class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
+                                    <option value="">请选择期限</option>
+                                    <option value="6">6个月</option>
+                                    <option value="12">12个月</option>
+                                    <option value="24">24个月</option>
+                                    <option value="36">36个月</option>
+                                    <option value="60">60个月</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-info mb-1">贷款用途</label>
+                            <select class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
+                                <option value="">请选择用途</option>
+                                <option value="business">经营周转</option>
+                                <option value="housing">购房贷款</option>
+                                <option value="car">购车贷款</option>
+                                <option value="education">教育支出</option>
+                                <option value="other">其他用途</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-info mb-1">收入证明材料</label>
+                            <div class="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center hover:border-primary transition-all cursor-pointer">
+                                <i class="fa fa-cloud-upload text-2xl text-info mb-2"></i>
+                                <p class="text-sm text-info">点击上传或拖拽文件至此处</p>
+                                <p class="text-xs text-gray-400 mt-1">支持PDF、JPG、PNG格式，单个文件不超过10MB</p>
+                                <input type="file" class="hidden" multiple accept=".pdf,.jpg,.png,.jpeg">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-2">
+                            <button type="button" class="px-4 py-2 border border-gray-200 rounded-lg text-info hover:bg-gray-50 transition-all">
+                                保存草稿
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-all flex items-center">
+                                <i class="fa fa-arrow-right mr-2"></i> 提交申请
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-medium mb-3">申请流程说明</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs mr-2 mt-0.5">1</div>
+                            <div>
+                                <p class="font-medium">填写申请信息</p>
+                                <p class="text-sm text-info">完善个人基本信息和贷款需求</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-gray-300 text-white flex items-center justify-center text-xs mr-2 mt-0.5">2</div>
+                            <div>
+                                <p class="font-medium">上传证明材料</p>
+                                <p class="text-sm text-info">身份证、收入证明等相关材料</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-gray-300 text-white flex items-center justify-center text-xs mr-2 mt-0.5">3</div>
+                            <div>
+                                <p class="font-medium">等待审核</p>
+                                <p class="text-sm text-info">提交后进入贷前调查环节</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 贷前调查详情 -->
+        <div class="tab-pane hidden" id="tab-investigation">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <form class="space-y-4">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium mb-3">基础信息核实</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-info mb-1">身份信息核实</label>
+                                    <select class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
+                                        <option value="">请选择核实结果</option>
+                                        <option value="verified">已核实</option>
+                                        <option value="unverified">未核实</option>
+                                        <option value="discrepancy">存在差异</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-info mb-1">联系方式确认</label>
+                                    <select class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
+                                        <option value="">请选择确认结果</option>
+                                        <option value="confirmed">已确认</option>
+                                        <option value="unreachable">无法联系</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium mb-3">征信与财务状况调查</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-info mb-1">征信报告状态</label>
+                                    <select class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
+                                        <option value="">请选择征信状态</option>
+                                        <option value="good">良好</option>
+                                        <option value="normal">一般</option>
+                                        <option value="poor">较差</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-info mb-1">收入稳定性</label>
+                                    <select class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
+                                        <option value="">请选择稳定性评价</option>
+                                        <option value="stable">稳定</option>
+                                        <option value="moderate">较稳定</option>
+                                        <option value="unstable">不稳定</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <label class="block text-sm font-medium text-info mb-1">调查备注</label>
+                                <textarea class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" rows="3" placeholder="请输入调查发现的问题或特殊情况"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-2">
+                            <button type="button" class="px-4 py-2 border border-gray-200 rounded-lg text-info hover:bg-gray-50 transition-all">
+                                退回补充材料
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-all">
+                                完成调查并提交
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-medium mb-3">调查要点</h4>
+                    <ul class="space-y-2 text-sm text-info">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>核实申请人身份信息真实性</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>确认联系方式有效性</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>获取并分析征信报告</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>评估收入来源及稳定性</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-success mt-1 mr-2"></i>
+                            <span>识别潜在风险因素</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 授信决策详情 -->
+        <div class="tab-pane hidden" id="tab-approval">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <form class="space-y-4">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium mb-3">风险评估结果</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                    <p class="text-sm text-info">风险等级</p>
+                                    <p class="text-xl font-bold text-warning">中等风险</p>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                    <p class="text-sm text-info">建议额度</p>
+                                    <p class="text-xl font-bold text-primary">¥150,000</p>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                    <p class="text-sm text-info">违约概率</p>
+                                    <p class="text-xl font-bold text-danger">3.2%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium mb-3">授信决策</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-info mb-1">授信额度(元)</label>
+                                    <input type="number" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" value="150000">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-info mb-1">审批状态</label>
+                                    <select class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
+                                        <option value="approved">批准</option>
+                                        <option value="rejected">拒绝</option>
+                                        <option value="conditioned">附条件批准</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <label class="block text-sm font-medium text-info mb-1">审批意见</label>
+                                <textarea class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" rows="3" placeholder="请输入审批意见和理由"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-2">
+                            <button type="button" class="px-4 py-2 border border-gray-200 rounded-lg text-info hover:bg-gray-50 transition-all">
+                                返回修改
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-all">
+                                确认审批决定
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-medium mb-3">决策依据</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-sm font-medium">征信评分</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                <div class="bg-primary h-2 rounded-full" style="width: 75%"></div>
+                            </div>
+                            <p class="text-xs text-info mt-1">得分：75分（良好）</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">收入负债比</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                <div class="bg-warning h-2 rounded-full" style="width: 45%"></div>
+                            </div>
+                            <p class="text-xs text-info mt-1">比率：45%（适中）</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">工作稳定性</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                <div class="bg-success h-2 rounded-full" style="width: 90%"></div>
+                            </div>
+                            <p class="text-xs text-info mt-1">稳定（工作年限3年）</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 贷款定价详情 -->
+        <div class="tab-pane hidden" id="tab-pricing">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <form class="space-y-4">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium mb-3">贷款条款设置</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-info mb-1">年利率(%)</label>
+                                    <input type="number" step="0.01" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" value="6.5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-info mb-1">还款方式</label>
+                                    <select class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
+                                        <option value="monthly">等额本息</option>
+                                        <option value="principal">等额本金</option>
+                                        <option value="bullet">一次性还本付息</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-info mb-1">宽限期(月)</label>
+                                    <input type="number" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" value="0">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-info mb-1">罚息利率(%)</label>
+                                    <input type="number" step="0.01" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" value="10.0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium mb-3">费用明细</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span>手续费</span>
+                                    <span>¥1,500</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>评估费</span>
+                                    <span>¥800</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>保险费</span>
+                                    <span>¥1,200</span>
+                                </div>
+                                <div class="border-t border-gray-200 pt-2 flex justify-between font-medium">
+                                    <span>总计费用</span>
+                                    <span>¥3,500</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-2">
+                            <button type="button" class="px-4 py-2 border border-gray-200 rounded-lg text-info hover:bg-gray-50 transition-all">
+                                重新计算
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-all">
+                                确认贷款条款
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-medium mb-3">定价参考</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm font-medium mb-2">基准利率对照表</p>
+                            <div class="text-xs bg-white rounded p-2">
+                                <div class="flex justify-between py-1 border-b border-gray-100">
+                                    <span>风险等级</span>
+                                    <span>基准利率</span>
+                                </div>
+                                <div class="flex justify-between py-1 border-b border-gray-100">
+                                    <span>低风险</span>
+                                    <span>4.5%-5.5%</span>
+                                </div>
+                                <div class="flex justify-between py-1 border-b border-gray-100">
+                                    <span>中等风险</span>
+                                    <span>5.5%-7.0%</span>
+                                </div>
+                                <div class="flex justify-between py-1">
+                                    <span>高风险</span>
+                                    <span>7.0%-12.0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-sm font-medium mb-2">费用说明</p>
+                            <ul class="text-xs text-info space-y-1">
+                                <li>• 手续费：贷款金额的0.1%-1%</li>
+                                <li>• 评估费：根据贷款金额和复杂程度</li>
+                                <li>• 保险费：根据贷款类型和期限</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 合同签署详情 -->
+        <div class="tab-pane hidden" id="tab-contract">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="border border-gray-200 rounded-lg p-6">
+                        <div class="text-center mb-6">
+                            <h3 class="text-xl font-bold">信用贷款合同</h3>
+                            <p class="text-info mt-1">合同编号：HT20250612001</p>
+                        </div>
+
+                        <div class="space-y-4 text-sm">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-info">借款人：</p>
+                                    <p class="font-medium">张三</p>
+                                </div>
+                                <div>
+                                    <p class="text-info">身份证号：</p>
+                                    <p class="font-medium">11010119900307XXXX</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-info">贷款金额：</p>
+                                    <p class="font-medium">¥150,000</p>
+                                </div>
+                                <div>
+                                    <p class="text-info">贷款期限：</p>
+                                    <p class="font-medium">12个月</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-info">年利率：</p>
+                                    <p class="font-medium">6.5%</p>
+                                </div>
+                                <div>
+                                    <p class="text-info">还款方式：</p>
+                                    <p class="font-medium">等额本息</p>
+                                </div>
+                            </div>
+
+                            <div class="pt-4">
+                                <p class="text-info mb-2">合同条款摘要：</p>
+                                <ul class="text-sm space-y-1 text-info">
+                                    <li>1. 借款人应按月偿还贷款本息</li>
+                                    <li>2. 如发生逾期，按日收取万分之五的罚息</li>
+                                    <li>3. 借款人应保证所提供信息真实有效</li>
+                                    <li>4. 贷款人有权监督贷款使用情况</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-gray-200">
+                            <div class="flex items-center mb-4">
+                                <input type="checkbox" id="agree-terms" class="mr-2">
+                                <label for="agree-terms" class="text-sm">我已阅读并同意上述贷款合同条款</label>
+                            </div>
+
+                            <div class="flex justify-end space-x-3">
+                                <button class="px-4 py-2 border border-gray-200 rounded-lg text-info hover:bg-gray-50 transition-all">
+                                    下载合同
+                                </button>
+                                <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-all">
+                                    <i class="fa fa-pencil mr-2"></i> 电子签名
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-medium mb-3">签署流程</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs mr-3">1</div>
+                            <div>
+                                <p class="font-medium text-sm">确认合同条款</p>
+                                <p class="text-xs text-info">仔细阅读所有条款内容</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs mr-3">2</div>
+                            <div>
+                                <p class="font-medium text-sm">电子签名</p>
+                                <p class="text-xs text-info">使用数字证书进行签名</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-gray-300 text-white flex items-center justify-center text-xs mr-3">3</div>
+                            <div>
+                                <p class="font-medium text-sm">合同生效</p>
+                                <p class="text-xs text-info">双方签署后合同正式生效</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-6 h-6 rounded-full bg-gray-300 text-white flex items-center justify-center text-xs mr-3">4</div>
+                            <div>
+                                <p class="font-medium text-sm">放款执行</p>
+                                <p class="text-xs text-info">按照合同约定进行放款</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-3 bg-white rounded border border-gray-200">
+                        <p class="text-sm font-medium mb-2">注意事项</p>
+                        <ul class="text-xs text-info space-y-1">
+                            <li>• 签署前请仔细核对个人信息</li>
+                            <li>• 合同一经签署不得随意更改</li>
+                            <li>• 请妥善保管电子合同副本</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 贷后管理详情 -->
+        <div class="tab-pane hidden" id="tab-monitoring">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                        <h4 class="font-medium mb-3">贷后检查计划</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-gray-100">
+                                        <th class="text-left py-2 px-2 font-medium text-info">检查日期</th>
+                                        <th class="text-left py-2 px-2 font-medium text-info">检查类型</th>
+                                        <th class="text-left py-2 px-2 font-medium text-info">检查状态</th>
+                                        <th class="text-left py-2 px-2 font-medium text-info">负责人</th>
+                                        <th class="text-right py-2 px-2 font-medium text-info">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-gray-50">
+                                        <td class="py-2 px-2">2025-06-15</td>
+                                        <td class="py-2 px-2">常规检查</td>
+                                        <td class="py-2 px-2">
+                                            <span class="px-2 py-0.5 rounded-full text-xs bg-success-light text-success">已完成</span>
+                                        </td>
+                                        <td class="py-2 px-2">李经理</td>
+                                        <td class="py-2 px-2 text-right">
+                                            <button class="text-primary hover:text-secondary text-sm">查看报告</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-50">
+                                        <td class="py-2 px-2">2025-07-15</td>
+                                        <td class="py-2 px-2">常规检查</td>
+                                        <td class="py-2 px-2">
+                                            <span class="px-2 py-0.5 rounded-full text-xs bg-warning-light text-warning">待执行</span>
+                                        </td>
+                                        <td class="py-2 px-2">-</td>
+                                        <td class="py-2 px-2 text-right">
+                                            <button class="text-primary hover:text-secondary text-sm">执行检查</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-50">
+                                        <td class="py-2 px-2">2025-08-15</td>
+                                        <td class="py-2 px-2">专项检查</td>
+                                        <td class="py-2 px-2">
+                                            <span class="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-info">未开始</span>
+                                        </td>
+                                        <td class="py-2 px-2">-</td>
+                                        <td class="py-2 px-2 text-right">
+                                            <button class="text-primary hover:text-secondary text-sm">安排检查</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h4 class="font-medium mb-3">风险预警</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-start p-3 border border-warning rounded-lg">
+                                <i class="fa fa-exclamation-triangle text-warning mt-0.5 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-sm">还款行为异常</p>
+                                    <p class="text-xs text-info mt-1">借款人最近一次还款延迟3天，需关注其资金状况。</p>
+                                    <div class="flex justify-end mt-2 space-x-2">
+                                        <button class="text-xs px-2 py-1 border border-gray-200 rounded">跟进处理</button>
+                                        <button class="text-xs px-2 py-1 bg-warning text-white rounded">提升风险等级</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start p-3 border border-gray-200 rounded-lg">
+                                <i class="fa fa-info-circle text-info mt-0.5 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-sm">资信状况变化</p>
+                                    <p class="text-xs text-info mt-1">征信报告显示借款人新增一笔信用卡透支记录。</p>
+                                    <div class="flex justify-end mt-2">
+                                        <button class="text-xs px-2 py-1 border border-gray-200 rounded">查看详情</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-medium mb-3">监控指标</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>还款记录</span>
+                                <span>11/12期正常</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-success h-2 rounded-full" style="width: 92%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>资金用途</span>
+                                <span>合规使用</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-success h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>联系情况</span>
+                                <span>正常沟通</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-success h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-200">
+                            <p class="text-sm font-medium mb-2">贷后管理要点</p>
+                            <ul class="text-xs text-info space-y-1">
+                                <li>• 定期跟踪还款情况</li>
+                                <li>• 监控资金使用合规性</li>
+                                <li>• 关注借款人资信变化</li>
+                                <li>• 及时识别和处置风险</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 贷款收回详情 -->
+        <div class="tab-pane hidden" id="tab-collection">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                        <h4 class="font-medium mb-3">贷款结清信息</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-info">贷款本金</p>
+                                <p class="text-lg font-bold">¥150,000</p>
+                            </div>
+                            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-info">应付利息</p>
+                                <p class="text-lg font-bold">¥9,750</p>
+                            </div>
+                            <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-info">合计应还</p>
+                                <p class="text-lg font-bold">¥159,750</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h4 class="font-medium mb-3">还款记录</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-gray-100">
+                                        <th class="text-left py-2 px-2 font-medium text-info">还款日期</th>
+                                        <th class="text-left py-2 px-2 font-medium text-info">还款类型</th>
+                                        <th class="text-left py-2 px-2 font-medium text-info">本金</th>
+                                        <th class="text-left py-2 px-2 font-medium text-info">利息</th>
+                                        <th class="text-left py-2 px-2 font-medium text-info">状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-gray-50">
+                                        <td class="py-2 px-2">2025-06-15</td>
+                                        <td class="py-2 px-2">正常还款</td>
+                                        <td class="py-2 px-2">¥12,500</td>
+                                        <td class="py-2 px-2">¥812.50</td>
+                                        <td class="py-2 px-2">
+                                            <span class="px-2 py-0.5 rounded-full text-xs bg-success-light text-success">已结清</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-50">
+                                        <td class="py-2 px-2">2025-05-15</td>
+                                        <td class="py-2 px-2">正常还款</td>
+                                        <td class="py-2 px-2">¥12,500</td>
+                                        <td class="py-2 px-2">¥812.50</td>
+                                        <td class="py-2 px-2">
+                                            <span class="px-2 py-0.5 rounded-full text-xs bg-success-light text-success">已结清</span>
+                                        </td>
+                                    </tr>
+                                    <!-- 更多还款记录... -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-medium mb-3">结清处理</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm font-medium mb-2">结清状态</p>
+                            <div class="p-3 bg-success-light rounded-lg text-center">
+                                <i class="fa fa-check-circle text-success text-2xl mb-2"></i>
+                                <p class="font-medium">贷款已结清</p>
+                                <p class="text-xs text-info mt-1">结清日期：2025-06-15</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-sm font-medium mb-2">后续操作</p>
+                            <div class="space-y-2">
+                                <button class="w-full text-left px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 text-sm">
+                                    <i class="fa fa-download mr-2"></i>下载结清证明
+                                </button>
+                                <button class="w-full text-left px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 text-sm">
+                                    <i class="fa fa-archive mr-2"></i>归档贷款档案
+                                </button>
+                                <button class="w-full text-left px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 text-sm">
+                                    <i class="fa fa-envelope mr-2"></i>发送结清通知
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-200">
+                            <p class="text-sm font-medium mb-2">注意事项</p>
+                            <ul class="text-xs text-info space-y-1">
+                                <li>• 确认所有款项均已结清</li>
+                                <li>• 归档相关凭证和文件</li>
+                                <li>• 更新客户信用记录</li>
+                                <li>• 发送结清确认通知</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    // Tab切换功能
+    document.querySelectorAll('[data-tab]').forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-tab');
+
+            // 更新导航激活状态
+            document.querySelectorAll('[data-tab]').forEach(btn => {
+                btn.classList.remove('text-primary', 'font-medium', 'border-primary');
+                btn.classList.add('text-info', 'hover:text-primary');
+            });
+            this.classList.remove('text-info', 'hover:text-primary');
+            this.classList.add('text-primary', 'font-medium', 'border-primary');
+
+            // 显示对应内容
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.add('hidden');
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+        });
+    });
+
+    // 初始化显示第一个tab
+    document.querySelector('[data-tab="application"]').click();
+</script>
+
+</div>
+

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('新增 AI 服务商')" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-provider-add">
+        <div class="form-group">
+            <label class="col-sm-3 control-label is-required">服务商编码：</label>
+            <div class="col-sm-8">
+                <input name="providerCode" class="form-control" type="text" required placeholder="请填写服务商编码（建议小写字母与下划线）">
+                <span class="help-block m-b-none">用于系统内部识别，建议使用小写英文和下划线。</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label is-required">服务商名称：</label>
+            <div class="col-sm-8">
+                <input name="providerName" class="form-control" type="text" required placeholder="请填写服务商展示名称">
+                <span class="help-block m-b-none">展示在模型配置与场景配置中，建议使用清晰可读名称。</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">API 地址：</label>
+            <div class="col-sm-8">
+                <input name="apiBaseUrl" class="form-control" type="text" placeholder="请填写完整接口地址（协议 + 域名 + 路径）">
+                <span class="help-block m-b-none">请填写完整接口地址，必须为可访问的 HTTPS 地址。</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">接口密钥：</label>
+            <div class="col-sm-8">
+                <input name="apiKey" class="form-control" type="text" placeholder="请输入服务商密钥">
+                <span class="help-block m-b-none">仅用于后端调用 AI 服务，请妥善保管。</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">状态：</label>
+            <div class="col-sm-8">
+                <select name="enabled" class="form-control m-b">
+                    <option value="1">启用</option>
+                    <option value="0">停用</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备注：</label>
+            <div class="col-sm-8"><textarea name="remark" class="form-control" rows="4"></textarea></div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<script>
+    var prefix = ctx + "clinic/ai/provider";
+    $("#form-provider-add").validate({ focusCleanup: true });
+
+    function handleSaveResponse(result) {
+        if (result && result.code === 0) {
+            $.modal.msgSuccess("保存成功，配置已生效");
+            if (window.parent && window.parent.$ && window.parent.$.table) {
+                window.parent.$.table.refresh();
+            }
+            $.modal.close();
+            return;
+        }
+        $.modal.msgError((result && result.msg) || "保存失败，请检查后重试");
+    }
+
+    function submitHandler() {
+        if (!$.validate.form()) return;
+        $.modal.loading("正在保存配置，请稍候...");
+        $.ajax({
+            url: prefix + "/add",
+            type: "post",
+            data: $('#form-provider-add').serialize(),
+            success: function(result) {
+                $.modal.closeLoading();
+                handleSaveResponse(result);
+            },
+            error: function(xhr) {
+                $.modal.closeLoading();
+                var response = xhr && xhr.responseJSON ? xhr.responseJSON : null;
+                $.modal.msgError((response && response.msg) || "保存失败，请稍后重试");
+            }
+        });
+    }
+</script>
+</body>
+</html>

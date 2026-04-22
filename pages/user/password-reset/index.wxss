@@ -1,0 +1,20 @@
+.password-reset-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 40rpx 30rpx;
+}
+
+.form-section {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 40rpx;
+}
+
+.form-section t-input {
+  margin-bottom: 30rpx;
+}
+
+.btn-section {
+  margin-top: 60rpx;
+}

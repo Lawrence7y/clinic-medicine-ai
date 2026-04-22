@@ -1,0 +1,55 @@
+<view class="doctor-list-container">
+  <view class="search-section">
+    <t-search
+      value="{{searchKeyword}}"
+      placeholder="搜索医生姓名或简介"
+      bind:change="onSearchChange"
+      bind:search="onSearch"
+      bind:submit="onSearch"
+    />
+  </view>
+
+  <view class="doctor-list">
+    <async-state
+      wx:if="{{uiState === 'loading'}}"
+      mode="loading"
+      title="加载中..."
+    />
+
+    <async-state
+      wx:elif="{{uiState === 'error'}}"
+      mode="error"
+      title="{{errorMessage || '加载失败，请稍后重试'}}"
+      buttonText="重试"
+      bind:retry="onRetry"
+    />
+
+    <view wx:elif="{{doctorList.length === 0}}" class="empty-state">
+      <t-icon name="user" size="80rpx" color="#ccc" />
+      <text>暂无医生信息</text>
+    </view>
+
+    <view wx:else class="doctor-cards">
+      <view
+        wx:for="{{doctorList}}"
+        wx:key="id"
+        class="doctor-card"
+        bindtap="goToDoctorDetail"
+        data-doctor="{{item}}"
+      >
+        <view class="doctor-avatar">
+          <t-avatar size="large" text="{{item.name ? item.name[0] : '医'}}" />
+        </view>
+        <view class="doctor-info">
+          <view class="doctor-header">
+            <text class="doctor-name">{{item.name || '-'}}</text>
+          </view>
+          <text class="doctor-intro">{{item.introduction || '暂无简介'}}</text>
+        </view>
+        <t-icon name="chevron-right" size="32rpx" color="#999" />
+      </view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

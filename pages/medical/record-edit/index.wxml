@@ -1,0 +1,335 @@
+<view class="record-edit-container">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetryInit"
+  />
+
+  <form wx:else bindsubmit="submitForm">
+    <view class="form-section">
+      <view class="section-title">
+        <t-icon name="user" size="32rpx" color="#222222" />
+        <text>患者信息</text>
+      </view>
+      <view class="form-content">
+        <view class="patient-select-section" wx:if="{{!isReadonly}}">
+          <t-button theme="primary" variant="outline" bindtap="openPatientSelector" size="large" block>
+            <t-icon name="user-add" size="32rpx" slot="icon" />
+            {{formData.patientId ? ('已选择患者：' + formData.patientName) : '选择已有患者'}}
+          </t-button>
+          <view class="patient-hint">医生可直接选择已有患者，或手动填写患者信息后创建病例</view>
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">姓名 *</view>
+          <t-input value="{{formData.patientName}}" bind:change="onFieldChange" data-field="patientName" placeholder="请输入患者姓名" disabled="{{formData.patientId || isReadonly}}" />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">性别 *</view>
+          <radio-group class="radio-group" bindchange="onRadioChange" data-field="patientGender" disabled="{{formData.patientId || isReadonly}}">
+            <radio value="male" checked="{{formData.patientGender === 'male'}}">男</radio>
+            <radio value="female" checked="{{formData.patientGender === 'female'}}">女</radio>
+          </radio-group>
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">年龄 *</view>
+          <t-input type="number" value="{{formData.patientAge}}" bind:change="onFieldChange" data-field="patientAge" placeholder="请输入年龄" disabled="{{formData.patientId || isReadonly}}" />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">联系电话 *</view>
+          <t-input value="{{formData.patientPhone}}" bind:change="onFieldChange" data-field="patientPhone" placeholder="请输入联系电话" disabled="{{formData.patientId || isReadonly}}" />
+        </view>
+
+        <view class="patient-extra-info" wx:if="{{formData.patientId}}">
+          <view class="info-divider"></view>
+          <view class="form-item">
+            <view class="form-label">出生日期</view>
+            <t-input value="{{formData.patientBirthday}}" disabled placeholder="自动填充" />
+          </view>
+          <view class="form-item">
+            <view class="form-label">血型</view>
+            <t-input value="{{formData.patientBloodType}}" disabled placeholder="自动填充" />
+          </view>
+          <view class="form-item">
+            <view class="form-label">地址</view>
+            <t-textarea value="{{formData.patientAddress}}" disabled placeholder="自动填充" autosize />
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="section-title">
+        <t-icon name="calendar" size="32rpx" color="#222222" />
+        <text>就诊信息</text>
+      </view>
+      <view class="form-content">
+        <view class="form-item">
+          <view class="form-label">就诊时间 *</view>
+          <picker mode="date" value="{{visitDate}}" bindchange="onDateChange" bindtap="onDateTap">
+            <view class="picker-value {{!visitDate ? 'placeholder' : ''}}">
+              {{visitDate || '请选择日期'}}
+            </view>
+          </picker>
+          <picker mode="time" value="{{visitTime}}" bindchange="onTimeChange">
+            <view class="picker-value {{!visitTime ? 'placeholder' : ''}}">
+              {{visitTime || '请选择时间'}}
+            </view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <view class="form-label">医生 *</view>
+          <t-input value="{{formData.doctorName}}" bind:change="onFieldChange" data-field="doctorName" placeholder="请输入医生姓名" />
+        </view>
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="section-title">
+        <t-icon name="file" size="32rpx" color="#222222" />
+        <text>病例详情</text>
+      </view>
+      <view class="form-content">
+        <view class="form-item">
+          <view class="form-label">主诉 *</view>
+          <t-input value="{{formData.chiefComplaint}}" bind:change="onFieldChange" data-field="chiefComplaint" placeholder="请输入主诉" />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">现病史</view>
+          <t-textarea value="{{formData.presentIllness}}" bind:change="onFieldChange" data-field="presentIllness" placeholder="请输入现病史" rows="4" />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">既往史</view>
+          <t-textarea value="{{formData.pastHistory}}" disabled placeholder="来自患者信息" rows="3" />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">过敏史</view>
+          <t-textarea value="{{formData.allergyHistory}}" disabled placeholder="来自患者信息" rows="2" />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">体格检查 *</view>
+          <t-textarea value="{{formData.physicalExam}}" bind:change="onFieldChange" data-field="physicalExam" placeholder="请输入体格检查结果" rows="4" />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">诊断 *</view>
+          <t-input value="{{formData.diagnosis}}" bind:change="onFieldChange" data-field="diagnosis" placeholder="请输入诊断结果" />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">治疗方案 *</view>
+          <t-textarea value="{{formData.treatment}}" bind:change="onFieldChange" data-field="treatment" placeholder="请输入治疗方案" rows="4" />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">随访建议</view>
+          <t-textarea value="{{formData.followUp}}" bind:change="onFieldChange" data-field="followUp" placeholder="请输入随访建议" rows="2" />
+        </view>
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="section-title">
+        <t-icon name="medicine-box" size="32rpx" color="#222222" />
+        <text>处方信息</text>
+        <t-button size="small" theme="primary" variant="outline" bind:tap="addMedicine" style="margin-left: auto;">添加药品</t-button>
+        <t-button size="small" theme="warning" variant="outline" bind:tap="openPackMedicine" style="margin-left: 16rpx;">包药</t-button>
+      </view>
+
+      <view class="form-content">
+        <view class="medicine-list" wx:if="{{formData.prescription && formData.prescription.length > 0}}">
+          <block wx:for="{{formData.prescription}}" wx:key="index" wx:for-item="medicineRow" wx:for-index="rowIndex">
+            <view class="medicine-item">
+              <view class="medicine-header">
+                <text class="medicine-index">药品 {{rowIndex + 1}}</text>
+                <t-icon name="close-circle" size="32rpx" color="#ff4d4f" bind:tap="removeMedicine" data-index="{{rowIndex}}" />
+              </view>
+
+              <view class="form-item">
+                <view class="form-label">药品名称 *</view>
+                <view class="medicine-name-row">
+                  <view class="medicine-search-wrapper" style="flex: 1;">
+                    <t-input value="{{medicineRow.name}}" bind:change="onMedicineSearch" data-index="{{rowIndex}}" placeholder="输入药品名称搜索" clearable />
+                    <view wx:if="{{showMedicineDropdown && activeMedicineIndex === rowIndex}}" class="medicine-dropdown">
+                      <view wx:for="{{filteredMedicineList}}" wx:key="id" wx:for-item="medicineOption" class="medicine-dropdown-item" bindtap="onMedicineSelect" data-id="{{medicineOption.id}}" data-index="{{rowIndex}}">
+                        <text class="medicine-name">{{medicineOption.name}}</text>
+                        <text class="medicine-stock">库存: {{medicineOption.stock}}</text>
+                      </view>
+                    </view>
+                  </view>
+                  <view class="medicine-pack-btn" wx:if="{{!isReadonly}}" bindtap="openPackMedicineForRow" data-index="{{rowIndex}}">
+                    <t-icon name="packs" size="28rpx" color="#ff9800" />
+                    <text>包药</text>
+                  </view>
+                </view>
+              </view>
+
+              <view class="medicine-row">
+                <view class="form-item" style="flex: 1; margin-right: 20rpx;">
+                  <view class="form-label">用量 *</view>
+                  <t-input value="{{medicineRow.dosage}}" bind:change="onMedicineChange" data-index="{{rowIndex}}" data-field="dosage" placeholder="如：1片" />
+                </view>
+                <view class="form-item" style="flex: 1; margin-right: 20rpx;">
+                  <view class="form-label">频次 *</view>
+                  <t-input value="{{medicineRow.frequency}}" bind:change="onMedicineChange" data-index="{{rowIndex}}" data-field="frequency" placeholder="如：每日3次" />
+                </view>
+                <view class="form-item" style="flex: 1;">
+                  <view class="form-label">天数 *</view>
+                  <t-input type="number" value="{{medicineRow.days}}" bind:change="onMedicineChange" data-index="{{rowIndex}}" data-field="days" placeholder="如：7" />
+                </view>
+              </view>
+            </view>
+          </block>
+        </view>
+
+        <view class="empty-prescription" wx:else>
+          <t-empty description="暂无处方药品" />
+        </view>
+      </view>
+    </view>
+
+    <view class="submit-section" wx:if="{{!isReadonly}}">
+      <t-button theme="primary" size="large" loading="{{loading}}" disabled="{{loading}}" bind:tap="submitForm">
+        {{isEdit ? '更新病例' : '创建病例'}}
+      </t-button>
+    </view>
+
+    <view class="readonly-hint" wx:if="{{isReadonly}}">
+      <t-empty description="诊所管理员仅可查看病例，不能编辑" />
+    </view>
+  </form>
+
+  <t-toast id="t-toast" />
+</view>
+
+<t-popup visible="{{showPatientSelector}}" placement="bottom" bind:visible-change="closePatientSelector">
+  <view class="patient-selector-popup">
+    <view class="popup-header">
+      <text class="popup-title">选择患者</text>
+      <t-icon name="close" size="40rpx" bindtap="closePatientSelector" />
+    </view>
+
+    <view class="popup-search">
+      <view class="search-box">
+        <t-input class="search-input" placeholder="搜索患者姓名或手机号" value="{{patientSearchKeyword}}" bind:change="onPatientSearchChange" clearable />
+        <t-button theme="primary" size="small" bindtap="onSearch">搜索</t-button>
+      </view>
+    </view>
+
+    <view class="popup-content">
+      <view class="patient-list-selector">
+        <view class="patient-item-selector" wx:for="{{filteredPatientList}}" wx:key="id" bindtap="selectPatient" data-patient="{{item}}">
+          <view class="patient-info-selector">
+            <t-avatar size="medium" text="{{item.name[0]}}" />
+            <view class="patient-details-selector">
+              <text class="patient-name-selector">{{item.name}}</text>
+              <view class="patient-meta-selector">
+                <text>{{(item.gender === 'male' ? '男' : '女') + ' | ' + item.age + '岁'}}</text>
+                <text class="patient-phone-selector">{{item.phone}}</text>
+              </view>
+            </view>
+          </view>
+          <t-icon name="chevron-right" size="32rpx" color="#ccc" />
+        </view>
+
+        <t-empty wx:if="{{filteredPatientList.length === 0 && patientList.length > 0}}" description="未找到匹配患者" />
+        <t-empty wx:if="{{patientList.length === 0}}" description="暂无患者数据，请先在患者管理中创建患者" />
+      </view>
+    </view>
+  </view>
+</t-popup>
+
+<!-- 包药弹窗 -->
+<t-popup visible="{{showPackMedicine}}" placement="bottom" bind:visible-change="closePackMedicine">
+  <view class="pack-medicine-popup">
+    <view class="popup-header">
+      <text class="popup-title">包药（片剂）</text>
+      <t-icon name="close" size="40rpx" bindtap="closePackMedicine" />
+    </view>
+
+    <view class="popup-content pack-medicine-content">
+      <!-- 已选包药列表 -->
+      <view class="selected-pack-list" wx:if="{{packMedicineItems.length > 0}}">
+        <view class="selected-pack-header">已选药品</view>
+        <view class="selected-pack-item" wx:for="{{packMedicineItems}}" wx:key="medicineId">
+          <view class="selected-pack-name">{{item.name}}</view>
+          <view class="selected-pack-qty">
+            <view class="qty-btn" bindtap="decreasePackItem" data-index="{{index}}">
+              <t-icon name="remove" size="28rpx" color="#ff4d4f" />
+            </view>
+            <text class="qty-value">{{item.quantity}}</text>
+            <view class="qty-btn" bindtap="increasePackItem" data-index="{{index}}">
+              <t-icon name="add" size="28rpx" color="#07c160" />
+            </view>
+            <text class="qty-unit">片</text>
+          </view>
+          <view class="selected-pack-remove" bindtap="removePackItem" data-index="{{index}}">
+            <t-icon name="close-circle" size="32rpx" color="#ff4d4f" />
+          </view>
+        </view>
+      </view>
+
+      <!-- 药品搜索区域 -->
+      <view class="pack-medicine-search">
+        <view class="search-box">
+          <t-input class="search-input" placeholder="搜索片剂药品名称" value="{{packMedicineKeyword}}" bind:change="onPackMedicineSearchChange" clearable />
+        </view>
+        <view class="pack-medicine-list">
+          <view class="pack-medicine-item" wx:for="{{filteredPackMedicineList}}" wx:key="id" bindtap="onPackMedicineItemTap" data-medicine="{{item}}">
+            <view class="pack-medicine-info">
+              <text class="pack-medicine-name">{{item.name}}</text>
+              <text class="pack-medicine-spec">{{item.specification || ''}}</text>
+            </view>
+            <view class="pack-medicine-stock">库存: {{item.stock || 0}}</view>
+          </view>
+          <t-empty wx:if="{{filteredPackMedicineList.length === 0}}" description="暂无片剂药品" />
+        </view>
+      </view>
+
+      <view class="popup-actions">
+        <t-button theme="default" size="medium" bind:tap="closePackMedicine">取消</t-button>
+        <t-button theme="primary" size="medium" disabled="{{packMedicineItems.length === 0}}" bind:tap="confirmPackMedicine">确认添加</t-button>
+      </view>
+    </view>
+  </view>
+</t-popup>
+
+<!-- 批次选择弹窗 -->
+<t-popup visible="{{showBatchSelect}}" placement="bottom">
+  <view class="batch-select-popup">
+    <view class="popup-header">
+      <text class="popup-title">选择批次 - {{tempSelectMedicine.name}}</text>
+      <t-icon name="close" size="40rpx" bindtap="closeBatchSelect" />
+    </view>
+    <view class="popup-content">
+      <view class="batch-list">
+        <view class="batch-item {{tempSelectedBatch.batchId === item.batchId ? 'selected' : ''}}" wx:for="{{tempMedicineBatches}}" wx:key="batchId" bindtap="onBatchSelect" data-batch="{{item}}">
+          <view class="batch-info">
+            <text class="batch-number">{{item.batchNumber || '默认批次'}}</text>
+            <text class="batch-expiry">有效期：{{item.expiryDate || '长期'}}</text>
+          </view>
+        </view>
+        <t-empty wx:if="{{tempMedicineBatches.length === 0}}" description="暂无批次信息" />
+      </view>
+      <view class="popup-actions">
+        <t-button theme="default" size="medium" bind:tap="closeBatchSelect">取消</t-button>
+        <t-button theme="primary" size="medium" disabled="{{!tempSelectedBatch.batchId}}" bind:tap="confirmAddPackMedicine">确认添加</t-button>
+      </view>
+    </view>
+  </view>
+</t-popup>

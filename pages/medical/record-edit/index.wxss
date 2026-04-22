@@ -1,0 +1,515 @@
+.record-edit-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding-bottom: 40rpx;
+}
+
+/* 表单区域 */
+.form-section {
+  background: #fff;
+  margin-bottom: 20rpx;
+  padding: 30rpx;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.section-title text {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-left: 12rpx;
+  flex: 1;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.form-item > view:nth-child(2) {
+  margin-right: 16rpx;
+}
+
+.picker-value {
+  padding: 16rpx 24rpx;
+  background: #f5f5f5;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  color: #333;
+  min-height: 48rpx;
+  display: flex;
+  align-items: center;
+}
+
+.picker-value.placeholder {
+  color: #999;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.form-row {
+  display: flex;
+  gap: 40rpx;
+}
+
+.radio-group {
+  display: flex;
+  gap: 40rpx;
+}
+
+.radio-group radio {
+  display: flex;
+  align-items: center;
+}
+
+.picker {
+  padding: 16rpx 0;
+  color: #333;
+  font-size: 28rpx;
+  border-bottom: 1rpx solid #eee;
+  min-height: 48rpx;
+  display: flex;
+  align-items: center;
+}
+
+/* 药品列表 */
+.medicine-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.medicine-item {
+  background: #f9f9f9;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+
+.medicine-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.medicine-index {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.medicine-row {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 16rpx;
+}
+
+.empty-prescription {
+  padding: 60rpx 0;
+  text-align: center;
+}
+
+/* 提交按钮 */
+.submit-section {
+  padding: 30rpx;
+}
+
+.submit-section t-button {
+  width: 100%;
+}
+
+/* 患者选择区域 */
+.patient-select-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.patient-hint {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+}
+
+.info-divider {
+  height: 1rpx;
+  background: #eee;
+  margin: 20rpx 0;
+}
+
+.patient-extra-info {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+/* 患者选择器弹窗 */
+.patient-selector-popup {
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.popup-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.popup-search {
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.search-input {
+  flex: 1;
+}
+
+.popup-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20rpx 30rpx;
+}
+
+.patient-list-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.patient-item-selector {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background: #f9f9f9;
+  border-radius: 12rpx;
+}
+
+.patient-info-selector {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 20rpx;
+}
+
+.patient-details-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  flex: 1;
+}
+
+.patient-name-selector {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.patient-meta-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.patient-meta-selector text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.patient-phone-selector {
+  color: #999;
+}
+
+.popup-footer {
+  padding: 30rpx;
+  border-top: 1rpx solid #eee;
+}
+
+.medicine-search-wrapper {
+  position: relative;
+}
+
+.medicine-name-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+}
+
+.medicine-pack-btn {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 16rpx 20rpx;
+  background: #fff3e0;
+  border-radius: 8rpx;
+  border: 1rpx solid #ff9800;
+  font-size: 26rpx;
+  color: #ff9800;
+  white-space: nowrap;
+  margin-top: 4rpx;
+}
+
+.medicine-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1rpx solid #e7e7e7;
+  border-radius: 8rpx;
+  max-height: 400rpx;
+  overflow-y: auto;
+  z-index: 100;
+  margin-top: 8rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.medicine-dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  gap: 12rpx;
+}
+
+.medicine-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.medicine-dropdown-item .medicine-name {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.medicine-dropdown-item .medicine-stock {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 包药弹窗 */
+.pack-medicine-popup {
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+}
+
+.pack-medicine-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.selected-pack-list {
+  background: #fff3e0;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+
+.selected-pack-header {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #e65100;
+  margin-bottom: 16rpx;
+}
+
+.selected-pack-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #ffe0b2;
+}
+
+.selected-pack-item:last-child {
+  border-bottom: none;
+}
+
+.selected-pack-name {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.selected-pack-qty {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.qty-btn {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border-radius: 50%;
+}
+
+.qty-value {
+  min-width: 60rpx;
+  text-align: center;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.qty-unit {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.selected-pack-remove {
+  padding: 8rpx;
+}
+
+.pack-medicine-search {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.pack-medicine-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  max-height: 300rpx;
+  overflow-y: auto;
+}
+
+.pack-medicine-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx;
+  background: #f9f9f9;
+  border-radius: 12rpx;
+}
+
+.pack-medicine-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.pack-medicine-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.pack-medicine-spec {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.pack-medicine-stock {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.popup-actions {
+  display: flex;
+  gap: 20rpx;
+  padding: 20rpx 0;
+  border-top: 1rpx solid #eee;
+}
+
+.popup-actions t-button {
+  flex: 1;
+}
+
+/* 批次选择弹窗 */
+.batch-select-popup {
+  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+}
+
+.batch-select-popup .popup-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 30rpx;
+}
+
+.batch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.batch-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx;
+  background: #f9f9f9;
+  border-radius: 12rpx;
+  border: 2rpx solid transparent;
+}
+
+.batch-item.selected {
+  background: #e6f7ff;
+  border-color: #1890ff;
+}
+
+.batch-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.batch-number {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.batch-expiry {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.batch-stock {
+  font-size: 24rpx;
+  color: #52c41a;
+}

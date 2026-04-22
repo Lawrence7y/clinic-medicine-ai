@@ -1,0 +1,71 @@
+<view class="contact-doctor-container">
+  <view class="page-header">
+    <text class="page-title">医生联系方式</text>
+    <text class="page-subtitle">以下是诊所全部医生的联系方式</text>
+  </view>
+
+  <view class="doctor-list">
+    <async-state
+      wx:if="{{uiState === 'loading'}}"
+      mode="loading"
+      title="{{texts.loading}}"
+    />
+
+    <async-state
+      wx:elif="{{uiState === 'error'}}"
+      mode="error"
+      title="{{errorText || texts.loadFailed}}"
+      buttonText="{{texts.retry}}"
+      bind:retry="onRetry"
+    />
+
+    <async-state
+      wx:elif="{{doctorList.length === 0}}"
+      mode="empty"
+      title="暂无医生信息"
+    />
+
+    <view wx:else class="doctor-cards">
+      <view wx:for="{{doctorList}}" wx:key="id" class="doctor-card">
+        <view class="doctor-header">
+          <view class="avatar-container">
+            <view class="default-avatar">
+              <text class="default-avatar-text">{{item.name ? item.name.charAt(0) : '医'}}</text>
+            </view>
+          </view>
+          <view class="doctor-basic">
+            <view class="doctor-name-row">
+              <text class="doctor-name">{{item.name || '-'}}</text>
+            </view>
+          </view>
+        </view>
+
+        <t-cell-group class="contact-info">
+          <t-cell
+            title="电话"
+            note="{{item.phone || '-'}}"
+            hover
+            bindtap="makePhoneCall"
+            data-phone="{{item.phone}}"
+          >
+            <t-icon slot="left-icon" name="call" size="40rpx" color="#222222" />
+            <t-icon slot="right-icon" name="chevron-right" size="32rpx" color="#ccc" />
+          </t-cell>
+
+          <t-cell
+            title="微信"
+            note="{{item.wechat || '-'}}"
+            hover
+            bindtap="copyWechat"
+            data-wechat="{{item.wechat}}"
+          >
+            <t-icon slot="left-icon" name="chat" size="40rpx" color="#07c160" />
+            <t-icon slot="right-icon" name="file-copy" size="32rpx" color="#ccc" />
+          </t-cell>
+        </t-cell-group>
+      </view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

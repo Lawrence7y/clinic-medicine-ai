@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "处方详情",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-button": "tdesign-miniprogram/button/button",
+    "async-state": "/components/async-state/index"
+  }
+}

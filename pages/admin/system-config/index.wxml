@@ -1,0 +1,56 @@
+<view class="system-config-container">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="加载中..."
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || '加载失败'}}"
+    buttonText="重试"
+    bind:retry="retryLoad"
+  />
+
+  <block wx:else>
+    <view class="config-list">
+      <view wx:for="{{configList}}" wx:key="id" class="config-item">
+        <view class="config-label">{{item.name}}</view>
+        <view class="config-value">
+          <t-input
+            wx:if="{{item.type === 'text' || item.type === 'number'}}"
+            value="{{item.value}}"
+            type="{{item.type}}"
+            bindchange="onConfigChange"
+            data-index="{{index}}"
+          />
+
+          <textarea
+            wx:if="{{item.type === 'textarea'}}"
+            value="{{item.value}}"
+            bindinput="onConfigChange"
+            data-index="{{index}}"
+            class="textarea"
+            maxlength="-1"
+          />
+
+          <t-switch
+            wx:if="{{item.type === 'switch'}}"
+            value="{{item.value}}"
+            bindchange="onConfigChange"
+            data-index="{{index}}"
+          />
+        </view>
+      </view>
+    </view>
+
+    <view class="save-button">
+      <t-button theme="primary" size="large" bindtap="saveConfig" loading="{{loading}}">
+        保存配置
+      </t-button>
+    </view>
+  </block>
+
+  <t-toast id="t-toast" />
+</view>

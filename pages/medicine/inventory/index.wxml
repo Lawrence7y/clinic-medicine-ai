@@ -1,0 +1,106 @@
+<view class="inventory-container">
+  <view class="stats-section">
+    <view class="stats-card">
+      <view class="stat-item">
+        <text class="stat-value">{{totalCount}}</text>
+        <text class="stat-label">药品总数</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value warning">{{lowStockCount}}</text>
+        <text class="stat-label">库存不足</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value danger">{{outOfStockCount}}</text>
+        <text class="stat-label">缺货</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="search-section">
+    <t-search
+      placeholder="搜索药品名称或规格"
+      value="{{searchKeyword}}"
+      bind:change="onSearchChange"
+      bind:submit="onSearch"
+      bind:search="onSearch"
+    />
+  </view>
+
+  <view class="filter-section">
+    <view class="filter-wrapper">
+      <view class="filter-header">
+        <t-icon name="filter" size="28rpx" color="#222222" />
+        <text class="filter-title">库存状态筛选</text>
+      </view>
+      <view class="status-buttons">
+        <view class="status-btn all {{selectedStatus === '' ? 'active' : ''}}" bindtap="selectStatus" data-status="">
+          <t-icon name="app" size="26rpx" />
+          <text class="status-text">全部</text>
+        </view>
+        <view class="status-btn out {{selectedStatus === 'out' ? 'active' : ''}}" bindtap="selectStatus" data-status="out">
+          <t-icon name="error-circle" size="26rpx" />
+          <text class="status-text">缺货</text>
+        </view>
+        <view class="status-btn low {{selectedStatus === 'low' ? 'active' : ''}}" bindtap="selectStatus" data-status="low">
+          <t-icon name="info-circle" size="26rpx" />
+          <text class="status-text">库存不足</text>
+        </view>
+        <view class="status-btn normal {{selectedStatus === 'normal' ? 'active' : ''}}" bindtap="selectStatus" data-status="normal">
+          <t-icon name="check-circle" size="26rpx" />
+          <text class="status-text">库存充足</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="inventory-list">
+    <async-state
+      wx:if="{{uiState === 'loading'}}"
+      mode="loading"
+      title="加载中..."
+    />
+    <async-state
+      wx:elif="{{uiState === 'error'}}"
+      mode="error"
+      title="{{errorMessage || '加载库存失败'}}"
+      buttonText="重试"
+      bind:retry="onRetry"
+    />
+    <async-state
+      wx:elif="{{inventoryList.length === 0}}"
+      mode="empty"
+      title="暂无药品库存"
+    />
+    <view wx:else class="inventory-cards">
+      <view class="inventory-card" wx:for="{{inventoryList}}" wx:key="id" bindtap="goToMedicineDetail" data-id="{{item.id}}">
+        <view class="card-top">
+          <view class="medicine-info">
+            <view class="medicine-icon" style="background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%);">
+              <t-icon name="medicine-box" size="40rpx" color="#1890ff" />
+            </view>
+            <view class="medicine-detail">
+              <text class="medicine-name">{{item.name}}</text>
+              <text class="medicine-spec">{{item.specification || '-'}}</text>
+            </view>
+          </view>
+          <t-tag size="small" theme="{{getStockTheme(item)}}" variant="light">{{getStockStatus(item)}}</t-tag>
+        </view>
+
+        <view class="card-middle">
+          <view class="info-grid">
+            <view class="info-item"><text class="info-label">库存</text><text class="info-value stock">{{item.stock}}</text></view>
+            <view class="info-item"><text class="info-label">预警值</text><text class="info-value">{{item.warningThreshold || item.warningStock || '-'}}</text></view>
+            <view class="info-item"><text class="info-label">单价</text><text class="info-value price">{{item.price}} 元</text></view>
+            <view class="info-item"><text class="info-label">分类</text><text class="info-value">{{item.category || '-'}}</text></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <load-more wx:if="{{inventoryList.length > 0}}" status="{{loadMoreStatus}}" bind:retry="loadMore" />
+
+  <t-toast id="t-toast" />
+</view>

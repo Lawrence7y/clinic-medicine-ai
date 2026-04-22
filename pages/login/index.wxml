@@ -1,0 +1,98 @@
+<view class="login-container">
+  <view class="header">
+    <view class="logo">
+      <t-icon name="clinic" size="120rpx" color="#2E7D32" />
+    </view>
+    <view class="title">{{texts.title}}</view>
+    <view class="subtitle">{{texts.subtitle}}</view>
+  </view>
+
+  <view class="login-content">
+    <view class="form-section">
+      <view class="api-tip-card" wx:if="{{!apiReady && apiErrorText}}">
+        <view class="api-tip-title">{{texts.apiConfigTitle}}</view>
+        <view class="api-tip-text">{{apiErrorText}}</view>
+        <view class="api-tip-text">{{texts.apiConfigGuide}}</view>
+        <t-button
+          size="small"
+          theme="primary"
+          variant="outline"
+          loading="{{captchaLoading}}"
+          bindtap="refreshCaptcha"
+        >
+          {{texts.retryApi}}
+        </t-button>
+      </view>
+
+      <view class="form-item">
+        <t-input
+          placeholder="{{texts.accountPlaceholder}}"
+          value="{{loginForm.account}}"
+          bind:change="onAccountChange"
+          clearable
+          class="input"
+        />
+      </view>
+
+      <view class="form-item">
+        <t-input
+          placeholder="{{texts.passwordPlaceholder}}"
+          value="{{loginForm.password}}"
+          bind:change="onPasswordChange"
+          type="password"
+          clearable
+          class="input"
+        />
+      </view>
+
+      <view class="form-item" wx:if="{{captchaEnabled}}">
+        <view class="captcha-row">
+          <view class="captcha-input">
+            <t-input
+              placeholder="{{texts.captchaPlaceholder}}"
+              value="{{loginForm.captchaCode}}"
+              bind:change="onCaptchaChange"
+              clearable
+              class="input"
+            />
+          </view>
+          <view class="captcha-image-box" bindtap="refreshCaptcha">
+            <image
+              wx:if="{{captchaImage}}"
+              class="captcha-image"
+              src="{{captchaImage}}"
+              mode="aspectFit"
+            />
+            <view wx:else class="captcha-placeholder">
+              {{captchaLoading ? texts.captchaLoading : texts.captchaRefresh}}
+            </view>
+          </view>
+        </view>
+        <view class="captcha-tip">{{texts.captchaTip}}</view>
+      </view>
+
+      <view class="lock-tip" wx:if="{{lockInfo.locked}}">
+        {{lockInfo.text}}
+      </view>
+
+      <t-button
+        theme="primary"
+        size="large"
+        loading="{{loading}}"
+        disabled="{{loading || captchaLoading || lockInfo.locked || !apiReady}}"
+        bind:tap="handleAccountLogin"
+        class="login-btn"
+      >
+        {{loading ? texts.loggingIn : texts.loginButton}}
+      </t-button>
+
+      <view class="tips">
+        <text class="tip-item" bindtap="fillDemoAccount" data-account="admin">{{texts.adminDemo}}</text>
+        <text class="tip-item" bindtap="fillDemoAccount" data-account="13800138001">{{texts.clinicAdminDemo}}</text>
+        <text class="tip-item">{{securityTip}}</text>
+      </view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

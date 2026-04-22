@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('修改 AI 场景绑定')" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-scene-edit" th:object="${scene}">
+        <input name="sceneId" type="hidden" th:field="*{sceneId}">
+        <div class="alert alert-info" style="margin: 0 15px 20px;">
+            主模型和兜底模型为全局配置，修改任意一个场景后会同步更新所有识别场景。
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label is-required">场景编码：</label>
+            <div class="col-sm-8">
+                <input name="sceneCode" class="form-control" type="text" th:field="*{sceneCode}" required>
+                <span class="help-block m-b-none">场景编码建议保持不变，避免影响已接入入口与日志追踪。</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label is-required">场景名称：</label>
+            <div class="col-sm-8">
+                <input name="sceneName" class="form-control" type="text" th:field="*{sceneName}" required>
+                <span class="help-block m-b-none">场景名称会同步显示在后台场景列表和部分日志中。</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">执行模式：</label>
+            <div class="col-sm-8">
+                <select name="executionMode" class="form-control m-b" th:field="*{executionMode}">
+                    <option value="model_only">仅模型</option>
+                    <option value="local_only">仅本地</option>
+                    <option value="local_then_model">本地优先，模型兜底</option>
+                </select>
+                <span class="help-block m-b-none">建议根据场景稳定性选择执行模式，避免误配导致调用失败。</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">主模型：</label>
+            <div class="col-sm-8">
+                <select name="primaryModelId" class="form-control m-b" th:field="*{primaryModelId}">
+                    <option value="">不设置</option>
+                    <option th:each="item : ${models}" th:value="${item.modelId}" th:text="${item.providerName + ' / ' + item.modelName}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">兜底模型：</label>
+            <div class="col-sm-8">
+                <select name="fallbackModelId" class="form-control m-b" th:field="*{fallbackModelId}">
+                    <option value="">不设置</option>
+                    <option th:each="item : ${models}" th:value="${item.modelId}" th:text="${item.providerName + ' / ' + item.modelName}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">候选上限：</label>
+            <div class="col-sm-8">
+                <input name="candidateLimit" class="form-control" type="number" th:field="*{candidateLimit}">
+                <span class="help-block m-b-none">控制候选结果数量，推荐值 3。</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">超时（毫秒）：</label>
+            <div class="col-sm-8">
+                <input name="timeoutMs" class="form-control" type="number" th:field="*{timeoutMs}">
+                <span class="help-block m-b-none">建议根据模型响应耗时设置，避免超时过短导致误判失败。</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">状态：</label>
+            <div class="col-sm-8"><select name="enabled" class="form-control m-b" th:field="*{enabled}"><option value="1">启用</option><option value="0">停用</option></select></div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备注：</label>
+            <div class="col-sm-8"><textarea name="remark" class="form-control" rows="4" th:field="*{remark}"></textarea></div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<script>
+    var prefix = ctx + "clinic/ai/scene";
+    $("#form-scene-edit").validate({ focusCleanup: true });
+
+    function handleSaveResponse(result) {
+        if (result && result.code === 0) {
+            $.modal.msgSuccess("保存成功，配置已生效");
+            if (window.parent && window.parent.$ && window.parent.$.table) {
+                window.parent.$.table.refresh();
+            }
+            $.modal.close();
+            return;
+        }
+        $.modal.msgError((result && result.msg) || "保存失败，请检查后重试");
+    }
+
+    function submitHandler() {
+        if (!$.validate.form()) return;
+        $.modal.loading("正在保存配置，请稍候...");
+        $.ajax({
+            url: prefix + "/edit",
+            type: "post",
+            data: $('#form-scene-edit').serialize(),
+            success: function(result) {
+                $.modal.closeLoading();
+                handleSaveResponse(result);
+            },
+            error: function(xhr) {
+                $.modal.closeLoading();
+                var response = xhr && xhr.responseJSON ? xhr.responseJSON : null;
+                $.modal.msgError((response && response.msg) || "保存失败，请稍后重试");
+            }
+        });
+    }
+</script>
+</body>
+</html>

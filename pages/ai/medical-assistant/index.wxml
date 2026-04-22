@@ -1,0 +1,49 @@
+<view class="medical-ai-page">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="retryLoad"
+  />
+
+  <view wx:else class="content">
+    <view class="panel">
+      <view class="panel-title">病历信息</view>
+      <view class="row"><text class="label">患者：</text><text class="value">{{recordInfo.patientName || '-'}}</text></view>
+      <view class="row"><text class="label">医生：</text><text class="value">{{recordInfo.doctorName || '-'}}</text></view>
+      <view class="row"><text class="label">就诊：</text><text class="value">{{recordInfo.visitTime || '-'}}</text></view>
+      <view class="row"><text class="label">诊断：</text><text class="value">{{recordInfo.diagnosis || '-'}}</text></view>
+      <view class="row"><text class="label">模型：</text><text class="value">{{aiResult.model || '-'}}</text></view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-title">{{texts.summaryTitle}}</view>
+      <view class="panel-text">{{aiResult.summary || '-'}}</view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-title">{{texts.followUpTitle}}</view>
+      <view class="panel-text">{{aiResult.followUpAdvice || '-'}}</view>
+    </view>
+
+    <view class="panel">
+      <view class="panel-title">{{texts.educationTitle}}</view>
+      <view class="panel-text">{{aiResult.patientEducation || '-'}}</view>
+    </view>
+
+    <view class="actions">
+      <t-button theme="primary" loading="{{generating}}" bindtap="generateSuggestion">{{texts.generate}}</t-button>
+      <t-button theme="default" variant="outline" bindtap="copyAllSuggestion">{{texts.copyAll}}</t-button>
+      <t-button theme="default" bindtap="continueInChat">{{texts.useInChat}}</t-button>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "编辑信息",
+  "usingComponents": {
+    "async-state": "/components/async-state/index",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-textarea": "tdesign-miniprogram/textarea/textarea",
+    "t-toast": "tdesign-miniprogram/toast/toast"
+  }
+}

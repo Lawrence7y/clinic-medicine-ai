@@ -1,0 +1,203 @@
+.medicine-edit-container {
+  min-height: 100vh;
+  background: #f5f7fb;
+  padding: 24rpx 24rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.page-header {
+  margin-bottom: 20rpx;
+  padding: 8rpx 6rpx;
+}
+
+.title {
+  display: block;
+  font-size: 38rpx;
+  font-weight: 600;
+  color: #1f2329;
+}
+
+.desc {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #86909c;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 22rpx 20rpx;
+  margin-bottom: 18rpx;
+}
+
+.card-title {
+  font-size: 30rpx;
+  color: #1f2329;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.action-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-row--secondary {
+  margin-top: 16rpx;
+}
+
+.action-row t-button {
+  flex: 1;
+}
+
+.notice {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: #86909c;
+}
+
+.notice.strong {
+  margin-top: 0;
+  margin-bottom: 16rpx;
+  color: #d97706;
+}
+
+.warning-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12rpx;
+}
+
+.warning-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: #f59e0b;
+  margin: 12rpx 12rpx 0 0;
+  flex-shrink: 0;
+}
+
+.warning-text {
+  flex: 1;
+  font-size: 25rpx;
+  line-height: 1.7;
+  color: #7c2d12;
+}
+
+.candidate-card {
+  padding: 18rpx;
+  background: #f8fafc;
+  border-radius: 16rpx;
+  margin-bottom: 16rpx;
+  border: 2rpx solid transparent;
+}
+
+.candidate-card--active {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.candidate-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12rpx;
+}
+
+.candidate-name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #111827;
+}
+
+.candidate-spec {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+.candidate-confidence {
+  font-size: 24rpx;
+  color: #0f766e;
+}
+
+.candidate-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx 20rpx;
+  margin: 14rpx 0;
+  font-size: 24rpx;
+  color: #4b5563;
+}
+
+.candidate-desc {
+  margin-bottom: 14rpx;
+  font-size: 24rpx;
+  line-height: 1.7;
+  color: #4b5563;
+}
+
+.candidate-actions {
+  margin-bottom: 14rpx;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.picker-row,
+.switch-row {
+  display: flex;
+  align-items: center;
+  min-height: 88rpx;
+  border-bottom: 1rpx solid #f0f2f5;
+}
+
+.picker-label {
+  width: 170rpx;
+  font-size: 28rpx;
+  color: #1f2329;
+}
+
+.picker-row--picker picker {
+  flex: 1;
+}
+
+.picker-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: #4e5969;
+  padding: 18rpx 0;
+}
+
+.correction-card {
+  border: 2rpx dashed #a7f3d0;
+}
+
+.confirm-tip {
+  margin: 10rpx 0 14rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+}
+
+.confirm-tip--warning {
+  color: #92400e;
+  background: #fffbeb;
+}
+
+.confirm-tip--done {
+  color: #166534;
+  background: #f0fdf4;
+}
+
+.correction-action {
+  margin-top: 12rpx;
+  display: flex;
+  gap: 12rpx;
+}
+
+.submit-section {
+  margin-top: 10rpx;
+}

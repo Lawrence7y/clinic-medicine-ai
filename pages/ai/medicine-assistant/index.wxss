@@ -1,0 +1,76 @@
+.medicine-ai-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.panel {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+}
+
+.panel-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 14rpx;
+}
+
+.row {
+  display: flex;
+  font-size: 25rpx;
+  margin-bottom: 8rpx;
+}
+
+.label {
+  width: 100rpx;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.value {
+  color: #334155;
+  flex: 1;
+  word-break: break-word;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.tag-item {
+  background: #e2e8f0;
+  color: #334155;
+  padding: 8rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+}
+
+.list-item {
+  font-size: 26rpx;
+  color: #334155;
+  line-height: 1.6;
+  margin-bottom: 8rpx;
+}
+
+.empty {
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+
+.actions {
+  margin-top: 4rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}

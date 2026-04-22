@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.themeleaf.org">
+<head>
+    <th:block th:include="include :: header('药品出库')" />
+    <style>
+        .panel-card {background:#fff;border-radius:8px;padding:16px;margin-bottom:12px;}
+        .stat {font-size:24px;font-weight:700;color:#e67e22;}
+        .muted {color:#777;}
+        .medicine-search-wrapper {position:relative;}
+        .medicine-search-dropdown {position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e6e7;border-top:none;max-height:200px;overflow-y:auto;z-index:1000;display:none;}
+        .medicine-search-dropdown.show {display:block;}
+        .medicine-search-item {padding:10px 12px;cursor:pointer;border-bottom:1px solid #f3f3f4;}
+        .medicine-search-item:last-child {border-bottom:none;}
+        .medicine-search-item:hover {background:#f3f3f4;}
+        .medicine-search-item .name {font-weight:bold;}
+        .medicine-search-item .stock {color:#999;font-size:12px;}
+        .auto-fill-hint {font-size:12px;color:#e67e22;margin-top:5px;}
+    </style>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel-card">
+                <div class="row text-center">
+                    <div class="col-sm-6"><div id="totalCount" class="stat">0</div><div class="muted">出库记录</div></div>
+                    <div class="col-sm-6"><div id="todayCount" class="stat">0</div><div class="muted">今日出库</div></div>
+                </div>
+            </div>
+            <div class="panel-card"><button class="btn btn-warning" onclick="openModal()"><i class="fa fa-plus"></i> 新建出库</button></div>
+            <div class="panel-card"><table id="bootstrap-table"></table></div>
+        </div>
+    </div>
+</div>
+
+<!-- 出库弹窗 -->
+<div class="modal fade" id="stockOutModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">药品出库</h4></div>
+            <div class="modal-body">
+                <form id="stock-out-form" class="form-horizontal">
+                    <!-- 第一行：药品搜索（非必填，模糊搜索） -->
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">药品搜索</label>
+                        <div class="col-sm-10">
+                            <div class="medicine-search-wrapper">
+                                <input id="medicineSearchInput" class="form-control" type="text" placeholder="输入药品名称搜索（可选）" autocomplete="off">
+                                <div id="medicineSearchDropdown" class="medicine-search-dropdown"></div>
+                            </div>
+                            <div id="searchHint" class="auto-fill-hint" style="display:none;"></div>
+                        </div>
+                    </div>
+                    <!-- 第二行：药品名称（必填，自动填充，不可修改） -->
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">药品名称 *</label>
+                        <div class="col-sm-10">
+                            <input type="hidden" name="medicineId" id="medicineId">
+                            <input type="text" id="medicineName" class="form-control" placeholder="选择药品后将自动填充此处（不可修改）" readonly>
+                        </div>
+                    </div>
+                    <!-- 第三行：批次选择（必填） -->
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">药品批次 *</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" name="batchId" id="batchId">
+                                <option value="">请先选择药品</option>
+                            </select>
+                            <input type="hidden" name="batchNumber" id="batchNumber">
+                            <input type="hidden" name="batchExpiryDate" id="batchExpiryDate">
+                        </div>
+                    </div>
+                    <!-- 第四行：关联病例（非必填） -->
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">关联病历</label>
+                        <div class="col-sm-10">
+                            <ul class="nav nav-tabs" style="margin-bottom:10px;">
+                                <li class="active"><a href="#tab-record" data-toggle="tab" onclick="$('#tab-record-content').show();$('#tab-loss-content').hide();">关联病历</a></li>
+                                <li><a href="#tab-loss" data-toggle="tab" onclick="loadPackLossSummary();$('#tab-record-content').hide();$('#tab-loss-content').show();">包药损耗</a></li>
+                            </ul>
+                            <div id="tab-record-content">
+                                <select class="form-control" name="medicalRecordId" id="medicalRecordId">
+                                    <option value="">请选择病历（处方药必填）</option>
+                                </select>
+                            </div>
+                            <div id="tab-loss-content" style="display:none;">
+                                <table class="table table-striped table-bordered table-hover" id="packLossTable">
+                                    <thead>
+                                        <tr>
+                                            <th>药品名称</th>
+                                            <th>批次号</th>
+                                            <th>累计损耗(粒)</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="packLossTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <input type="hidden" id="packItemsData" name="packItemsData">
+                            <input type="hidden" id="isPackMedicineSelect" name="isPackMedicineSelect">
+                        </div>
+                    </div>
+                    <!-- 第五行：出库数量、患者姓名、开方医生 -->
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">出库数量 *</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" name="quantity" id="quantity" type="number" min="1" required placeholder="必填">
+                        </div>
+                        <label class="col-sm-2 control-label">患者姓名 *</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" name="patientName" id="patientName" type="text" required placeholder="必填">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">开方医生 *</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" name="doctorName" id="doctorName" type="text" required placeholder="必填">
+                        </div>
+                        <label class="col-sm-2 control-label">备注</label>
+                        <div class="col-sm-4">
+                            <input class="form-control" name="remark" id="remark" type="text" placeholder="可选">
+                        </div>
+                    </div>
+                    <!-- 提示信息 -->
+                    <div id="prescriptionTip" class="alert alert-info" style="display:none;padding:8px;margin-bottom:0;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal">取消</button>
+                <button class="btn btn-warning" onclick="submitStockOut()">确认出库</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 处方药品选择弹窗（多种药品时选择） -->
+<div class="modal fade" id="prescriptionSelectModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">选择要出库的药品</h4></div>
+            <div class="modal-body">
+                <p>该病历有多个药品，请选择要出库的药品：</p>
+                <div id="prescriptionMedicineList" style="max-height:300px;overflow-y:auto;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script>
+    var medicinePrefix = ctx + 'clinic/medicine';
+    var medicalPrefix = ctx + 'clinic/medical';
+    var stockPrefix = ctx + 'clinic/medicine/stock';
+    var apiPrefix = ctx + 'api/clinic/stock';
+    var medicineMap = {};
+    var medicalRecordMap = {};
+    var batchMap = {}; // 存储药品的批次信息
+    var currentSelectedMedicineId = null;
+    var currentSelectedBatchId = null;
+    var isAutoFillingFromRecord = false;
+    var currentRecordPrescription = null; // 当前病历的处方列表
+    var pendingRecordId = null; // 待处理的病历ID（选择药品后继续）
+    var medicinesLoaded = false;
+
+    $(function () {
+        initTable();
+        $.when(loadMedicines()).done(function() {
+            medicinesLoaded = true;
+        });
+        loadMedicalRecords();
+        refreshStats();
+        initMedicineSearch();
+    });
+
+    function initTable() {
+        $.table.init({
+            url: stockPrefix + '/list',
+            method: 'post',
+            sidePagination: 'server',
+            pagination: true,
+            queryParams: function (params) {
+                return {
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1,
+                    operationType: 'out'
+                };
+            },
+            onLoadError: function () {
+                $.modal.msgError('出库记录加载失败');
+            },
+            columns: [
+                { field: 'recordId', title: 'ID' },
+                { field: 'medicineName', title: '药品名称' },
+                { field: 'quantity', title: '出库数量' },
+                { field: 'patientName', title: '患者' },
+                { field: 'doctorName', title: '医生' },
+                { field: 'operatorName', title: '操作人' },
+                { field: 'createTime', title: '出库时间' },
+                { field: 'remark', title: '备注' }
+            ]
+        });
+    }
+
+    function loadStockOutTableData() {
+        $('#bootstrap-table').bootstrapTable('refresh');
+    }
+
+    function loadMedicines() {
+        return $.post(medicinePrefix + '/list', { pageNum: 1, pageSize: 1000 }, function (res) {
+            if (!res || typeof res !== 'object') {
+                return;
+            }
+            var rows = res.rows || [];
+            rows.forEach(function (m) {
+                medicineMap[m.medicineId] = m;
+            });
+            updateMedicineSelect();
+        });
+    }
+
+    function updateMedicineSelect() {
+        // 药品名称现在用input，只恢复之前选中的值
+        if (currentSelectedMedicineId) {
+            var medicine = medicineMap[currentSelectedMedicineId];
+            if (medicine) {
+                $('#medicineId').val(currentSelectedMedicineId);
+                $('#medicineName').val(medicine.name);
+            }
+        } else {
+            $('#medicineId').val('');
+            $('#medicineName').val('');
+        }
+    }
+
+    function loadMedicalRecords() {
+        $.post(medicalPrefix + '/list', { pageNum: 1, pageSize: 1000 }, function (res) {
+            if (!res || typeof res !== 'object') {
+                return;
+            }
+            var select = $('#medicalRecordId');
+            select.empty();
+            select.append('<option value="">请选择病历（处方药必填）</option>');
+            (res.rows || []).forEach(function (r) {
+                medicalRecordMap[r.recordId] = r;
+                select.append('<option value="' + r.recordId + '" data-patient="' + (r.patientName || '') + '" data-doctor="' + (r.doctorName || '') + '">' + (r.patientName || '-') + ' - ' + (r.chiefComplaint || '无主诉') + '</option>');
+            });
+        });
+    }
+
+    // 初始化药品搜索功能
+    function initMedicineSearch() {
+        var searchInput = $('#medicineSearchInput');
+        var dropdown = $('#medicineSearchDropdown');
+
+        searchInput.on('input', function () {
+            var keyword = $(this).val().trim().toLowerCase();
+            if (keyword.length < 1) {
+                dropdown.removeClass('show');
+                return;
+            }
+
+            var filtered = Object.values(medicineMap).filter(function (m) {
+                return m.name.toLowerCase().includes(keyword) || (m.code && m.code.toLowerCase().includes(keyword));
+            });
+
+            if (filtered.length === 0) {
+                dropdown.removeClass('show');
+                return;
+            }
+
+            var html = '';
+            filtered.forEach(function (m) {
+                html += '<div class="medicine-search-item" data-id="' + m.medicineId + '">' +
+                    '<div class="name">' + m.name + '</div>' +
+                    '<div class="stock">库存: ' + (m.stock || 0) + ' | 规格: ' + (m.specification || '-') + '</div>' +
+                    '</div>';
+            });
+            dropdown.html(html).addClass('show');
+        });
+
+        dropdown.on('click', '.medicine-search-item', function () {
+            var medicineId = $(this).data('id');
+            selectMedicineFromSearch(medicineId);
+            dropdown.removeClass('show');
+            searchInput.val('');
+        });
+
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('.medicine-search-wrapper').length) {
+                dropdown.removeClass('show');
+            }
+        });
+    }
+
+    function selectMedicineFromSearch(medicineId) {
+        var medicine = medicineMap[medicineId];
+        if (!medicine) return;
+
+        currentSelectedMedicineId = medicineId;
+        currentSelectedBatchId = null;
+        isAutoFillingFromRecord = false;
+
+        $('#medicineId').val(medicineId);
+        $('#medicineName').val(medicine.name);
+        $('#batchId').val('');
+        $('#batchNumber').val('');
+        $('#batchExpiryDate').val('');
+        onMedicineChange();
+        loadBatchesForMedicine(medicineId);
+
+        $('#searchHint').text('已选择：' + medicine.name).show();
+        setTimeout(function () { $('#searchHint').hide(); }, 3000);
+    }
+
+    function loadBatchesForMedicine(medicineId) {
+        $.ajax({
+            url: ctx + 'api/clinic/stock/batchList',
+            type: 'get',
+            data: { medicineId: medicineId },
+            success: function (res) {
+                var batches = (res && res.data) || [];
+                var select = $('#batchId');
+                select.empty();
+                select.append('<option value="">请选择批次</option>');
+                batchMap[medicineId] = batches;
+                batches.forEach(function (b) {
+                    if (b.remainingQuantity > 0) {
+                        var expiry = b.expiryDate ? '（有效期：' + b.expiryDate + '）' : '';
+                        var remaining = b.remainingQuantity + '片';
+                        select.append('<option value="' + b.batchId + '" data-batch-number="' + (b.batchNumber || '') + '" data-expiry-date="' + (b.expiryDate || '') + '">' + (b.batchNumber || '默认批次') + ' ' + remaining + ' ' + expiry + '</option>');
+                    }
+                });
+                // 自动选择第一个可用批次
+                var firstOption = select.find('option[value!=""]').first();
+                if (firstOption.length > 0) {
+                    firstOption.prop('selected', true);
+                    currentSelectedBatchId = firstOption.val();
+                    $('#batchNumber').val(firstOption.data('batch-number') || '');
+                    $('#batchExpiryDate').val(firstOption.data('expiry-date') || '');
+                    $('#searchHint').text('已自动选择批次：' + (firstOption.data('batch-number') || '默认批次')).show();
+                    setTimeout(function () { $('#searchHint').hide(); }, 3000);
+                }
+            }
+        });
+    }
+
+    function onMedicineChange() {
+        var medicineId = $('#medicineId').val();
+        var m = medicineId ? medicineMap[medicineId] : null;
+
+        if (m && m.isPrescription === 1) {
+            $('#prescriptionTip').removeClass('alert-info').addClass('alert-danger')
+                .html('<i class="fa fa-exclamation-circle"></i> 该药品为处方药，必须选择关联的病历').show();
+        } else if (m) {
+            $('#prescriptionTip').removeClass('alert-danger').addClass('alert-info')
+                .html('<i class="fa fa-info-circle"></i> 处方药需关联病历，非处方药无需关联').show();
+        } else {
+            $('#prescriptionTip').hide();
+        }
+    }
+
+    // 批次选择变化
+    $('#batchId').on('change', function () {
+        var batchId = $(this).val();
+        if (!batchId) {
+            currentSelectedBatchId = null;
+            $('#batchNumber').val('');
+            $('#batchExpiryDate').val('');
+            return;
+        }
+        var selectedOption = $(this).find('option:selected');
+        currentSelectedBatchId = batchId;
+        $('#batchNumber').val(selectedOption.data('batch-number') || '');
+        $('#batchExpiryDate').val(selectedOption.data('expiry-date') || '');
+    });
+
+    // 病历选择变化
+    $('#medicalRecordId').on('change', function () {
+        var recordId = $(this).val();
+        pendingRecordId = recordId;
+
+        if (!recordId) {
+            currentSelectedMedicineId = null;
+            currentSelectedBatchId = null;
+            isAutoFillingFromRecord = false;
+            $('#medicineId').val('');
+            $('#medicineName').val('');
+            $('#batchId').val('');
+            $('#batchNumber').val('');
+            $('#batchExpiryDate').val('');
+            $('#quantity').val('');
+            $('#patientName').val('');
+            $('#doctorName').val('');
+            $('#prescriptionTip').hide();
+            return;
+        }
+
+        loadMedicalRecordDetail(recordId);
+    });
+
+    function loadMedicalRecordDetail(recordId) {
+        // 如果药品还没加载完，先等待
+        if (!medicinesLoaded || Object.keys(medicineMap).length === 0) {
+            // 重新加载药品
+            loadMedicines().done(function() {
+                medicinesLoaded = true;
+                // 药品加载完成后再加载病历详情
+                loadMedicalRecordDetail(recordId);
+            });
+            return;
+        }
+
+        $.ajax({
+            url: ctx + 'api/clinic/medical/getInfo',
+            type: 'get',
+            data: { recordId: recordId },
+            success: function (res) {
+                if (res.code === 0 && res.data) {
+                    var record = res.data;
+                    var opt = $('#medicalRecordId').find('option:selected');
+
+                    // 填充患者和医生信息
+                    $('#patientName').val(opt.data('patient') || record.patientName || '');
+                    $('#doctorName').val(opt.data('doctor') || record.doctorName || '');
+
+                    // 处理处方信息
+                    if (record.prescription) {
+                        try {
+                            var prescription = record.prescription;
+                            if (typeof prescription === 'string') {
+                                prescription = JSON.parse(prescription);
+                            }
+                            if (Array.isArray(prescription) && prescription.length > 0) {
+                                currentRecordPrescription = prescription;
+
+                                if (prescription.length === 1) {
+                                    // 只有一个药品，直接填充
+                                    fillMedicineFromPrescription(prescription[0]);
+                                } else {
+                                    // 多个药品，弹出选择框
+                                    showPrescriptionMedicineSelect(prescription);
+                                }
+                            }
+                        } catch (e) {
+                            console.log('处方数据解析失败', e);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 显示处方药品选择列表
+    function showPrescriptionMedicineSelect(prescription) {
+        var listHtml = '';
+        prescription.forEach(function(item, index) {
+            var displayName = '';
+            var packTag = '';
+            var dosage = item.dosage || '';
+
+            if (item.isPackMedicine == 1 && item.packItems) {
+                // 包药：多个药品
+                var packNames = item.packItems.map(function(p) { return p.name + 'x' + p.quantity + '片'; }).join(' + ');
+                displayName = '包药(' + item.packItems[0].name + (item.packItems.length > 1 ? '等' : '') + ')';
+                packTag = '<span style="background:#e67e22;color:#fff;padding:2px 6px;border-radius:3px;margin-left:5px;font-size:12px;">包药</span>';
+                dosage = packNames;
+            } else {
+                // 普通药品
+                var medicine = medicineMap[item.medicineId] || medicineMap[String(item.medicineId)] || medicineMap[Number(item.medicineId)];
+                displayName = medicine ? medicine.name : (item.name || '未知药品');
+            }
+
+            listHtml += '<div class="prescription-medicine-item" style="padding:12px;border:1px solid #e5e6e7;margin-bottom:10px;border-radius:4px;cursor:pointer;" onclick="selectPrescriptionMedicine(' + index + ')">' +
+                '<div style="font-weight:bold;">' + displayName + packTag + '</div>' +
+                '<div style="color:#666;font-size:12px;margin-top:5px;">剂量: ' + dosage + ' | 频次: ' + (item.frequency || '-') + '</div>' +
+                '</div>';
+        });
+
+        $('#prescriptionMedicineList').html(listHtml);
+        $('#prescriptionSelectModal').modal('show');
+    }
+
+    // 选择处方中的某个药品
+    function selectPrescriptionMedicine(index) {
+        if (!currentRecordPrescription || !currentRecordPrescription[index]) return;
+
+        $('#prescriptionSelectModal').modal('hide');
+        fillMedicineFromPrescription(currentRecordPrescription[index]);
+    }
+
+    // 填充药品信息
+    function fillMedicineFromPrescription(item) {
+        if (!item) {
+            console.log('fillMedicineFromPrescription: item is missing', item);
+            return;
+        }
+
+        var isPack = (item.isPackMedicine == 1);
+        var medicineId;
+        var medicine;
+        var savedBatchId = item.batchId || null;
+
+        if (isPack && item.packItems) {
+            // 包药：使用第一个药品的ID作为reference
+            medicineId = item.packItems[0].medicineId;
+            medicine = medicineMap[medicineId] || medicineMap[String(medicineId)] || medicineMap[Number(medicineId)];
+            // 包药优先使用第一个item的批次
+            if (!savedBatchId && item.packItems[0].batchId) {
+                savedBatchId = item.packItems[0].batchId;
+            }
+        } else if (item.medicineId) {
+            medicineId = item.medicineId;
+            medicine = medicineMap[medicineId] || medicineMap[String(medicineId)] || medicineMap[Number(medicineId)];
+        }
+
+        if (!medicine && !isPack) {
+            console.log('fillMedicineFromPrescription: medicine not found for medicineId', medicineId);
+            console.log('Available medicineMap keys:', Object.keys(medicineMap));
+            return;
+        }
+
+        var displayName = '';
+        var dosage = item.dosage || '';
+
+        if (isPack && item.packItems) {
+            // 包药显示名称
+            displayName = '包药(' + item.packItems[0].name + (item.packItems.length > 1 ? '等' : '') + ')';
+        } else {
+            displayName = medicine ? medicine.name : (item.name || '未知药品');
+        }
+
+        // 包药时使用第一个药品的medicineId用于库存扣减
+        currentSelectedMedicineId = medicineId;
+        currentSelectedBatchId = null;
+        $('#medicineId').val(medicineId);
+        $('#medicineName').val(displayName + (isPack ? ' [包药]' : ''));
+        $('#batchId').val('');
+        $('#batchNumber').val('');
+        $('#batchExpiryDate').val('');
+        $('#isPackMedicineSelect').val(isPack ? '1' : '0');
+        if (isPack && item.packItems) {
+            $('#packItemsData').val(JSON.stringify(item.packItems));
+        } else {
+            $('#packItemsData').val('');
+        }
+        isAutoFillingFromRecord = true;
+
+        // 加载批次并自动选择
+        loadBatchesForMedicineWithAutoSelect(medicineId, savedBatchId);
+
+        // 解析数量
+        var qtyMatch = dosage.match(/(\d+)/);
+        if (qtyMatch) {
+            $('#quantity').val(qtyMatch[1]);
+        }
+
+        // 填充备注（用法）
+        if (item.frequency) {
+            $('#remark').val(item.frequency);
+        }
+
+        // 显示提示
+        var tipText = isPack
+            ? '已自动填充包药：' + displayName + '（' + dosage + '）'
+            : '已自动填充处方药品：' + displayName;
+        $('#prescriptionTip').removeClass('alert-danger').addClass('alert-info')
+            .html('<i class="fa fa-check-circle"></i> ' + tipText).show();
+
+        onMedicineChange();
+    }
+
+    function loadBatchesForMedicineWithAutoSelect(medicineId, savedBatchId) {
+        $.ajax({
+            url: ctx + 'api/clinic/stock/batchList',
+            type: 'get',
+            data: { medicineId: medicineId },
+            success: function (res) {
+                var batches = (res && res.data) || [];
+                var select = $('#batchId');
+                select.empty();
+                select.append('<option value="">请选择批次</option>');
+                batchMap[medicineId] = batches;
+
+                var autoSelectBatchId = null;
+                batches.forEach(function (b) {
+                    if (b.remainingQuantity > 0) {
+                        var expiry = b.expiryDate ? '（有效期：' + b.expiryDate + '）' : '';
+                        var remaining = b.remainingQuantity + '片';
+                        var selected = (savedBatchId && String(b.batchId) === String(savedBatchId)) ? 'selected' : '';
+                        if (selected) autoSelectBatchId = b.batchId;
+                        select.append('<option value="' + b.batchId + '" data-batch-number="' + (b.batchNumber || '') + '" data-expiry-date="' + (b.expiryDate || '') + '" ' + selected + '>' + (b.batchNumber || '默认批次') + ' ' + remaining + ' ' + expiry + '</option>');
+                    }
+                });
+
+                if (autoSelectBatchId) {
+                    currentSelectedBatchId = autoSelectBatchId;
+                    var selectedOption = select.find('option:selected');
+                    $('#batchNumber').val(selectedOption.data('batch-number') || '');
+                    $('#batchExpiryDate').val(selectedOption.data('expiry-date') || '');
+                } else if (batches.length > 0) {
+                    // 自动选择第一个可用批次
+                    var firstOption = select.find('option[value!=""]').first();
+                    if (firstOption.length > 0) {
+                        firstOption.prop('selected', true);
+                        currentSelectedBatchId = firstOption.val();
+                        $('#batchNumber').val(firstOption.data('batch-number') || '');
+                        $('#batchExpiryDate').val(firstOption.data('expiry-date') || '');
+                    }
+                }
+            }
+        });
+    }
+
+    function refreshStats() {
+        $.ajax({ url: stockPrefix + '/list', method: 'POST', data: { operationType: 'out', pageNum: 1, pageSize: 1000 },
+            success: function (res) {
+                if (!res || typeof res !== 'object') {
+                    $('#totalCount').text(0);
+                    $('#todayCount').text(0);
+                    return;
+                }
+                var rows = res.rows || [];
+                $('#totalCount').text(rows.length);
+                var today = new Date().toISOString().slice(0, 10);
+                $('#todayCount').text(rows.filter(function (r) { return r.createTime && String(r.createTime).slice(0, 10) === today; }).length);
+            }
+        });
+    }
+
+    function openModal() {
+        $('#stock-out-form')[0].reset();
+        currentSelectedMedicineId = null;
+        currentSelectedBatchId = null;
+        isAutoFillingFromRecord = false;
+        currentRecordPrescription = null;
+        pendingRecordId = null;
+        $('#medicineName').val('');
+        $('#batchNumber').val('');
+        $('#batchExpiryDate').val('');
+        updateMedicineSelect();
+        $('#prescriptionTip').hide();
+        $('#tab-record-content').show();
+        $('#tab-loss-content').hide();
+        $('.nav-tabs li:eq(0) a').tab('show');
+        $('#stockOutModal').modal('show');
+    }
+
+    function submitStockOut() {
+        var medicineId = $('#medicineId').val();
+        var m = medicineId ? medicineMap[medicineId] : null;
+        var medicalRecordId = $('#medicalRecordId').val();
+        var batchId = $('#batchId').val();
+        var batchNumber = $('#batchNumber').val();
+        var batchExpiryDate = $('#batchExpiryDate').val();
+
+        if (!medicineId) {
+            $.modal.msgError('请选择药品');
+            return;
+        }
+        if (!batchId) {
+            $.modal.msgError('请选择药品批次');
+            return;
+        }
+        if (!$('#quantity').val()) {
+            $.modal.msgError('请输入出库数量');
+            return;
+        }
+        if (!$('#patientName').val()) {
+            $.modal.msgError('请输入患者姓名');
+            return;
+        }
+        if (!$('#doctorName').val()) {
+            $.modal.msgError('请输入开方医生');
+            return;
+        }
+
+        if (m && m.isPrescription === 1 && !medicalRecordId) {
+            $.modal.msgError('处方药必须选择关联的病历');
+            return;
+        }
+
+        var remark = $('#remark').val() || '';
+        var isPackMedicine = $('#isPackMedicineSelect').val() === '1' ? 1 : 0;
+        var packItemsData = isPackMedicine ? ($('#packItemsData').val() || '') : '';
+        var data = {
+            operationType: 'out',
+            medicineId: Number(medicineId),
+            quantity: Number($('#quantity').val()),
+            patientName: $('#patientName').val(),
+            doctorName: $('#doctorName').val(),
+            relatedRecordId: medicalRecordId || null,
+            relatedRecordType: medicalRecordId ? 'medical_record' : null,
+            remark: remark,
+            batchNumber: batchNumber,
+            expiryDate: batchExpiryDate,
+            isPackMedicine: isPackMedicine,
+            packItems: packItemsData
+        };
+
+        $.ajax({
+            url: stockPrefix + '/add', method: 'POST', data: data,
+            success: function (res) {
+                if (res.code === 0) {
+                    $.modal.msgSuccess('出库成功');
+                    $('#stockOutModal').modal('hide');
+                    loadStockOutTableData();
+                    refreshStats();
+                    loadMedicines();
+                } else {
+                    $.modal.msgError(res.msg || '出库失败');
+                }
+            }
+        });
+    }
+
+    function loadPackLossSummary() {
+        $.ajax({
+            url: apiPrefix + '/packLossSummary',
+            type: 'get',
+            success: function (res) {
+                if (res.code === 0) {
+                    var data = res.data || [];
+                    var html = '';
+                    if (data.length === 0) {
+                        html = '<tr><td colspan="4" style="text-align:center;color:#999;">暂无包药损耗记录</td></tr>';
+                    } else {
+                        data.forEach(function(item) {
+                            html += '<tr>' +
+                                '<td>' + (item.medicineName || '') + '</td>' +
+                                '<td>' + (item.batchNumber || '-') + '</td>' +
+                                '<td>' + (item.totalLossQuantity || 0) + '</td>' +
+                                '<td><button class="btn btn-xs btn-warning" onclick="executePackLossOut(' + item.medicineId + ', \'' + (item.batchNumber || '') + '\')">执行出库</button></td>' +
+                                '</tr>';
+                        });
+                    }
+                    $('#packLossTableBody').html(html);
+                }
+            }
+        });
+    }
+
+    function executePackLossOut(medicineId, batchNumber) {
+        var confirmMsg = '确定要执行包药损耗出库吗？\n批次号：' + (batchNumber || '-') + '\n将扣减该批次药品的库存。';
+        $.modal.confirm(confirmMsg, function() {
+            $.ajax({
+                url: apiPrefix + '/executePackLossOut',
+                type: 'post',
+                data: { medicineId: medicineId },
+                success: function (res) {
+                    if (res.code === 0) {
+                        $.modal.msgSuccess('出库成功');
+                        loadPackLossSummary();
+                        loadStockOutTableData();
+                        refreshStats();
+                        loadMedicines();
+                    } else {
+                        $.modal.msgError(res.msg || '出库失败');
+                    }
+                }
+            });
+        });
+    }
+</script>
+</body>
+</html>

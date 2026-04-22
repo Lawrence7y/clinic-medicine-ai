@@ -1,0 +1,46 @@
+<view class="page">
+  <view class="header">
+    <text class="title">{{texts.title}}</text>
+    <text class="desc">{{texts.recordId}}{{recordId || '-'}}</text>
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <block wx:elif="{{uiState === 'error'}}">
+    <async-state
+      mode="error"
+      title="{{errorText || texts.loadFailed}}"
+      buttonText="{{texts.retry}}"
+      bind:retry="onRetryLoad"
+    />
+    <view class="state-actions">
+      <t-button size="small" variant="outline" bindtap="goBack">{{texts.goBack}}</t-button>
+    </view>
+  </block>
+
+  <view wx:elif="{{uiState === 'empty'}}">
+    <view wx:if="{{parseError}}" class="warn">{{texts.parseFailedInline}}</view>
+    <async-state mode="empty" title="{{texts.empty}}" />
+  </view>
+
+  <view wx:else>
+    <view wx:if="{{parseError}}" class="warn">{{texts.parseFailedInline}}</view>
+    <view wx:for="{{items}}" wx:key="index" class="item-card">
+      <view class="row"><text class="label">{{texts.medicine}}</text><text class="value">{{item.name || '-'}}</text></view>
+      <view class="row"><text class="label">{{texts.dosage}}</text><text class="value">{{item.dosage || '-'}}</text></view>
+      <view class="row"><text class="label">{{texts.frequency}}</text><text class="value">{{item.frequency || '-'}}</text></view>
+      <view class="row"><text class="label">{{texts.days}}</text><text class="value">{{item.days || '-'}}</text></view>
+      <view class="actions">
+        <t-button size="small" theme="primary" variant="outline" wx:if="{{item.medicineId}}" bindtap="openMedicine" data-medicine-id="{{item.medicineId}}">
+          {{texts.openMedicine}}
+        </t-button>
+      </view>
+    </view>
+  </view>
+
+  <t-toast id="t-toast"/>
+</view>

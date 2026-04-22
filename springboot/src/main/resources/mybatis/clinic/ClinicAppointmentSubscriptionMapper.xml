@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.clinic.appointment.mapper.ClinicAppointmentSubscriptionMapper">
+
+    <resultMap id="BaseResultMap" type="com.ruoyi.project.clinic.appointment.domain.ClinicAppointmentSubscription">
+        <id property="subscriptionId" column="subscription_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="openid" column="openid"/>
+        <result property="appointmentReminder" column="appointment_reminder"/>
+        <result property="remindDaysBefore" column="remind_days_before"/>
+        <result property="lastRemindTime" column="last_remind_time"/>
+        <result property="subscribeStatus" column="subscribe_status"/>
+        <result property="templateId" column="template_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+        subscription_id, user_id, openid, appointment_reminder, remind_days_before,
+        last_remind_time, subscribe_status, template_id, create_time, update_time
+    </sql>
+
+    <select id="selectSubscriptionByUserId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column"/>
+        FROM clinic_appointment_subscription
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertSubscription" useGeneratedKeys="true" keyProperty="subscriptionId">
+        INSERT INTO clinic_appointment_subscription(
+            user_id, openid, appointment_reminder, remind_days_before,
+            subscribe_status, template_id, create_time, update_time
+        ) VALUES (
+            #{userId}, #{openid}, #{appointmentReminder}, #{remindDaysBefore},
+            #{subscribeStatus}, #{templateId}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updateSubscription">
+        UPDATE clinic_appointment_subscription
+        <set>
+            <if test="openid != null">openid = #{openid},</if>
+            <if test="appointmentReminder != null">appointment_reminder = #{appointmentReminder},</if>
+            <if test="remindDaysBefore != null">remind_days_before = #{remindDaysBefore},</if>
+            <if test="subscribeStatus != null">subscribe_status = #{subscribeStatus},</if>
+            <if test="templateId != null">template_id = #{templateId},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateLastRemindTime">
+        UPDATE clinic_appointment_subscription
+        SET last_remind_time = #{lastRemindTime}
+        WHERE subscription_id = #{subscriptionId}
+    </update>
+
+    <delete id="deleteSubscriptionByUserId">
+        DELETE FROM clinic_appointment_subscription WHERE user_id = #{userId}
+    </delete>
+
+</mapper>

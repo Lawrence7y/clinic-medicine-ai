@@ -1,0 +1,74 @@
+<view class="user-detail-container">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <block wx:elif="{{uiState === 'error'}}">
+    <async-state
+      mode="error"
+      title="{{errorText || texts.loadFailed}}"
+      buttonText="{{texts.retry}}"
+      bind:retry="onRetry"
+    />
+    <view class="state-actions">
+      <t-button size="small" variant="outline" bindtap="goBack">{{texts.goBack}}</t-button>
+    </view>
+  </block>
+
+  <async-state
+    wx:elif="{{uiState === 'empty'}}"
+    mode="empty"
+    title="{{texts.empty}}"
+  />
+
+  <view wx:else class="user-info-section">
+    <view class="user-header">
+      <view class="user-avatar">
+        <t-icon name="user" size="80rpx" color="#222222"/>
+      </view>
+      <view class="user-basic-info">
+        <text class="user-name">{{userInfo.name}}</text>
+        <text class="user-role">{{userInfo.roleName || '-'}}</text>
+      </view>
+    </view>
+
+    <view class="info-card">
+      <view class="info-item">
+        <text class="info-label">手机号</text>
+        <text class="info-value">{{userInfo.phone}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">邮箱</text>
+        <text class="info-value">{{userInfo.email}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">职称</text>
+        <text class="info-value">{{userInfo.title}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">创建时间</text>
+        <text class="info-value">{{userInfo.createTime}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">最后登录</text>
+        <text class="info-value">{{userInfo.lastLoginTime}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{editable}}" class="action-buttons">
+      <t-button theme="primary" size="large" bindtap="editUser" disabled="{{loading}}">
+        编辑用户
+      </t-button>
+      <t-button theme="default" size="large" bindtap="resetPassword" disabled="{{loading}}">
+        重置密码
+      </t-button>
+      <t-button theme="danger" size="large" bindtap="deleteUser" loading="{{loading}}" disabled="{{loading}}">
+        删除用户
+      </t-button>
+    </view>
+  </view>
+
+  <t-toast id="t-toast"/>
+</view>

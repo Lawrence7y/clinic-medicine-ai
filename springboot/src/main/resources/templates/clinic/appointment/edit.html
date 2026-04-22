@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+	<th:block th:include="include :: header('修改预约')" />
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form id="form-appointment-edit" class="form-horizontal" th:object="${clinicAppointment}">
+                            <input type="hidden" name="appointmentId" th:field="*{appointmentId}">
+                            <input type="hidden" name="patientId" id="patientId">
+                            <input type="hidden" name="doctorId" id="doctorId">
+                            <input type="hidden" name="scheduleId" id="scheduleId">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label is-required">患者搜索：</label>
+                                <div class="col-sm-8">
+                                    <input id="patientSearch" placeholder="输入患者姓名搜索" class="form-control" type="text" autocomplete="off">
+                                    <div id="patientDropdown" class="patient-dropdown" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">患者姓名：</label>
+                                <div class="col-sm-8">
+                                    <input name="patientName" id="patientName" placeholder="请选择患者" class="form-control" type="text" readonly th:field="*{patientName}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label is-required">医生姓名：</label>
+                                <div class="col-sm-8">
+                                    <select name="doctorName" id="doctorName" class="form-control m-b" required th:field="*{doctorName}" onchange="onDoctorChange(this)">
+                                        <option value="">请选择医生</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label is-required">预约日期：</label>
+                                <div class="col-sm-8">
+                                    <input name="appointmentDate" id="appointmentDate" class="form-control" type="date" th:value="${#dates.format(clinicAppointment.appointmentDate, 'yyyy-MM-dd')}" onchange="loadScheduleData()">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label is-required">预约时间：</label>
+                                <div class="col-sm-8">
+                                    <select name="appointmentTime" id="appointmentTime" class="form-control m-b" required th:field="*{appointmentTime}">
+                                        <option value="">请先选择医生和日期</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-3 col-sm-8">
+                                    <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script>
+        var prefix = ctx + "clinic/appointment";
+        var doctorList = [];
+        var scheduleList = [];
+        var selectedDoctor = null;
+        
+        $(document).ready(function() {
+            loadDoctorList();
+            setTimeout(function() {
+                loadScheduleData();
+            }, 500);
+        });
+        
+        function loadDoctorList() {
+            $.ajax({
+                url: ctx + "api/clinic/user/doctors",
+                type: "get",
+                async: false,
+                success: function(response) {
+                    if (response.code == 0 && response.data) {
+                        doctorList = response.data;
+                        renderDoctorSelect();
+                    }
+                }
+            });
+        }
+        
+        function renderDoctorSelect() {
+            var select = $('#doctorName');
+            var currentValue = select.val();
+            select.empty();
+            select.append('<option value="">请选择医生</option>');
+            doctorList.forEach(function(doctor) {
+                var selected = doctor.userName === currentValue ? 'selected' : '';
+                select.append('<option value="' + doctor.userName + '" ' + selected + ' data-user-id="' + doctor.userId + '">' + doctor.userName + '</option>');
+            });
+        }
+        
+        function onDoctorChange(select) {
+            var userName = select.value;
+            var selectedOption = $(select).find('option:selected');
+            if (userName) {
+                var userId = selectedOption.data('user-id');
+                $('#doctorId').val(userId);
+                selectedDoctor = doctorList.find(function(d) { return d.userName === userName; });
+            } else {
+                $('#doctorId').val('');
+                selectedDoctor = null;
+            }
+            loadScheduleData();
+        }
+        
+        function loadScheduleData() {
+            var doctorName = $('#doctorName').val();
+            var appointmentDate = $('#appointmentDate').val();
+            
+            var timeSelect = $('#appointmentTime');
+            var currentTime = timeSelect.val();
+            timeSelect.empty();
+            
+            if (!doctorName || !appointmentDate) {
+                timeSelect.append('<option value="">请先选择医生和日期</option>');
+                return;
+            }
+            
+            $.ajax({
+                url: ctx + "api/clinic/schedule/list",
+                type: "post",
+                data: { 
+                    doctorName: doctorName,
+                    scheduleDate: appointmentDate
+                },
+                success: function(response) {
+                    if (response.code == 0 && response.rows) {
+                        scheduleList = response.rows;
+                        timeSelect.append('<option value="">请选择时间</option>');
+                        scheduleList.forEach(function(schedule) {
+                            var timeText = schedule.startTime + ' - ' + schedule.endTime;
+                            var remaining = schedule.totalSlots - schedule.bookedSlots;
+                            var selected = timeText === currentTime ? 'selected' : '';
+                            timeSelect.append('<option value="' + timeText + '" ' + selected + ' data-schedule-id="' + schedule.scheduleId + '">' + timeText + ' (剩余' + remaining + '号)</option>');
+                        });
+                    }
+                }
+            });
+        }
+        
+        $('#appointmentTime').on('change', function() {
+            var selectedOption = $(this).find('option:selected');
+            var scheduleId = selectedOption.data('schedule-id');
+            $('#scheduleId').val(scheduleId || '');
+        });
+        
+        $("#patientSearch").on("input", function() {
+            var keyword = $(this).val().trim();
+            if (keyword.length >= 1) {
+                searchPatients(keyword);
+            } else {
+                $("#patientDropdown").hide();
+            }
+        });
+        
+        function searchPatients(keyword) {
+            $.ajax({
+                url: ctx + "clinic/patient/list",
+                type: "post",
+                data: { name: keyword, pageNum: 1, pageSize: 10 },
+                success: function(response) {
+                    if (response.code == 0 && response.rows) {
+                        var dropdown = $("#patientDropdown");
+                        dropdown.empty();
+                        if (response.rows.length > 0) {
+                            response.rows.forEach(function(patient) {
+                                var item = $("<div class='patient-item'>" + patient.name + " - " + (patient.phone || '') + "</div>");
+                                item.on("click", function() {
+                                    selectPatient(patient);
+                                });
+                                dropdown.append(item);
+                            });
+                            dropdown.show();
+                        } else {
+                            dropdown.hide();
+                        }
+                    }
+                }
+            });
+        }
+        
+        function selectPatient(patient) {
+            $("#patientId").val(patient.patientId);
+            $("#patientName").val(patient.name);
+            $("#patientSearch").val(patient.name);
+            $("#patientDropdown").hide();
+        }
+        
+        $("#form-appointment-edit").validate({
+        	onkeyup: false,
+        	rules:{},
+        	messages: {}
+        });
+        
+        function submitHandler() {
+	        if ($.validate.form()) {
+	        	$.operate.save(prefix + "/edit", $('#form-appointment-edit').serialize());
+	        }
+	    }
+    </script>
+    <style>
+        .patient-dropdown {
+            position: absolute;
+            z-index: 1000;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #e5e6e7;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        .patient-item {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        .patient-item:hover {
+            background: #f3f3f4;
+        }
+    </style>
+</body>
+</html>

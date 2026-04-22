@@ -1,0 +1,60 @@
+<view class="notification-page">
+  <view class="header-card">
+    <view class="header-title-row">
+      <text class="title">通知中心</text>
+      <t-tag theme="{{unreadCount > 0 ? 'danger' : 'default'}}" variant="light" size="small">
+        {{unreadCount > 0 ? (texts.unread + ' ' + unreadCount) : texts.read}}
+      </t-tag>
+    </view>
+    <view class="header-actions">
+      <picker mode="selector" range="{{filterOptions}}" range-key="label" value="{{filterIndex}}" bindchange="onFilterChange">
+        <view class="filter-pill">{{texts.filter}}：{{filterOptions[filterIndex].label}}</view>
+      </picker>
+      <t-button size="small" theme="primary" variant="outline" disabled="{{unreadCount === 0}}" bindtap="markAllRead">
+        {{texts.markAllRead}}
+      </t-button>
+    </view>
+  </view>
+
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+
+  <async-state
+    wx:elif="{{visibleList.length === 0}}"
+    mode="empty"
+    title="{{texts.empty}}"
+  />
+
+  <view wx:else class="list-wrap">
+    <view
+      class="notice-card {{item.read ? 'notice-card--read' : ''}} notice-card--{{item.level || 'default'}}"
+      wx:for="{{visibleList}}"
+      wx:key="notificationId"
+      data-item="{{item}}"
+      bindtap="openNotification"
+    >
+      <view class="notice-head">
+        <text class="notice-category">{{item.categoryText}}</text>
+        <text class="notice-time">{{item.timeText || '-'}}</text>
+      </view>
+      <view class="notice-title-row">
+        <text class="notice-title">{{item.title}}</text>
+        <text class="notice-status">{{item.read ? texts.read : texts.unread}}</text>
+      </view>
+      <text class="notice-content">{{item.content}}</text>
+    </view>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

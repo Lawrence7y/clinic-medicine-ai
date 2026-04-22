@@ -1,0 +1,26 @@
+<view
+  class="load-more wr-class"
+  style="{{listIsEmpty && (status === 0 || status === 2) ? 'display: none' : '' }}"
+  bindtap="tapHandle"
+>
+  <t-loading
+    t-class="t-class-loading"
+    t-class-text="t-class-loading-text"
+    t-class-indicator="t-class-indicator"
+    loading="{{status === 1}}"
+    text="{{loadingText}}"
+    theme="circular"
+    size="40rpx"
+  />
+
+  <t-divider wx:if="{{status === 2}}" t-class="t-class-divider" t-class-content="t-class-divider-content">
+    <text slot="content">{{noMoreText}}</text>
+  </t-divider>
+
+  <view class="load-more__error" wx:if="{{status === 3}}">
+    {{failedText}}
+    <text class="load-more__refresh-btn" bind:tap="tapHandle">重试</text>
+  </view>
+</view>
+
+<slot wx:if="{{listIsEmpty && (status === 0 || status === 2)}}" name="empty" />

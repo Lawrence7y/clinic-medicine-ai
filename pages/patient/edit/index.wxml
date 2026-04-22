@@ -1,0 +1,147 @@
+<view class="patient-edit-container">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <block wx:elif="{{uiState === 'error'}}">
+    <async-state
+      mode="error"
+      title="{{errorText || texts.loadFailed}}"
+      buttonText="{{texts.retry}}"
+      bind:retry="retryLoad"
+    />
+    <view class="state-actions">
+      <t-button size="small" variant="outline" bind:tap="goBack">{{texts.goBack}}</t-button>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="header-section">
+      <view class="page-title">{{isEdit ? texts.editTitle : texts.createTitle}}</view>
+    </view>
+
+    <view class="form-section">
+      <view class="section-title">
+        <t-icon name="user" size="32rpx" color="#222222"/>
+        <text>{{texts.basicInfo}}</text>
+      </view>
+      <view class="form-content">
+        <t-input
+          label="{{texts.name}}"
+          value="{{formData.name}}"
+          bind:change="onFieldChange"
+          data-field="name"
+          placeholder="{{texts.namePlaceholder}}"
+          required
+        />
+        <view class="picker-item">
+          <view class="form-label">{{texts.gender}}</view>
+          <picker mode="selector" range="{{genderOptions}}" range-key="label" value="{{formData.gender === 'male' ? 0 : 1}}" bindchange="onGenderChange">
+            <view class="picker">
+              {{formData.gender === 'male' ? texts.male : texts.female}}
+            </view>
+          </picker>
+        </view>
+        <t-input
+          label="{{texts.age}}"
+          type="number"
+          value="{{formData.age}}"
+          bind:change="onFieldChange"
+          data-field="age"
+          placeholder="{{texts.agePlaceholder}}"
+        />
+        <t-input
+          label="{{texts.phone}}"
+          type="number"
+          value="{{formData.phone}}"
+          bind:change="onFieldChange"
+          data-field="phone"
+          placeholder="{{texts.phonePlaceholder}}"
+          required
+        />
+        <view class="picker-item">
+          <view class="form-label">{{texts.birthday}}</view>
+          <picker mode="date" value="{{formData.birthday}}" bindchange="onBirthdayChange">
+            <view class="picker">
+              {{formData.birthday || texts.birthdayPlaceholder}}
+            </view>
+          </picker>
+        </view>
+        <t-input
+          label="{{texts.wechat}}"
+          value="{{formData.wechat}}"
+          bind:change="onFieldChange"
+          data-field="wechat"
+          placeholder="{{texts.wechatPlaceholder}}"
+        />
+        <t-textarea
+          label="{{texts.address}}"
+          value="{{formData.address}}"
+          bind:change="onFieldChange"
+          data-field="address"
+          placeholder="{{texts.addressPlaceholder}}"
+          autosize
+        />
+      </view>
+    </view>
+
+    <view class="form-section">
+      <view class="section-title">
+        <t-icon name="heart" size="32rpx" color="#222222"/>
+        <text>{{texts.healthInfo}}</text>
+      </view>
+      <view class="form-content">
+        <view class="picker-item">
+          <view class="form-label">{{texts.bloodType}}</view>
+          <picker mode="selector" range="{{bloodTypeOptions}}" range-key="label" bindchange="onBloodTypeChange">
+            <view class="picker">
+              {{formData.bloodType ? formData.bloodType + texts.bloodTypeSuffix : texts.bloodTypePlaceholder}}
+            </view>
+          </picker>
+        </view>
+        <t-textarea
+          label="{{texts.allergyHistory}}"
+          value="{{formData.allergyHistory}}"
+          bind:change="onFieldChange"
+          data-field="allergyHistory"
+          placeholder="{{texts.allergyPlaceholder}}"
+          autosize
+        />
+        <t-textarea
+          label="{{texts.pastHistory}}"
+          value="{{formData.pastHistory}}"
+          bind:change="onFieldChange"
+          data-field="pastHistory"
+          placeholder="{{texts.pastHistoryPlaceholder}}"
+          autosize
+        />
+      </view>
+    </view>
+
+    <view class="submit-section">
+      <t-button
+        theme="primary"
+        size="large"
+        block
+        bind:tap="submitForm"
+        loading="{{loading}}"
+        disabled="{{loading}}"
+      >
+        {{isEdit ? texts.save : texts.create}}
+      </t-button>
+      <t-button
+        theme="default"
+        size="large"
+        block
+        bind:tap="goBack"
+        style="margin-top: 20rpx;"
+      >
+        {{texts.cancel}}
+      </t-button>
+    </view>
+  </block>
+
+  <t-toast id="t-toast"/>
+</view>

@@ -1,0 +1,115 @@
+<view class="statistics-container">
+  <async-state
+    wx:if="{{uiState === 'loading'}}"
+    mode="loading"
+    title="{{texts.loading}}"
+  />
+
+  <async-state
+    wx:elif="{{uiState === 'error'}}"
+    mode="error"
+    title="{{errorText || texts.loadFailed}}"
+    buttonText="{{texts.retry}}"
+    bind:retry="onRetry"
+  />
+
+  <block wx:else>
+    <!-- 统计概览 -->
+    <view class="overview-section">
+      <view class="section-title">
+        <t-icon name="chart" size="32rpx" color="#222222"/>
+        <text>统计概览</text>
+      </view>
+      <view class="overview-cards">
+        <view class="overview-card">
+          <text class="card-value">{{statistics.totalRecords}}</text>
+          <text class="card-label">总病历数</text>
+        </view>
+        <view class="overview-card">
+          <text class="card-value">{{statistics.todayRecords}}</text>
+          <text class="card-label">今日病历</text>
+        </view>
+        <view class="overview-card">
+          <text class="card-value">{{statistics.totalPatients}}</text>
+          <text class="card-label">总患者数</text>
+        </view>
+        <view class="overview-card">
+          <text class="card-value">{{statistics.averageAge}}</text>
+          <text class="card-label">平均年龄</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 时间筛选-->
+    <view class="filter-section">
+      <view class="time-range-buttons">
+        <t-button 
+          wx:for="{{timeRangeOptions}}" 
+          wx:key="index"
+          size="small"
+          theme="{{selectedTimeRange === item.value ? 'primary' : 'default'}}"
+          variant="{{selectedTimeRange === item.value ? 'base' : 'outline'}}"
+          bind:tap="selectTimeRange"
+          data-value="{{item.value}}"
+        >
+          {{item.label}}
+        </t-button>
+      </view>
+    </view>
+
+    <!-- 诊断类型分布 -->
+    <view class="chart-section">
+      <view class="section-title">
+        <t-icon name="file" size="32rpx" color="#222222"/>
+        <text>诊断类型分布</text>
+      </view>
+      <view class="chart-container">
+        <view wx:if="{{diagnosisData.length === 0}}" class="empty-text">{{texts.noDiagnosisData}}</view>
+        <view wx:else class="chart-list">
+          <view class="chart-item" wx:for="{{diagnosisData}}" wx:key="index">
+            <view class="item-info">
+              <text class="item-name">{{item.name}}</text>
+              <text class="item-value">{{item.value}} 例</text>
+            </view>
+            <view class="progress-bar">
+              <view class="progress-fill" style="width: {{item.percent}}%"></view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 时间趋势 -->
+    <view class="chart-section">
+      <view class="section-title">
+        <t-icon name="trend-chart" size="32rpx" color="#222222"/>
+        <text>就诊趋势</text>
+      </view>
+      <view class="chart-container">
+        <view wx:if="{{trendData.length === 0}}" class="empty-text">{{texts.noTrendData}}</view>
+        <view wx:else class="trend-list">
+          <view class="trend-item" wx:for="{{trendData}}" wx:key="index">
+            <text class="trend-date">{{item.date}}</text>
+            <view class="trend-bar">
+              <view class="trend-fill" style="height: {{item.percent}}%"></view>
+            </view>
+            <text class="trend-value">{{item.value}} 例</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 导出按钮 -->
+    <view class="export-section">
+      <t-button
+        theme="primary"
+        size="large"
+        bind:tap="exportData"
+      >
+        导出统计数据
+      </t-button>
+    </view>
+  </block>
+
+  <t-toast id="t-toast"/>
+</view>
